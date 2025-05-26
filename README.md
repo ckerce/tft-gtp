@@ -14,7 +14,7 @@ The key insight is maintaining the **dimensional integrity** of these separated 
 
 ## Why ALiBi Positional Encoding
 
-ALiBi is essential to this architecture not for parameter efficiency, but for **preserving dimensional structure**. Traditional positional embeddings would contaminate the factored streams:
+ALiBi is essential to this architecture -- not for parameter efficiency, but for **preserving represenational structure**. This is similar philosophically similar to the role that dimensional anlysis plays in physics; we only add like quantities. Traditional positional embeddings would contaminate the factored streams:
 
 - Adding positional embeddings to `xt` corrupts token-like states with non-token information
 - Adding them to `xe` pollutes embedding-like states with positional artifacts  
