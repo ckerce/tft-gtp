@@ -2,6 +2,30 @@
 
 A representational refactoring of the standard transformer architecture, factoring internal representations into separate token-like and embedding-like streams.  The purpose of this representation is to provide tracable symbolic manipulation from the attention mechanisms and inspectable abductive inference of context through the feed-forward network.   Token positional information is encoded through ALiBi operators; this is done to maintain strict interpretability of the token-like embeddings (dentoted `xt`) and the non-token-like embeddings (`xe`).  
 
+
+## Core Concept
+
+Traditional transformers use a single hidden state vector `x` to represent all internal information. This implementation separates that state into two complementary streams:
+
+- **`xt` (token-like states)**: Updated by attention mechanisms, handling symbolic manipulation and token-to-token relationships
+- **`xe` (embedding-like states)**: Updated by MLPs, capturing contextual and semantic information
+
+The key insight is maintaining the **dimensional integrity** of these separated representations throughout processing.
+
+## Why ALiBi Positional Encoding
+
+ALiBi is essential to this architecture not for parameter efficiency, but for **preserving dimensional structure**. Traditional positional embeddings would contaminate the factored streams:
+
+- Adding positional embeddings to `xt` corrupts token-like states with non-token information
+- Adding them to `xe` pollutes embedding-like states with positional artifacts  
+- Adding them to the combined state destroys the dimensional separation entirely
+
+ALiBi solves this by encoding position as an **operator** (attention bias) rather than an **activation state**, keeping positional information orthogonal to the content representations in both streams.
+
+## Dimensional Analysis Perspective
+
+This factored representation provides a "dimensional analysis" accounting of transformer internals - each component of the hidden state has a clear informational role. The separation allows us to study how different types of processing (symbolic vs. contextual) contribute to the model's behavior, potentially improving interpretability and architectural understanding.
+
 ## Core Innovation
 
 ### Token-Factored Architecture
