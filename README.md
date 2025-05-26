@@ -215,7 +215,7 @@ This architecture is particularly suited for studying:
 If you use this work, please cite:
 ```bibtex
 @article{tft-gpt,
-  title={Token-Factored Transformers with ALiBi: Dimensional Analysis of Neural Language Models},
+  title={Token-Factored Transformers with ALiBi: Block Invariant Representations in Neural Language Models},
   author={Clayton Kerce},
   year={2025},
   note={Implementation of factored transformer architecture with linear attention biases}
