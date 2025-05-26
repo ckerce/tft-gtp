@@ -1,4 +1,4 @@
-# ./tokenizers/factory.py
+# mytokenizers/factory.py
 """
 Tokenizer Factory
 Creates and configures different tokenizer types in a unified way
@@ -8,10 +8,7 @@ import logging
 from typing import Dict, Any, Optional, Union
 
 from .base_tokenizer import BaseTokenizer
-from .character_tokenizer import CharacterTokenizer
 from .gpt2_tokenizer import GPT2Tokenizer
-
-# Import other tokenizer implementations as they're added
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +22,7 @@ class TokenizerFactory:
     
     # Registry of available tokenizer types
     TOKENIZER_TYPES = {
-        'character': CharacterTokenizer,
         'gpt2': GPT2Tokenizer,
-        # Add more tokenizer types as they're implemented
     }
     
     @classmethod
@@ -36,7 +31,7 @@ class TokenizerFactory:
         Create a tokenizer of the specified type.
         
         Args:
-            tokenizer_type: Type of tokenizer to create ('character', 'gpt2', etc.)
+            tokenizer_type: Type of tokenizer to create ('gpt2')
             **kwargs: Additional arguments for tokenizer initialization
             
         Returns:
@@ -61,7 +56,7 @@ class TokenizerFactory:
         Load a pre-trained tokenizer of the specified type.
         
         Args:
-            tokenizer_type: Type of tokenizer to load ('character', 'gpt2', etc.)
+            tokenizer_type: Type of tokenizer to load ('gpt2')
             directory_or_name: Directory path or name of a predefined tokenizer
             **kwargs: Additional arguments for tokenizer initialization
             
