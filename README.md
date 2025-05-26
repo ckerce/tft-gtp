@@ -216,8 +216,8 @@ If you use this work, please cite:
 ```bibtex
 @article{tft-gpt,
   title={Token-Factored Transformers with ALiBi: Dimensional Analysis of Neural Language Models},
-  author={[Your Name]},
-  year={2024},
+  author={Clayton Kerce},
+  year={2025},
   note={Implementation of factored transformer architecture with linear attention biases}
 }
 ```
