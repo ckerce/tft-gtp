@@ -1,6 +1,6 @@
 # TFT-GPT: Token-Factored Transformer with ALiBi
 
-This repository introduces a representational refactoring of the standard transformer architecture, factoring internal representations into separate token-like and embedding-like streams.  The purpose of this representation is to provide tracable symbolic manipulation from the attention mechanisms and inspectable abductive inference of context through the feed-forward network.   Token positional information is encoded through ALiBi operators; this is done to maintain strict interpretability of the token-like embeddings (dentoted `xt`) and the non-token-like embeddings (`xe`).  
+This repository introduces a representational refactoring of the standard transformer architecture, factoring internal representations into separate token-like and embedding-like streams. The purpose of this representation is to provide tracable symbolic manipulation from the attention mechanisms and inspectable abductive inference of context through the feed-forward network. Token positional information is encoded through ALiBi operators; this is done to maintain strict interpretability of the token-like embeddings (dentoted `xt`) and the non-token-like embeddings (`xe`).  
 
 
 ## Core Concept
