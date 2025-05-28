@@ -45,7 +45,13 @@ if current_script_path not in sys.path: # Also add current dir for any local uti
 # These imports rely on the sys.path modification above.
 try:
     from model.model_token_factored_alibi import FactoredTransformerModelALiBi
-    from config_alibi import GPTConfigALiBi as GPTConfig, print_config, DEVICE
+    from config_alibi import GPTConfigALiBi as GPTConfig, print_config_alibi as print_config
+    if torch.cuda.is_available():
+        DEVICE = torch.device("cuda")
+        DEVICE_NAME = torch.cuda.get_device_name(0)
+    else:
+        DEVICE = torch.device("cpu")
+        DEVICE_NAME = "CPU"
 except ImportError as e:
     print(f"Error importing custom modules (GPTConfig, model classes): {e}")
     print("Please ensure 'config_distillation.py' and the 'model' directory are correctly "
