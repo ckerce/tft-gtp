@@ -231,5 +231,4 @@ This repository demonstrates a novel architectural approach. Contributions welco
 - Theoretical analysis of factorization benefits
 
 ## License
-
-[Your chosen license]
+MIT
