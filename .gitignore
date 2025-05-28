@@ -2,3 +2,6 @@ venv/
 .env/
 *.egg-info/
 checkpoints/*
+*.pt
+__pycache__/
+*.pyc
