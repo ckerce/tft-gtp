@@ -427,6 +427,9 @@ class FactoredTransformerModelALiBi(nn.Module):
             tuple: (FactoredTransformerModelALiBi, object)
                      The loaded model instance, and the loaded tokenizer.
                      Returns (None, None) if loading fails.
+        Example:
+            from model.model_token_factored_alibi import FactoredTransformerModelALiBi as ModelALiBi
+            model, tokenizer = ModelALiBi.load_from_checkpoint('output_alibi/alibi_model.pt',device='cuda')
         """
         # This is now the primary loading logic
         target_device = torch.device(device) # Ensure it's a torch.device
@@ -469,27 +472,5 @@ class FactoredTransformerModelALiBi(nn.Module):
             traceback.print_exc()
             return None, None
 
-
-# This module-level function now becomes a simple wrapper
-def load_alibi_model(checkpoint_path: str):
-    """
-    Convenience function to load a FactoredTransformerModelALiBi model and
-    its tokenizer from a checkpoint file.
-    This function calls the FactoredTransformerModelALiBi.load_from_checkpoint class method.
-
-    Args:
-        checkpoint_path (str): The full path to the .pt checkpoint file.
-
-    Returns:
-        tuple: (torch.nn.Module, object)
-                 The loaded model in evaluation mode, and the loaded tokenizer.
-                 Returns (None, None) if loading fails.
-    """
-    # Calls the class method. You can pass the device if needed,
-    # or let the class method default.
-    device_str = 'cuda' if torch.cuda.is_available() else 'cpu'
-    return FactoredTransformerModelALiBi.load_from_checkpoint(checkpoint_path, device=device_str)
-
-
 # Ensure both are available if needed, but the class method is the primary one.
-__all__ = ['FactoredTransformerModelALiBi', 'load_alibi_model']
+__all__ = ['FactoredTransformerModelALiBi']
