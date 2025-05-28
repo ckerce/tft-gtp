@@ -75,7 +75,7 @@ graph TD
     A[Token Embeddings] --> B[xt stream]
     C[Zero Tensor] --> D[xe stream]
     
-    B --> E[norm(xt + xe)]
+    B --> E[Norm: xt + xe]
     D --> E
     
     E --> F[Attention Q,K,V]
@@ -84,7 +84,7 @@ graph TD
     G --> H[Attention Output]
     H --> I[xt = xt + attention]
     
-    I --> J[norm(xt + xe)]
+    I --> J[Norm: xt + xe]
     D --> J
     J --> K[MLP]
     K --> L[xe = xe + mlp]
