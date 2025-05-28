@@ -44,10 +44,8 @@ if current_script_path not in sys.path: # Also add current dir for any local uti
 # --- Custom Module Imports ---
 # These imports rely on the sys.path modification above.
 try:
-    from model.model_token_factored_distillation import FactoredTransformerModelDistillation
-    from model.model_SASPV_distillation import SASPTransformerModelDistillation
-    from model.model_vanilla_distillation import VanillaTransformerModelDistillation
-    from config_distillation import GPTConfig, print_config, DEVICE
+    from model.model_token_factored_alibi import FactoredTransformerModelALiBi
+    from config_alibi import GPTConfig, print_config, DEVICE
 except ImportError as e:
     print(f"Error importing custom modules (GPTConfig, model classes): {e}")
     print("Please ensure 'config_distillation.py' and the 'model' directory are correctly "
@@ -66,11 +64,13 @@ def get_model_class(model_type: str):
     """Get the appropriate model class based on model type."""
     model_type_lower = model_type.lower()
     if model_type_lower == "factored":
-        return FactoredTransformerModelDistillation
-    elif model_type_lower == "sasp":
-        return SASPTransformerModelDistillation
-    elif model_type_lower == "vanilla":
-        return VanillaTransformerModelDistillation
+        return FactoredTransformerModelALiBi
+    # if model_type_lower == "factored":
+    #     return FactoredTransformerModelDistillation
+    # elif model_type_lower == "sasp":
+    #     return SASPTransformerModelDistillation
+    # elif model_type_lower == "vanilla":
+    #     return VanillaTransformerModelDistillation
     else:
         raise ValueError(f"Unsupported model type: {model_type}. Supported: Factored, SASP, Vanilla.")
 
