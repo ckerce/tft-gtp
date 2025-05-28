@@ -31,7 +31,7 @@ def main():
 
     model.eval()
     tokenizer.pad_token = tokenizer.eos_token
-    input_ids = tokenizer.encode(args.prompt, return_tensors='pt').to(model.device)
+    input_ids = tokenizer.encode(args.prompt, return_tensors='pt').to(device)
 
     with torch.no_grad():
         output_ids = model.generate(
