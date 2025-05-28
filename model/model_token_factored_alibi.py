@@ -413,52 +413,69 @@ class FactoredTransformerModelALiBi(nn.Module):
         self.train()
         return idx
 
+
     @classmethod
     def load_from_checkpoint(cls, checkpoint_path: str, device: str = 'cpu'):
         """
-        Loads a FactoredTransformerModelALiBi from a checkpoint.
+        Loads a FactoredTransformerModelALiBi and its tokenizer from a checkpoint.
 
         Args:
             checkpoint_path (str): The path to the .pt checkpoint file.
             device (str): The device to load the model onto ('cpu' or 'cuda').
 
         Returns:
-            FactoredTransformerModelALiBi: The loaded model instance.
-            object: The loaded tokenizer (or None).
+            tuple: (FactoredTransformerModelALiBi, object)
+                     The loaded model instance, and the loaded tokenizer.
+                     Returns (None, None) if loading fails.
         """
-        print(f"Loading checkpoint using {cls.__name__}.load_from_checkpoint...")
+        # This is now the primary loading logic
+        target_device = torch.device(device) # Ensure it's a torch.device
+        print(f"Loading checkpoint using {cls.__name__}.load_from_checkpoint from: {checkpoint_path}")
 
-        # Load the checkpoint dictionary
-        checkpoint = torch.load(checkpoint_path, map_location=torch.device(device), weights_only=False)
+        if not os.path.exists(checkpoint_path):
+            print(f"Error: Checkpoint file not found at {checkpoint_path}")
+            return None, None
 
-        # Extract config and state_dict
-        config = checkpoint.get('config')
-        model_state_dict = checkpoint.get('model_state_dict')
-        tokenizer = checkpoint.get('tokenizer')
+        try:
+            torch.serialization.add_safe_globals([GPTConfigALiBi])
+            checkpoint = torch.load(checkpoint_path, map_location=target_device, weights_only=False)
 
-        if not config or not model_state_dict:
-            raise ValueError("Checkpoint must contain 'config' and 'model_state_dict'.")
+            config = checkpoint.get('config')
+            model_state_dict = checkpoint.get('model_state_dict')
+            tokenizer = checkpoint.get('tokenizer')
 
-        if not isinstance(config, GPTConfigALiBi):
-             raise TypeError(f"Config in checkpoint is not GPTConfigALiBi. Type: {type(config)}")
+            if not config or not model_state_dict:
+                raise ValueError("Checkpoint must contain 'config' and 'model_state_dict'.")
 
-        # Instantiate the model using the config
-        model = cls(config) # 'cls' refers to FactoredTransformerModelALiBi
+            if not isinstance(config, GPTConfigALiBi):
+                 raise TypeError(f"Config in checkpoint is not GPTConfigALiBi. Type: {type(config)}")
 
-        # Load the weights
-        model.load_state_dict(model_state_dict)
+            model = cls(config) # 'cls' refers to FactoredTransformerModelALiBi
+            model.load_state_dict(model_state_dict)
+            model.to(target_device) # Already moved by map_location, but good for clarity
+            model.eval()
 
-        # Move to device and set to eval mode
-        model.to(torch.device(device))
-        model.eval()
+            print(f"Model loaded successfully via class method ({model.get_num_params()/1e6:.2f}M params).")
+            if tokenizer:
+                print(f"Tokenizer loaded successfully (type: {type(tokenizer)}).")
+            else:
+                print("Warning: Tokenizer not found in checkpoint.")
 
-        print("Model loaded successfully via class method.")
-        return model, tokenizer
+            return model, tokenizer
+
+        except Exception as e:
+            print(f"An unexpected error occurred during {cls.__name__}.load_from_checkpoint: {e}")
+            import traceback
+            traceback.print_exc()
+            return None, None
 
 
+# This module-level function now becomes a simple wrapper
 def load_alibi_model(checkpoint_path: str):
     """
-    Loads a FactoredTransformerModelALiBi model and its tokenizer from a checkpoint file.
+    Convenience function to load a FactoredTransformerModelALiBi model and
+    its tokenizer from a checkpoint file.
+    This function calls the FactoredTransformerModelALiBi.load_from_checkpoint class method.
 
     Args:
         checkpoint_path (str): The full path to the .pt checkpoint file.
@@ -468,49 +485,11 @@ def load_alibi_model(checkpoint_path: str):
                  The loaded model in evaluation mode, and the loaded tokenizer.
                  Returns (None, None) if loading fails.
     """
+    # Calls the class method. You can pass the device if needed,
+    # or let the class method default.
     device_str = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = torch.device(device_str)
-
-    if not os.path.exists(checkpoint_path):
-        print(f"Error: Checkpoint file not found at {checkpoint_path}")
-        return None, None # Return two Nones on failure
-
-    print(f"Loading checkpoint from: {checkpoint_path}")
-
-    try:
-        torch.serialization.add_safe_globals([GPTConfigALiBi])
-        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
-
-        config = checkpoint.get('config')
-        model_state_dict = checkpoint.get('model_state_dict')
-        tokenizer = checkpoint.get('tokenizer') 
-
-        if not config or not model_state_dict:
-            print("Error: Checkpoint missing 'config' or 'model_state_dict'.")
-            return None, None # Return two Nones
-
-        if not tokenizer:
-            print("Warning: Tokenizer not found in checkpoint.")
-            # You might decide to still return the model if the tokenizer is optional for some use case
-            # but for consistency, if the expectation is to always have it, return None for tokenizer.
-
-        model = FactoredTransformerModelALiBi(config)
-        model.load_state_dict(model_state_dict)
-        model.to(device)
-        model.eval()
-
-        print(f"Model loaded successfully ({model.get_num_params()/1e6:.2f}M params).")
-        if tokenizer:
-            print(f"Tokenizer loaded successfully (type: {type(tokenizer)}).")
-        
-        return model, tokenizer 
-
-    except Exception as e:
-        print(f"An unexpected error occurred during model loading: {e}")
-        import traceback
-        traceback.print_exc()
-        return None, None # Return two Nones on failure
+    return FactoredTransformerModelALiBi.load_from_checkpoint(checkpoint_path, device=device_str)
 
 
-# Export the model class for use in the model registry
+# Ensure both are available if needed, but the class method is the primary one.
 __all__ = ['FactoredTransformerModelALiBi', 'load_alibi_model']
