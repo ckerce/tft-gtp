@@ -21,6 +21,9 @@ import math
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+import os
+import torch.serialization
+from config_alibi import GPTConfigALiBi
 
 
 class LayerNorm(nn.Module):
@@ -410,6 +413,104 @@ class FactoredTransformerModelALiBi(nn.Module):
         self.train()
         return idx
 
+    @classmethod
+    def load_from_checkpoint(cls, checkpoint_path: str, device: str = 'cpu'):
+        """
+        Loads a FactoredTransformerModelALiBi from a checkpoint.
+
+        Args:
+            checkpoint_path (str): The path to the .pt checkpoint file.
+            device (str): The device to load the model onto ('cpu' or 'cuda').
+
+        Returns:
+            FactoredTransformerModelALiBi: The loaded model instance.
+            object: The loaded tokenizer (or None).
+        """
+        print(f"Loading checkpoint using {cls.__name__}.load_from_checkpoint...")
+
+        # Load the checkpoint dictionary
+        checkpoint = torch.load(checkpoint_path, map_location=torch.device(device), weights_only=False)
+
+        # Extract config and state_dict
+        config = checkpoint.get('config')
+        model_state_dict = checkpoint.get('model_state_dict')
+        tokenizer = checkpoint.get('tokenizer')
+
+        if not config or not model_state_dict:
+            raise ValueError("Checkpoint must contain 'config' and 'model_state_dict'.")
+
+        if not isinstance(config, GPTConfigALiBi):
+             raise TypeError(f"Config in checkpoint is not GPTConfigALiBi. Type: {type(config)}")
+
+        # Instantiate the model using the config
+        model = cls(config) # 'cls' refers to FactoredTransformerModelALiBi
+
+        # Load the weights
+        model.load_state_dict(model_state_dict)
+
+        # Move to device and set to eval mode
+        model.to(torch.device(device))
+        model.eval()
+
+        print("Model loaded successfully via class method.")
+        return model, tokenizer
+
+
+def load_alibi_model(checkpoint_path: str):
+    """
+    Loads a FactoredTransformerModelALiBi model and its tokenizer from a checkpoint file.
+
+    Args:
+        checkpoint_path (str): The full path to the .pt checkpoint file.
+
+    Returns:
+        tuple: (torch.nn.Module, object)
+                 The loaded model in evaluation mode, and the loaded tokenizer.
+                 Returns (None, None) if loading fails.
+    """
+    device_str = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = torch.device(device_str)
+
+    if not os.path.exists(checkpoint_path):
+        print(f"Error: Checkpoint file not found at {checkpoint_path}")
+        return None, None # Return two Nones on failure
+
+    print(f"Loading checkpoint from: {checkpoint_path}")
+
+    try:
+        torch.serialization.add_safe_globals([GPTConfigALiBi])
+        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+
+        config = checkpoint.get('config')
+        model_state_dict = checkpoint.get('model_state_dict')
+        tokenizer = checkpoint.get('tokenizer') 
+
+        if not config or not model_state_dict:
+            print("Error: Checkpoint missing 'config' or 'model_state_dict'.")
+            return None, None # Return two Nones
+
+        if not tokenizer:
+            print("Warning: Tokenizer not found in checkpoint.")
+            # You might decide to still return the model if the tokenizer is optional for some use case
+            # but for consistency, if the expectation is to always have it, return None for tokenizer.
+
+        model = FactoredTransformerModelALiBi(config)
+        model.load_state_dict(model_state_dict)
+        model.to(device)
+        model.eval()
+
+        print(f"Model loaded successfully ({model.get_num_params()/1e6:.2f}M params).")
+        if tokenizer:
+            print(f"Tokenizer loaded successfully (type: {type(tokenizer)}).")
+        
+        return model, tokenizer 
+
+    except Exception as e:
+        print(f"An unexpected error occurred during model loading: {e}")
+        import traceback
+        traceback.print_exc()
+        return None, None # Return two Nones on failure
+
 
 # Export the model class for use in the model registry
-__all__ = ['FactoredTransformerModelALiBi']
+__all__ = ['FactoredTransformerModelALiBi', 'load_alibi_model']
