@@ -357,11 +357,11 @@ class FactoredTransformerModelALiBi(nn.Module):
         ffn_outputs = []
         for block in self.transformer.h:
             xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out = True)
-            ffn_outputs.append(self.transformer.ln_f(xt+xe))
+            ffn_outputs.append(self.transformer.ln_f(xe))
 
         # Logit Lens decoding
         if not self.training:
-            log_file = "outputs/logit_lens_output_xt_xe_norm.txt"
+            log_file = "outputs/logit_lens_output_xe_norm.txt"
             with open(log_file, "w") as f:
                 f.write("=== Logit Lens Output ===\n")
 
