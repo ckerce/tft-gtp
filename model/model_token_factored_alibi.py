@@ -366,16 +366,19 @@ class FactoredTransformerModelALiBi(nn.Module):
 
                 with torch.no_grad():
                     for i, ffn_out in enumerate(ffn_outputs):
-                        logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)  # (B, T, V)
+                        logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)
                         probs = F.softmax(logits / 0.01, dim=-1)
                         top_probs, top_ids = torch.topk(probs, k=5, dim=-1)
 
+                        input_tokens = [self.tokenizer.decode([id.item()]) for id in input_ids[0]]
+
                         f.write(f"\n--- Layer {i} ---\n")
                         for t in range(top_ids.shape[1]):
-                            tokens = [self.tokenizer.decode([id.item()]) for id in top_ids[0, t]]
-                            f.write(f"Pos {t}: {tokens}\n")
+                            decoded_token = input_tokens[t]
+                            guesses = [self.tokenizer.decode([id.item()]) for id in top_ids[0, t]]
+                            f.write(f'Pos {t}: "{decoded_token}" → {guesses}\n')
 
-            print(f"[Logit Lens] Written decoded outputs to: {log_file}")
+            print(f"[Logit Lens] Written decoded outputs with tokens to: {log_file}")
 
         # Final processing
         x_final = xt + xe
