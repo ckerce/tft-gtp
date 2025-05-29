@@ -42,6 +42,7 @@ def main():
     if model is None or tokenizer is None:
         print("Failed to load model or tokenizer.")
         return
+    model.tokenizer = tokenizer
 
     model.eval()
     tokenizer.pad_token = tokenizer.eos_token
