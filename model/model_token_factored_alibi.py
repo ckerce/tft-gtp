@@ -307,7 +307,7 @@ class FactoredTransformerModelALiBi(nn.Module):
             if pn.endswith('c_proj.weight'):
                 torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
 
-        print(config.to_dict())
+        print(config.n_layer)
         print(f"FactoredTransformerModelALiBi initialized with {self.get_num_params()/1e6:.2f}M parameters")
         print(f"Using factored attention with use_v={self.use_v}, use_proj={self.use_proj}")
 
@@ -368,7 +368,7 @@ class FactoredTransformerModelALiBi(nn.Module):
                 with torch.no_grad():
                     for i, ffn_out in enumerate(ffn_outputs):
                         logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)
-                        probs = F.softmax(logits / 0.01, dim=-1)
+                        probs = F.softmax(logits / 1, dim=-1)
                         top_probs, top_ids = torch.topk(probs, k=5, dim=-1)
 
                         input_tokens = [self.tokenizer.decode([id.item()]) for id in input_ids[0]]
