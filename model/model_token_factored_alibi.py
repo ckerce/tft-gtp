@@ -355,7 +355,7 @@ class FactoredTransformerModelALiBi(nn.Module):
         # Pass through transformer blocks
         ffn_outputs = []
         for block in self.transformer.h:
-            xt, xe, ffn_out = block(xt, xe, return_ffn_output = True)
+            xt, xe, ffn_out = block(xt, xe, return_ffn_out = True)
             ffn_outputs.append(ffn_out)
 
         # Logit Lens decoding
