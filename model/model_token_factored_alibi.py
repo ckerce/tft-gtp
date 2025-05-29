@@ -360,17 +360,22 @@ class FactoredTransformerModelALiBi(nn.Module):
 
         # Logit Lens decoding
         if not self.training:
-            temperature = 0.01
-            with torch.no_grad():
-                for i, ffn_out in enumerate(ffn_outputs):
-                    logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)  # (B, T, V)
-                    probs = F.softmax(logits / temperature, dim=-1)  # Low-temp softmax
-                    top_probs, top_ids = torch.topk(probs, k=5, dim=-1)
+            log_file = "logit_lens_output.txt"
+            with open(log_file, "w") as f:
+                f.write("=== Logit Lens Output ===\n")
 
-                    print(f"\n--- Layer {i} decoded tokens ---")
-                    for t in range(top_ids.shape[1]):
-                        tokens = [self.tokenizer.decode([id.item()]) for id in top_ids[0, t]]
-                        print(f"  Pos {t}: {tokens}")
+                with torch.no_grad():
+                    for i, ffn_out in enumerate(ffn_outputs):
+                        logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)  # (B, T, V)
+                        probs = F.softmax(logits / 0.01, dim=-1)
+                        top_probs, top_ids = torch.topk(probs, k=5, dim=-1)
+
+                        f.write(f"\n--- Layer {i} ---\n")
+                        for t in range(top_ids.shape[1]):
+                            tokens = [self.tokenizer.decode([id.item()]) for id in top_ids[0, t]]
+                            f.write(f"Pos {t}: {tokens}\n")
+
+            print(f"[Logit Lens] Written decoded outputs to: {log_file}")
 
         # Final processing
         x_final = xt + xe
