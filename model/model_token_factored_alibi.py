@@ -294,7 +294,7 @@ class FactoredTransformerModelALiBi(nn.Module):
             h=nn.ModuleList([FactoredPreLNBlockALiBi(config) for _ in range(config.n_layer)]),
             ln_f=LayerNorm(config.n_embd, bias=config.bias),
         ))
-
+        
         # Language model head (shared weights with token embeddings)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         self.transformer.wte.weight = self.lm_head.weight
@@ -307,6 +307,7 @@ class FactoredTransformerModelALiBi(nn.Module):
             if pn.endswith('c_proj.weight'):
                 torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
 
+        print(config.to_dict())
         print(f"FactoredTransformerModelALiBi initialized with {self.get_num_params()/1e6:.2f}M parameters")
         print(f"Using factored attention with use_v={self.use_v}, use_proj={self.use_proj}")
 
