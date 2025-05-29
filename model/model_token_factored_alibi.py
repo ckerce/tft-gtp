@@ -252,7 +252,7 @@ class FactoredPreLNBlockALiBi(nn.Module):
         self.ln_2 = LayerNorm(config.n_embd, bias=config.bias)
         self.mlp = FactoredMLP(config)
 
-    def forward(self, xt, xe):
+    def forward(self, xt, xe, return_ffn_out = False):
         """Forward pass for FactoredPreLNBlockALiBi."""
         # Attention path - updates xt
         # Use combined state (xt + xe) for Q,K computation, but xt directly for values
@@ -265,6 +265,8 @@ class FactoredPreLNBlockALiBi(nn.Module):
         mlp_output = self.mlp(norm_for_mlp)
         xe = xe + mlp_output
 
+        if return_ffn_out:
+            return xt, xe, mlp_output
         return xt, xe
 
 
@@ -351,8 +353,24 @@ class FactoredTransformerModelALiBi(nn.Module):
         xe = torch.zeros_like(xt, device=device)
 
         # Pass through transformer blocks
+        ffn_outputs = []
         for block in self.transformer.h:
-            xt, xe = block(xt, xe)
+            xt, xe, ffn_out = block(xt, xe, return_ffn_output = True)
+            ffn_outputs.append(ffn_out)
+
+        # Logit Lens decoding
+        if not self.training:
+            temperature = 0.01
+            with torch.no_grad():
+                for i, ffn_out in enumerate(ffn_outputs):
+                    logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)  # (B, T, V)
+                    probs = F.softmax(logits / temperature, dim=-1)  # Low-temp softmax
+                    top_probs, top_ids = torch.topk(probs, k=5, dim=-1)
+
+                    print(f"\n--- Layer {i} decoded tokens ---")
+                    for t in range(top_ids.shape[1]):
+                        tokens = [self.tokenizer.decode([id.item()]) for id in top_ids[0, t]]
+                        print(f"  Pos {t}: {tokens}")
 
         # Final processing
         x_final = xt + xe
