@@ -1,0 +1,43 @@
+=== Logit Lens Output ===
+
+--- Layer 0 ---
+Pos 0: "The" → [' following', ' first', ' National', ' N', ' Good']
+Pos 1: " cat" → ['are', 'aph', 'fish', 'ar', 'am']
+Pos 2: " sat" → ['iva', ' on', ' upon', 'in', ' at']
+Pos 3: " on" → [' the', ' various', ' some', ' both', ' or']
+Pos 4: " the" → [' side', ' ', ' main', ' right', ' b']
+
+--- Layer 1 ---
+Pos 0: "The" → [' following', ' ', ' 2006', ' 2007', ' term']
+Pos 1: " cat" → ['ac', '-', 'im', ' and', 'al']
+Pos 2: " sat" → ['-', 'rap', 'he', 'w', 'ia']
+Pos 3: " on" → [' the', ' both', ' all', ' a', ' several']
+Pos 4: " the" → [' basis', ' side', ' left', ' same', ' ground']
+
+--- Layer 2 ---
+Pos 0: "The" → [' following', ' Battle', ' ', ' National', 'odore']
+Pos 1: " cat" → ['aly', 'amar', 'ac', 'l', 'ast']
+Pos 2: " sat" → ['-', 'in', 'am', 'ew', 'on']
+Pos 3: " on" → [' the', ' a', ' ', ' top', ',']
+Pos 4: " the" → [' ', ' orders', ' C', ' I', ' P']
+
+--- Layer 3 ---
+Pos 0: "The" → [' Battle', ' following', ' Di', ' National', ' University']
+Pos 1: " cat" → [',', ' and', ' in', ' is', "'s"]
+Pos 2: " sat" → ['im', ' fin', 'i', 'rap', 'ire']
+Pos 3: " on" → [' or', ' top', ' al', ' a', 'shore']
+Pos 4: " the" → [' posterior', ' dorsal', ' roof', ' Pieces', ' fem']
+
+--- Layer 4 ---
+Pos 0: "The" → [' National', ' University', ' American', ' following', ' 2006']
+Pos 1: " cat" → ['k', 'at', ' claw', 'fish', 'herer']
+Pos 2: " sat" → ['hen', 'itta', 'nee', 'ita', 'isel']
+Pos 3: " on" → [' the', ' one', ' a', ' MTV', ' two']
+Pos 4: " the" → [' medial', ' dorsal', ' floor', ' crest', ' pelvic']
+
+--- Layer 5 ---
+Pos 0: "The" → [' New', ' Order', ' Indian', ' B', ' World']
+Pos 1: " cat" → [' shuffle', ' Defeat', ' delightful', ' itch', 'question']
+Pos 2: " sat" → ['rave', ' Roku', ' tranquil', 'reet', 'eman']
+Pos 3: " on" → [' pedestrians', ' automakers', ' immortality', ' almonds', ' obedience']
+Pos 4: " the" → [' pizz', ' afterlife', ' rabbi', ' Myster', ' magician']
