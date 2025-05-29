@@ -1,0 +1,43 @@
+=== Logit Lens Output ===
+
+--- Layer 0 ---
+Pos 0: "The" → [' following', ' National', ' first', ' N', ' ']
+Pos 1: " cat" → ['fish', 'are', 'aph', 'ar', 'am']
+Pos 2: " sat" → ['iva', ' on', ' upon', 'in', ' at']
+Pos 3: " on" → [' the', ' some', ' various', ' both', ' or']
+Pos 4: " the" → [' ', ' side', ' main', ' the', ' right']
+
+--- Layer 1 ---
+Pos 0: "The" → [' following', ' ', 'odore', ' term', ' Battle']
+Pos 1: " cat" → ['fish', 'ac', 'amar', 'al', 'ar']
+Pos 2: " sat" → [' on', 'iva', 'rap', ' at', 'in']
+Pos 3: " on" → [' the', ' both', ' all', ' top', ' several']
+Pos 4: " the" → [' side', ' ', ' right', ' main', ' first']
+
+--- Layer 2 ---
+Pos 0: "The" → [' following', ' ', ' Battle', ' National', 'odore']
+Pos 1: " cat" → ['fish', 'amar', 'ac', 'ar', 'al']
+Pos 2: " sat" → [' on', 'in', 'iva', 'y', 'rap']
+Pos 3: " on" → [' the', ' a', ' top', ' all', ' both']
+Pos 4: " the" → [' ', ' side', ' upper', ' right', ' first']
+
+--- Layer 3 ---
+Pos 0: "The" → [' following', ' Battle', ' ', ' National', ' 2007']
+Pos 1: " cat" → ['fish', "'s", 'ac', '-', 'ar']
+Pos 2: " sat" → ['rap', 'in', 'iva', 'y', ' on']
+Pos 3: " on" → [' the', ' a', ' or', ' top', ' ']
+Pos 4: " the" → [' ', ' floor', ' upper', ' right', ' side']
+
+--- Layer 4 ---
+Pos 0: "The" → [' following', ' Battle', ' National', ' ', ' 2006']
+Pos 1: " cat" → ['fish', 'ac', '-', 'ar', "'s"]
+Pos 2: " sat" → ['in', 'rap', 'y', 'iva', 'yr']
+Pos 3: " on" → [' the', ' a', ' an', ' top', ' one']
+Pos 4: " the" → [' floor', ' sat', ' upper', ' roof', ' side']
+
+--- Layer 5 ---
+Pos 0: "The" → [' following', ' ', ' National', ' Battle', ' 2006']
+Pos 1: " cat" → ['fish', 'ac', 'ar', '-', "'s"]
+Pos 2: " sat" → ['in', 'rap', 'yr', 'iva', 'y']
+Pos 3: " on" → [' the', ' a', ' an', ' top', ' one']
+Pos 4: " the" → [' floor', ' upper', ' roof', ' posterior', ' chest']

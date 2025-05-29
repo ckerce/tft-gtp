@@ -1,0 +1,43 @@
+=== Logit Lens Output ===
+
+--- Layer 0 ---
+Pos 0: "The" → [' ', ' following', ' first', ' F', ' B']
+Pos 1: " cat" → ['ar', ' is', '-', 'l', 'am']
+Pos 2: " sat" → [' on', ' in', ' ', ' at', ' the']
+Pos 3: " on" → [' the', ' a', ' ', ',', ' or']
+Pos 4: " the" → [' ', ' the', ' (', ',', ' in']
+
+--- Layer 1 ---
+Pos 0: "The" → [' ', ' following', ' the', ' is', ',']
+Pos 1: " cat" → ['-', ' and', ',', ' is', ' ']
+Pos 2: " sat" → [' in', ' on', ',', ' ', ' (']
+Pos 3: " on" → [' the', ' a', ' ', ',', ' and']
+Pos 4: " the" → [' ', ' the', ',', ' (', ' and']
+
+--- Layer 2 ---
+Pos 0: "The" → [' ', ' the', ',', ' is', ' a']
+Pos 1: " cat" → ['-', ' and', ',', ' is', ' the']
+Pos 2: " sat" → [',', ' ', ' (', ' in', '-']
+Pos 3: " on" → [' the', ' a', ',', ' ', ' (']
+Pos 4: " the" → [' ', ' the', ',', ' (', ' a']
+
+--- Layer 3 ---
+Pos 0: "The" → [' ', ' the', ',', ' a', ' (']
+Pos 1: " cat" → [',', ' and', '-', ' the', ' is']
+Pos 2: " sat" → [',', ' ', ' (', ' the', ' in']
+Pos 3: " on" → [' the', ' a', ',', ' ', ' (']
+Pos 4: " the" → [' the', ' ', ',', ' (', ' a']
+
+--- Layer 4 ---
+Pos 0: "The" → [' the', ' ', ',', '"', '!']
+Pos 1: " cat" → [',', '-', ' and', ' (', ' the']
+Pos 2: " sat" → [',', ' the', ' (', ' ', ' in']
+Pos 3: " on" → [' the', ' a', ',', ' ', ' and']
+Pos 4: " the" → [' the', ' ', ',', ' and', ' (']
+
+--- Layer 5 ---
+Pos 0: "The" → [' the', ' ', '#', '"', '!']
+Pos 1: " cat" → [',', '-', ' (', ' the', ' and']
+Pos 2: " sat" → [' (', ',', ' the', ' in', ' ']
+Pos 3: " on" → [' the', ' a', ',', ' (', ' ']
+Pos 4: " the" → [' ', ' the', ' (', ',', ' and']
