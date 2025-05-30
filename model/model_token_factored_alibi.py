@@ -307,6 +307,8 @@ class FactoredTransformerModelALiBi(nn.Module):
             if pn.endswith('c_proj.weight'):
                 torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
 
+        self._probe_file = None
+
         print_config_alibi(config)
         print(f"FactoredTransformerModelALiBi initialized with {self.get_num_params()/1e6:.2f}M parameters")
         print(f"Using factored attention with use_v={self.use_v}, use_proj={self.use_proj}")
@@ -360,7 +362,7 @@ class FactoredTransformerModelALiBi(nn.Module):
             ffn_outputs.append(self.transformer.ln_f(xe))
 
         # Set up output file once
-        if len(ffn_outputs) == 0 and not self.training:
+        if self._probe_file is None and not self.training:
             self._probe_file = open("outputs/xe_symbolic_projection_probe.txt", "w")
             self._probe_file.write("=== Symbolic Projection Diagnostic ===\n")
 
