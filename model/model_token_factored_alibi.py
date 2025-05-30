@@ -395,6 +395,10 @@ class FactoredTransformerModelALiBi(nn.Module):
             f.write(f"[No LN]  mean cosine: {cos_sim1.mean():.4f}, mean L2: {l2_diff1.mean():.4f}\n")
             f.write(f"[With LN] mean cosine: {cos_sim2.mean():.4f}, mean L2: {l2_diff2.mean():.4f}\n")
 
+        if hasattr(self, "_probe_file") and not self.training:
+            self._probe_file.close()
+
+
         # Logit Lens decoding
         # if not self.training:
         #     log_file = "outputs/logit_lens_output_xe_norm.txt"
