@@ -355,47 +355,46 @@ class FactoredTransformerModelALiBi(nn.Module):
         xt = self.transformer.drop(tok_emb)
         xe = torch.zeros_like(xt, device=device)
 
+        # Set up output file once
+        if self._probe_file is None and not self.training:
+            self._probe_file = open("outputs/xe_symbolic_projection_probe.txt", "w")
+            self._probe_file.write("=== Symbolic Projection Diagnostic ===\n")
+
+
         # Pass through transformer blocks
         ffn_outputs = []
         for block in self.transformer.h:
             xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out = True)
             ffn_outputs.append(self.transformer.ln_f(xe))
 
-        # Set up output file once
-        if self._probe_file is None and not self.training:
-            self._probe_file = open("outputs/xe_symbolic_projection_probe.txt", "w")
-            self._probe_file.write("=== Symbolic Projection Diagnostic ===\n")
+            # === Probe after each layer ===
+            with torch.no_grad():
+                E = self.transformer.wte.weight             # [V, d]
+                E_T = E.T                                   # [d, V]
+                xe_flat = xe.view(-1, xe.size(-1))          # [B*T, d]
 
-        with torch.no_grad():
-            E = self.transformer.wte.weight             # [V, d]
-            E_T = E.T                                   # [d, V]
-            xe_flat = xe.view(-1, xe.size(-1))          # [B*T, d]
+                # No LayerNorm
+                q1 = xe_flat
+                logits1 = q1 @ E_T
+                alpha1 = F.softmax(logits1, dim=-1)
+                xe_proj1 = alpha1 @ E
+                cos_sim1 = F.cosine_similarity(q1, xe_proj1, dim=-1)
+                l2_diff1 = torch.norm(q1 - xe_proj1, dim=-1)
 
-            # === Version 1: WITHOUT LayerNorm ===
-            q1 = xe_flat                                # [B*T, d]
-            logits1 = q1 @ E_T                          # [B*T, V]
-            alpha1 = F.softmax(logits1, dim=-1)         # [B*T, V]
-            xe_proj1 = alpha1 @ E                       # [B*T, d]
+                # With LayerNorm
+                q2 = F.layer_norm(q1, q1.shape[-1:])
+                logits2 = q2 @ E_T
+                alpha2 = F.softmax(logits2, dim=-1)
+                xe_proj2 = alpha2 @ E
+                cos_sim2 = F.cosine_similarity(q1, xe_proj2, dim=-1)
+                l2_diff2 = torch.norm(q1 - xe_proj2, dim=-1)
 
-            cos_sim1 = F.cosine_similarity(q1, xe_proj1, dim=-1)   # [B*T]
-            l2_diff1 = torch.norm(q1 - xe_proj1, dim=-1)           # [B*T]
+                # Log
+                if hasattr(self, "_probe_file"):
+                    self._probe_file.write(f"\n--- Layer {layer_idx} ---\n")
+                    self._probe_file.write(f"[No LN]  mean cosine: {cos_sim1.mean():.4f}, mean L2: {l2_diff1.mean():.4f}\n")
+                    self._probe_file.write(f"[With LN] mean cosine: {cos_sim2.mean():.4f}, mean L2: {l2_diff2.mean():.4f}\n")
 
-            # === Version 2: WITH LayerNorm ===
-            q2 = F.layer_norm(q1, q1.shape[-1:])        # apply LN across last dim
-            logits2 = q2 @ E_T
-            alpha2 = F.softmax(logits2, dim=-1)
-            xe_proj2 = alpha2 @ E
-
-            cos_sim2 = F.cosine_similarity(q1, xe_proj2, dim=-1)
-            l2_diff2 = torch.norm(q1 - xe_proj2, dim=-1)
-
-            # === Log to file ===
-            layer_idx = len(ffn_outputs)
-            f = self._probe_file
-
-            f.write(f"\n--- Layer {layer_idx} ---\n")
-            f.write(f"[No LN]  mean cosine: {cos_sim1.mean():.4f}, mean L2: {l2_diff1.mean():.4f}\n")
-            f.write(f"[With LN] mean cosine: {cos_sim2.mean():.4f}, mean L2: {l2_diff2.mean():.4f}\n")
 
         if hasattr(self, "_probe_file") and not self.training:
             self._probe_file.close()
