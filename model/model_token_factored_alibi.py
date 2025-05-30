@@ -307,6 +307,9 @@ class FactoredTransformerModelALiBi(nn.Module):
             if pn.endswith('c_proj.weight'):
                 torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
 
+        print("CONFIG:")
+        for attr, val in config.__dict__.items():
+            print(f"{attr}: {val}")
         print(config.n_layer)
         print(f"FactoredTransformerModelALiBi initialized with {self.get_num_params()/1e6:.2f}M parameters")
         print(f"Using factored attention with use_v={self.use_v}, use_proj={self.use_proj}")
