@@ -359,27 +359,63 @@ class FactoredTransformerModelALiBi(nn.Module):
             xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out = True)
             ffn_outputs.append(self.transformer.ln_f(xe))
 
+        # Set up output file once
+        if len(ffn_outputs) == 0 and not self.training:
+            self._probe_file = open("outputs/xe_symbolic_projection_probe.txt", "w")
+            self._probe_file.write("=== Symbolic Projection Diagnostic ===\n")
+
+        with torch.no_grad():
+            E = self.transformer.wte.weight             # [V, d]
+            E_T = E.T                                   # [d, V]
+            xe_flat = xe.view(-1, xe.size(-1))          # [B*T, d]
+
+            # === Version 1: WITHOUT LayerNorm ===
+            q1 = xe_flat                                # [B*T, d]
+            logits1 = q1 @ E_T                          # [B*T, V]
+            alpha1 = F.softmax(logits1, dim=-1)         # [B*T, V]
+            xe_proj1 = alpha1 @ E                       # [B*T, d]
+
+            cos_sim1 = F.cosine_similarity(q1, xe_proj1, dim=-1)   # [B*T]
+            l2_diff1 = torch.norm(q1 - xe_proj1, dim=-1)           # [B*T]
+
+            # === Version 2: WITH LayerNorm ===
+            q2 = F.layer_norm(q1, q1.shape[-1:])        # apply LN across last dim
+            logits2 = q2 @ E_T
+            alpha2 = F.softmax(logits2, dim=-1)
+            xe_proj2 = alpha2 @ E
+
+            cos_sim2 = F.cosine_similarity(q1, xe_proj2, dim=-1)
+            l2_diff2 = torch.norm(q1 - xe_proj2, dim=-1)
+
+            # === Log to file ===
+            layer_idx = len(ffn_outputs)
+            f = self._probe_file
+
+            f.write(f"\n--- Layer {layer_idx} ---\n")
+            f.write(f"[No LN]  mean cosine: {cos_sim1.mean():.4f}, mean L2: {l2_diff1.mean():.4f}\n")
+            f.write(f"[With LN] mean cosine: {cos_sim2.mean():.4f}, mean L2: {l2_diff2.mean():.4f}\n")
+
         # Logit Lens decoding
-        if not self.training:
-            log_file = "outputs/logit_lens_output_xe_norm.txt"
-            with open(log_file, "w") as f:
-                f.write("=== Logit Lens Output ===\n")
+        # if not self.training:
+        #     log_file = "outputs/logit_lens_output_xe_norm.txt"
+        #     with open(log_file, "w") as f:
+        #         f.write("=== Logit Lens Output ===\n")
 
-                with torch.no_grad():
-                    for i, ffn_out in enumerate(ffn_outputs):
-                        logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)
-                        probs = F.softmax(logits / 1, dim=-1)
-                        top_probs, top_ids = torch.topk(probs, k=5, dim=-1)
+        #         with torch.no_grad():
+        #             for i, ffn_out in enumerate(ffn_outputs):
+        #                 logits = torch.matmul(ffn_out, self.transformer.wte.weight.T)
+        #                 probs = F.softmax(logits / 1, dim=-1)
+        #                 top_probs, top_ids = torch.topk(probs, k=5, dim=-1)
 
-                        input_tokens = [self.tokenizer.decode([id.item()]) for id in input_ids[0]]
+        #                 input_tokens = [self.tokenizer.decode([id.item()]) for id in input_ids[0]]
 
-                        f.write(f"\n--- Layer {i} ---\n")
-                        for t in range(top_ids.shape[1]):
-                            decoded_token = input_tokens[t]
-                            guesses = [self.tokenizer.decode([id.item()]) for id in top_ids[0, t]]
-                            f.write(f'Pos {t}: "{decoded_token}" → {guesses}\n')
+        #                 f.write(f"\n--- Layer {i} ---\n")
+        #                 for t in range(top_ids.shape[1]):
+        #                     decoded_token = input_tokens[t]
+        #                     guesses = [self.tokenizer.decode([id.item()]) for id in top_ids[0, t]]
+        #                     f.write(f'Pos {t}: "{decoded_token}" → {guesses}\n')
 
-            print(f"[Logit Lens] Written decoded outputs with tokens to: {log_file}")
+        #     print(f"[Logit Lens] Written decoded outputs with tokens to: {log_file}")
 
         # Final processing
         x_final = xt + xe
