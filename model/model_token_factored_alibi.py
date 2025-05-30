@@ -386,8 +386,12 @@ class FactoredTransformerModelALiBi(nn.Module):
                 logits2 = q2 @ E_T
                 alpha2 = F.softmax(logits2, dim=-1)
                 xe_proj2 = alpha2 @ E
-                cos_sim2 = F.cosine_similarity(q1, xe_proj2, dim=-1)
-                l2_diff2 = torch.norm(q1 - xe_proj2, dim=-1)
+                q1_normed = F.layer_norm(q1, q1.shape[-1:])
+                xe_proj2_normed = F.layer_norm(xe_proj2, xe_proj2.shape[-1:])
+
+                cos_sim2 = F.cosine_similarity(q1_normed, xe_proj2_normed, dim=-1)
+                l2_diff2 = torch.norm(q1_normed - xe_proj2_normed, dim=-1)
+
 
                 # Log
                 if hasattr(self, "_probe_file"):
