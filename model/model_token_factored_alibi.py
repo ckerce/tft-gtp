@@ -363,7 +363,7 @@ class FactoredTransformerModelALiBi(nn.Module):
 
         # Pass through transformer blocks
         ffn_outputs = []
-        for block in self.transformer.h:
+        for layer_idx, block in enumerate(self.transformer.h):
             xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out = True)
             ffn_outputs.append(self.transformer.ln_f(xe))
 
