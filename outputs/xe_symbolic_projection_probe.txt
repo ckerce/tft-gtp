@@ -1,0 +1,5 @@
+=== Symbolic Projection Diagnostic ===
+
+--- Layer 6 ---
+[No LN]  mean cosine: 0.3969, mean L2: 457.5180
+[With LN] mean cosine: 0.4761, mean L2: 457.5346
