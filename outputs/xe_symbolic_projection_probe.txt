@@ -1,25 +1,20 @@
 === Symbolic Projection Diagnostic ===
 
 --- Layer 0 ---
-[No LN]  mean cosine: 0.3421, mean L2: 63.0493
 [With LN] mean cosine: 0.3859, mean L2: 30.6741
 
 --- Layer 1 ---
-[No LN]  mean cosine: 0.3813, mean L2: 110.7067
 [With LN] mean cosine: 0.4190, mean L2: 29.8468
 
 --- Layer 2 ---
-[No LN]  mean cosine: 0.4181, mean L2: 177.4573
 [With LN] mean cosine: 0.4661, mean L2: 28.6092
 
 --- Layer 3 ---
-[No LN]  mean cosine: 0.4216, mean L2: 264.3214
 [With LN] mean cosine: 0.4814, mean L2: 28.1977
 
 --- Layer 4 ---
-[No LN]  mean cosine: 0.4123, mean L2: 391.1815
 [With LN] mean cosine: 0.4977, mean L2: 27.7569
 
 --- Layer 5 ---
-[No LN]  mean cosine: 0.3969, mean L2: 457.5180
 [With LN] mean cosine: 0.4767, mean L2: 28.3193
+
