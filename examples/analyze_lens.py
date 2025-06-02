@@ -13,7 +13,7 @@ def compute_layerwise_kl(model, dataloader, device, lens_heads=None):
     model.eval()
 
     if lens_heads:
-        model.tuned_lens_heads.load_state_dict(torch.load(lens_heads, map_location=device))
+        model.tuned_lens_heads.load_state_dict(torch.load(lens_heads, map_location=device), strict=False)
         print("✅ Loaded tuned lens heads.")
     else:
         print("📌 Using untrained (random) lens heads.")
