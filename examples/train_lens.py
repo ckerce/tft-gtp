@@ -6,7 +6,7 @@ import os
 import argparse
 from model import get_model  
 from utils.data_utils import load_and_prepare_data
-
+from mytokenizers import create_tokenizer
 
 @torch.no_grad()
 def get_final_logits(model, xe):
@@ -66,7 +66,10 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     # Load tokenizer and data
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")  # or your tokenizer
+    tokenizer_params = {}
+    tokenizer_params['use_fast'] = True
+    tokenizer = create_tokenizer("gpt2", **tokenizer_params)
+
     dataloader, _ = load_and_prepare_data(
         dataset_name=args.dataset,
         dataset_config=args.dataset_config,
