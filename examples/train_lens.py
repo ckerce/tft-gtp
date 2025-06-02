@@ -7,6 +7,7 @@ import argparse
 from model import get_model  
 from utils.data_utils import load_and_prepare_data
 from mytokenizers import create_tokenizer
+from tqdm import tqdm
 
 @torch.no_grad()
 def get_final_logits(model, xe):
@@ -26,7 +27,7 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
     model.train()
     for epoch in range(epochs):
         total_loss = 0
-        for batch in dataloader:
+        for batch in tqdm(dataloader, desc=f"Epoch {epoch+1}"):
             input_ids = batch['input_ids'].to(device)
             tok_emb = model.transformer["wte"](input_ids)     # token embeddings
             xt = model.transformer["drop"](tok_emb)           # token stream
