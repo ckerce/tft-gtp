@@ -56,6 +56,7 @@ def main():
     parser.add_argument("--model_ckpt", type=str, required=True)
     parser.add_argument("--output_dir", type=str, default="./trained_tuned_lens")
     parser.add_argument("--dataset", type=str, default="roneneldan/TinyStories")
+    parser.add_argument("--dataset_config", type=str, default=None)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--lr", type=float, default=1e-4)
@@ -68,6 +69,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("gpt2")  # or your tokenizer
     dataloader, _ = load_and_prepare_data(
         dataset_name=args.dataset,
+        dataset_config=args.dataset_config,
         tokenizer=tokenizer,
         max_samples=50000,
         max_seq_length=128,
