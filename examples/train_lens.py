@@ -28,7 +28,9 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
         total_loss = 0
         for batch in dataloader:
             input_ids = batch['input_ids'].to(device)
-            xt, xe = model.transformer.embed(input_ids)
+            tok_emb = model.transformer["wte"](input_ids)     # token embeddings
+            xt = model.transformer["drop"](tok_emb)           # token stream
+            xe = torch.zeros_like(xt)                         # contextual stream (zero init)``
             final_logits = get_final_logits(model, xe).detach()
 
             lens_loss = 0
@@ -62,7 +64,7 @@ def main():
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     args = parser.parse_args()
-
+ 
     os.makedirs(args.output_dir, exist_ok=True)
 
     # Load tokenizer and data
