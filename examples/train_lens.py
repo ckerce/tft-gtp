@@ -17,8 +17,6 @@ def get_final_logits(model, xe):
     return model.lm_head(model.transformer["ln_f"](xe))
 
 def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
-    from tqdm import tqdm
-    import torch.nn.functional as F
 
     # Freeze base model
     for param in model.parameters():
@@ -37,15 +35,15 @@ def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
                 input_ids = batch['input_ids']
 
                 # Token + context streams
-                tok_emb = model.transformer["wte"](input_ids)
-                xt = model.transformer["drop"](tok_emb)
+                tok_emb = unwrapped_model.transformer["wte"](input_ids)
+                xt = unwrapped_model.transformer["drop"](tok_emb)
                 xe = torch.zeros_like(xt)
 
                 # === Forward pass to get final logits ===
                 xt_final, xe_final = xt.clone(), xe.clone()
                 for block in model.transformer.h:
                     xt_final, xe_final, _, _ = block(xt_final, xe_final, return_ffn_out=True)
-                final_logits = model.lm_head(model.transformer["ln_f"](xe_final)).detach()
+                final_logits = unwrapped_model.lm_head(unwrapped_model.transformer["ln_f"](xe_final)).detach()
 
                 # === Compute log-softmax of final logits for KL (P distribution) ===
                 final_log_probs = F.log_softmax(final_logits, dim=-1)         # log P(x)
@@ -63,7 +61,7 @@ def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
                     xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out=True)
 
                     xe_flat = xe.view(-1, xe.size(-1))
-                    pred_logits = model.tuned_lens_heads[layer_idx](xe_flat)
+                    pred_logits = unwrapped_model.tuned_lens_heads[layer_idx](xe_flat)
                     pred_logits = pred_logits.view_as(final_logits)
 
                     pred_log_probs = F.log_softmax(pred_logits, dim=-1)       # log Q(x)
@@ -82,7 +80,7 @@ def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
 
                 optimizer.zero_grad()
                 accelerator.backward(lens_loss)
-                torch.nn.utils.clip_grad_norm_(model.tuned_lens_heads.parameters(), max_norm=1.0)
+                torch.nn.utils.clip_grad_norm_(unwrapped_model.tuned_lens_heads.parameters(), max_norm=1.0)
                 optimizer.step()
 
                 progress_bar.set_postfix(kl_loss=lens_loss.item())
