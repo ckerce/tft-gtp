@@ -11,8 +11,8 @@ from tqdm import tqdm
 
 @torch.no_grad()
 def get_final_logits(model, xe):
-    return model.lm_head(model.transformer.ln_f(xe))
-
+    """Project xe through final layernorm and LM head to get final logits."""
+    return model.lm_head(model.transformer["ln_f"](xe))
 
 def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
     # Freeze base model
@@ -23,28 +23,42 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
             param.requires_grad = True
 
     optimizer = torch.optim.AdamW(model.tuned_lens_heads.parameters(), lr=lr)
-
     model.train()
+
     for epoch in range(epochs):
         total_loss = 0
+
         with tqdm(dataloader, desc=f"Epoch {epoch+1}") as progress_bar:
             for batch in progress_bar:
                 input_ids = batch['input_ids'].to(device)
-                tok_emb = model.transformer["wte"](input_ids)     # token embeddings
-                xt = model.transformer["drop"](tok_emb)           # token stream
-                xe = torch.zeros_like(xt)                         # contextual stream (zero init)``
-                final_logits = get_final_logits(model, xe).detach()
 
+                # Step 1: Initialize token and context streams
+                tok_emb = model.transformer["wte"](input_ids)      # [B, T, d]
+                xt = model.transformer["drop"](tok_emb)            # [B, T, d]
+                xe = torch.zeros_like(xt)                          # [B, T, d]
+
+                # Step 2: Get true final logits by running full model
+                xt_final, xe_final = xt.clone(), xe.clone()
+                for block in model.transformer.h:
+                    xt_final, xe_final, *_ = block(xt_final, xe_final)
+                final_logits = get_final_logits(model, xe_final).detach()  # [B, T, V]
+
+                # Step 3: Run again and apply tuned lens heads layer-by-layer
                 lens_loss = 0
                 for i, block in enumerate(model.transformer.h):
                     xt, xe, *_ = block(xt, xe)
-                    xe_flat = xe.view(-1, xe.size(-1))
-                    pred_logits = model.tuned_lens_heads[i](xe_flat).view_as(final_logits)
-                    lens_loss += F.kl_div(
+
+                    xe_flat = xe.view(-1, xe.size(-1))                     # [B*T, d]
+                    pred_logits = model.tuned_lens_heads[i](xe_flat)      # [B*T, V]
+                    pred_logits = pred_logits.view_as(final_logits)       # [B, T, V]
+
+                    # KL(predicted || final) using log-softmax vs softmax
+                    kl = F.kl_div(
                         F.log_softmax(pred_logits, dim=-1),
                         F.softmax(final_logits, dim=-1),
                         reduction='batchmean'
                     )
+                    lens_loss += kl
 
                 optimizer.zero_grad()
                 lens_loss.backward()
@@ -53,9 +67,9 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
                 progress_bar.set_postfix(kl_loss=lens_loss.item())
                 total_loss += lens_loss.item()
 
-        print(f"[Epoch {epoch+1}] Tuned Lens KL loss: {total_loss / len(dataloader):.4f}")
-
-
+        avg_loss = total_loss / len(dataloader)
+        print(f"[Epoch {epoch+1}] Tuned Lens KL loss: {avg_loss:.4f}")
+        
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_ckpt", type=str, required=True)
