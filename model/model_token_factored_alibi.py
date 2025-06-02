@@ -359,7 +359,7 @@ class FactoredTransformerModelALiBi(nn.Module):
 
         # Set up output file once
         if self._probe_file is None and not self.training:
-            self._probe_file = open("outputs/xe_symbolic_projection_probe.txt", "w")
+            self._probe_file = open("outputs/xe_symbolic_projection_probe_heads.txt", "w")
             self._probe_file.write("=== Symbolic Projection Diagnostic ===\n")
 
 
@@ -375,31 +375,41 @@ class FactoredTransformerModelALiBi(nn.Module):
                 E_T = E.T                                   # [d, V]
                 xe_flat = xe.view(-1, xe.size(-1))          # [B*T, d]
 
-                # No LayerNorm
-                q1 = xe_flat
-                logits1 = q1 @ E_T
-                alpha1 = F.softmax(logits1, dim=-1)
-                xe_proj1 = alpha1 @ E
-                cos_sim1 = F.cosine_similarity(q1, xe_proj1, dim=-1)
-                l2_diff1 = torch.norm(q1 - xe_proj1, dim=-1)
+                # Assuming xe_flat: [B*T, d_model], E: [V, d_model]
+                d_model = xe_flat.size(-1)
+                num_heads = 12  # adjust this based on your model
+                d_head = d_model // num_heads
 
-                # With LayerNorm
-                q2 = F.layer_norm(q1, q1.shape[-1:])
-                logits2 = q2 @ E_T
-                alpha2 = F.softmax(logits2, dim=-1)
-                xe_proj2 = alpha2 @ E
-                q1_normed = F.layer_norm(q1, q1.shape[-1:])
-                xe_proj2_normed = F.layer_norm(xe_proj2, xe_proj2.shape[-1:])
+                # Reshape into heads: [B*T, num_heads, d_head]
+                q = xe_flat.view(-1, num_heads, d_head)  # original
+                q_ln = F.layer_norm(q, [d_head])         # normalized
 
-                cos_sim2 = F.cosine_similarity(q1_normed, xe_proj2_normed, dim=-1)
-                l2_diff2 = torch.norm(q1_normed - xe_proj2_normed, dim=-1)
+                # E: [V, d_model] → [V, num_heads, d_head]
+                E_h = E.view(E.size(0), num_heads, d_head)  # [V, H, d_head]
+                E_T = E_h.permute(1, 2, 0)  # [H, d_head, V]
+
+                # headwise dot product: [B*T, H, d_head] x [H, d_head, V] → [B*T, H, V]
+                logits = torch.einsum('bhd,hdv->bhv', q_ln, E_T)
+                alpha = F.softmax(logits, dim=-1)
+
+                # Projected embeddings: [B*T, H, V] x [V, H, d_head] → [B*T, H, d_head]
+                xe_proj = torch.einsum('bhv,vhd->bhd', alpha, E_h)
+
+                # Cosine similarity: [B*T, H]
+                cos_sim_headwise = F.cosine_similarity(q_ln, xe_proj, dim=-1)
+
+                # L2 distance: [B*T, H]
+                l2_diff_headwise = torch.norm(q_ln - xe_proj, dim=-1)
+
+                # For logging
+                cos_sim_mean = cos_sim_headwise.mean(dim=0)  # [H]
+                l2_diff_mean = l2_diff_headwise.mean(dim=0)  # [H]
 
 
                 # Log
                 if hasattr(self, "_probe_file"):
                     self._probe_file.write(f"\n--- Layer {layer_idx} ---\n")
-                    self._probe_file.write(f"[No LN]  mean cosine: {cos_sim1.mean():.4f}, mean L2: {l2_diff1.mean():.4f}\n")
-                    self._probe_file.write(f"[With LN] mean cosine: {cos_sim2.mean():.4f}, mean L2: {l2_diff2.mean():.4f}\n")
+                    self._probe_file.write(f"[With LN] mean cosine: {cos_sim_mean.mean():.4f}, mean L2: {l2_diff_mean.mean():.4f}\n")
 
 
         if hasattr(self, "_probe_file") and not self.training:
