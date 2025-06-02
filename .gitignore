@@ -4,3 +4,4 @@ venv/
 checkpoints/*
 __pycache__/
 *.pyc
+*.pt
