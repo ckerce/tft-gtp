@@ -18,6 +18,8 @@ def compute_layerwise_kl(model, dataloader, device, lens_heads=None):
     else:
         print("📌 Using untrained (random) lens heads.")
 
+    print("[DEBUG] Tuned lens layer 0 bias (first 3):", model.tuned_lens_heads[0].bias[:3])
+
     for batch in dataloader:
         input_ids = batch['input_ids'].to(device)
 
