@@ -23,7 +23,8 @@ def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
     # Freeze base model
     for param in model.parameters():
         param.requires_grad = False
-    for head in model.tuned_lens_heads:
+    unwrapped_model = accelerator.unwrap_model(model)
+    for head in unwrapped_model.tuned_lens_heads:
         for param in head.parameters():
             param.requires_grad = True
 
