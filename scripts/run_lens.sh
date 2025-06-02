@@ -5,4 +5,4 @@ python ./examples/train_lens.py \
     --dataset "wikimedia/wikipedia" \
     --dataset_config "20231101.en" \
     --output_dir ./outputs/tuned_lens_heads \
-    -epochs 5
+    --epochs 2
