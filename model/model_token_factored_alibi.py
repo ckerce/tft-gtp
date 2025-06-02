@@ -377,7 +377,7 @@ class FactoredTransformerModelALiBi(nn.Module):
 
                 # Assuming xe_flat: [B*T, d_model], E: [V, d_model]
                 d_model = xe_flat.size(-1)
-                num_heads = 12  # adjust this based on your model
+                num_heads = 6  
                 d_head = d_model // num_heads
 
                 # Reshape into heads: [B*T, num_heads, d_head]
