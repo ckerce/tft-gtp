@@ -41,7 +41,7 @@ def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
 
                 # === Forward pass to get final logits ===
                 xt_final, xe_final = xt.clone(), xe.clone()
-                for block in model.transformer.h:
+                for block in unwrapped_model.transformer.h:
                     xt_final, xe_final, _, _ = block(xt_final, xe_final, return_ffn_out=True)
                 final_logits = unwrapped_model.lm_head(unwrapped_model.transformer["ln_f"](xe_final)).detach()
 
