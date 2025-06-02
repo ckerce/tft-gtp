@@ -57,7 +57,7 @@ def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
                     print(f"  sample logits (first token): {final_logits[0,0,:5].tolist()}")
 
                 lens_loss = 0
-                for layer_idx, block in enumerate(model.transformer.h):
+                for layer_idx, block in enumerate(unwrapped_modelmodel.transformer.h):
                     xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out=True)
 
                     xe_flat = xe.view(-1, xe.size(-1))
