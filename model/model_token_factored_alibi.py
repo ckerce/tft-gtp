@@ -298,7 +298,9 @@ class FactoredTransformerModelALiBi(nn.Module):
         # Language model head (shared weights with token embeddings)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         self.transformer.wte.weight = self.lm_head.weight
-
+        self.tuned_lens_heads = nn.ModuleList([
+            nn.Linear(config.n_embd, config.vocab_size) for _ in range(config.n_layer)
+        ])
         # Initialize weights
         self.apply(self._init_weights)
 
