@@ -122,7 +122,7 @@ def main():
     )
 
     # Load model
-    checkpoint = torch.load(args.model_ckpt, map_location="cpu")
+    checkpoint = torch.load(args.model_ckpt, map_location="cpu", weights_only=False)
     model = get_model("factored", config=checkpoint["config"])  # adjust model_type
     model.load_state_dict(checkpoint["model_state_dict"], strict=False)
 
@@ -134,11 +134,11 @@ def main():
 
     train_tuned_lens_heads(model, dataloader, optimizer, args.epochs)
 
-    # Save the tuned lens heads
+    # Save the tuned lens heads safely from the unwrapped model
     if accelerator.is_main_process:
-        torch.save(model.tuned_lens_heads.cpu().state_dict(), os.path.join(args.output_dir, "tuned_lens_heads.pt"))
+        unwrapped_model = accelerator.unwrap_model(model)
+        torch.save(unwrapped_model.tuned_lens_heads.cpu().state_dict(), os.path.join(args.output_dir, "tuned_lens_heads.pt"))
         print(f"Tuned Lens heads saved to {args.output_dir}")
-
 
 
 if __name__ == "__main__":
