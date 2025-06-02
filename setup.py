@@ -9,6 +9,7 @@ setup(
         'datasets>=2.0.0',
         'transformers>=4.20.0',
         'tqdm>=4.60.0',
-        'matplotlib'
+        'matplotlib',
+        'accelerate>=0.18.0'
     ],
 )

@@ -27,29 +27,31 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
     model.train()
     for epoch in range(epochs):
         total_loss = 0
-        for batch in tqdm(dataloader, desc=f"Epoch {epoch+1}"):
-            input_ids = batch['input_ids'].to(device)
-            tok_emb = model.transformer["wte"](input_ids)     # token embeddings
-            xt = model.transformer["drop"](tok_emb)           # token stream
-            xe = torch.zeros_like(xt)                         # contextual stream (zero init)``
-            final_logits = get_final_logits(model, xe).detach()
+        with tqdm(dataloader, desc=f"Epoch {epoch+1}") as progress_bar:
+            for batch in progress_bar:
+                input_ids = batch['input_ids'].to(device)
+                tok_emb = model.transformer["wte"](input_ids)     # token embeddings
+                xt = model.transformer["drop"](tok_emb)           # token stream
+                xe = torch.zeros_like(xt)                         # contextual stream (zero init)``
+                final_logits = get_final_logits(model, xe).detach()
 
-            lens_loss = 0
-            for i, block in enumerate(model.transformer.h):
-                xt, xe, *_ = block(xt, xe)
-                xe_flat = xe.view(-1, xe.size(-1))
-                pred_logits = model.tuned_lens_heads[i](xe_flat).view_as(final_logits)
-                lens_loss += F.kl_div(
-                    F.log_softmax(pred_logits, dim=-1),
-                    F.softmax(final_logits, dim=-1),
-                    reduction='batchmean'
-                )
+                lens_loss = 0
+                for i, block in enumerate(model.transformer.h):
+                    xt, xe, *_ = block(xt, xe)
+                    xe_flat = xe.view(-1, xe.size(-1))
+                    pred_logits = model.tuned_lens_heads[i](xe_flat).view_as(final_logits)
+                    lens_loss += F.kl_div(
+                        F.log_softmax(pred_logits, dim=-1),
+                        F.softmax(final_logits, dim=-1),
+                        reduction='batchmean'
+                    )
 
-            optimizer.zero_grad()
-            lens_loss.backward()
-            optimizer.step()
+                optimizer.zero_grad()
+                lens_loss.backward()
+                optimizer.step()
 
-            total_loss += lens_loss.item()
+                progress_bar.set_postfix(kl_loss=lens_loss.item())
+                total_loss += lens_loss.item()
 
         print(f"[Epoch {epoch+1}] Tuned Lens KL loss: {total_loss / len(dataloader):.4f}")
 
