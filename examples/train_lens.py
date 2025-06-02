@@ -18,7 +18,7 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
     from tqdm import tqdm
     import torch.nn.functional as F
 
-    # Freeze the full model
+    # Freeze base model
     for param in model.parameters():
         param.requires_grad = False
     for head in model.tuned_lens_heads:
@@ -30,36 +30,52 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
 
     for epoch in range(epochs):
         total_loss = 0
-
         with tqdm(dataloader, desc=f"Epoch {epoch+1}") as progress_bar:
-            for batch in progress_bar:
+            for batch_idx, batch in enumerate(progress_bar):
                 input_ids = batch['input_ids'].to(device)
 
-                # Initialize token and contextual streams
-                tok_emb = model.transformer["wte"](input_ids)     # [B, T, d]
-                xt = model.transformer["drop"](tok_emb)           # token stream
-                xe = torch.zeros_like(xt)                         # context stream
+                # Token + context streams
+                tok_emb = model.transformer["wte"](input_ids)
+                xt = model.transformer["drop"](tok_emb)
+                xe = torch.zeros_like(xt)
 
-                # === Run full model to get final logits ===
+                # === Forward pass to get final logits ===
                 xt_final, xe_final = xt.clone(), xe.clone()
                 for block in model.transformer.h:
                     xt_final, xe_final, _, _ = block(xt_final, xe_final, return_ffn_out=True)
                 final_logits = model.lm_head(model.transformer["ln_f"](xe_final)).detach()
 
-                # === Train heads layer-by-layer ===
+                # Debug final logits
+                if batch_idx == 0:
+                    print("\n[DEBUG] Final logits stats:")
+                    print(f"  shape: {final_logits.shape}")
+                    print(f"  mean: {final_logits.mean().item():.4f}, std: {final_logits.std().item():.4f}")
+                    print(f"  max: {final_logits.max().item():.4f}, min: {final_logits.min().item():.4f}")
+                    print(f"  sample logits (first token): {final_logits[0,0,:5].tolist()}")
+
                 lens_loss = 0
                 for layer_idx, block in enumerate(model.transformer.h):
                     xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out=True)
+                    xe_flat = xe.view(-1, xe.size(-1))
+                    pred_logits = model.tuned_lens_heads[layer_idx](xe_flat)
+                    pred_logits = pred_logits.view_as(final_logits)
 
-                    xe_flat = xe.view(-1, xe.size(-1))  # [B*T, d]
-                    pred_logits = model.tuned_lens_heads[layer_idx](xe_flat)  # [B*T, V]
-                    pred_logits = pred_logits.view_as(final_logits)           # [B, T, V]
+                    # Debug predicted logits for first layer and batch
+                    if batch_idx == 0 and layer_idx == 0:
+                        print(f"\n[DEBUG] Layer {layer_idx} pred_logits stats:")
+                        print(f"  shape: {pred_logits.shape}")
+                        print(f"  mean: {pred_logits.mean().item():.4f}, std: {pred_logits.std().item():.4f}")
+                        print(f"  sample logits (first token): {pred_logits[0,0,:5].tolist()}")
 
                     kl = F.kl_div(
                         F.log_softmax(pred_logits, dim=-1),
                         F.softmax(final_logits, dim=-1),
                         reduction='batchmean'
                     )
+
+                    if batch_idx == 0:
+                        print(f"[DEBUG] Layer {layer_idx} KL: {kl.item():.4f}")
+
                     lens_loss += kl
 
                 optimizer.zero_grad()
@@ -70,7 +86,7 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
                 total_loss += lens_loss.item()
 
         avg_loss = total_loss / len(dataloader)
-        print(f"[Epoch {epoch+1}] Tuned Lens KL loss: {avg_loss:.4f}")
+        print(f"\n[Epoch {epoch+1}] Avg Tuned Lens KL loss: {avg_loss:.4f}")
 
 def main():
     parser = argparse.ArgumentParser()
