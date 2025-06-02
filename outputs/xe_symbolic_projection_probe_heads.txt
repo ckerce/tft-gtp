@@ -1,85 +1,49 @@
 === Symbolic Projection Diagnostic ===
 
 --- Layer 0 ---
-[Head 00] cosine: 0.2429, L2: 7.9476
-[Head 01] cosine: 0.0377, L2: 7.9905
-[Head 02] cosine: 0.1263, L2: 7.9750
-[Head 03] cosine: 0.1483, L2: 7.9697
-[Head 04] cosine: -0.0734, L2: 8.0119
-[Head 05] cosine: 0.2653, L2: 7.9423
-[Head 06] cosine: 0.3389, L2: 7.9242
-[Head 07] cosine: 0.0031, L2: 8.0006
-[Head 08] cosine: 0.2738, L2: 7.9433
-[Head 09] cosine: 0.1697, L2: 7.9648
-[Head 10] cosine: 0.3317, L2: 7.9368
-[Head 11] cosine: -0.0542, L2: 8.0098
+[Head 00] cosine: 0.2261, L2: 11.2514
+[Head 01] cosine: 0.2300, L2: 11.2556
+[Head 02] cosine: 0.2498, L2: 11.2592
+[Head 03] cosine: 0.2323, L2: 11.2552
+[Head 04] cosine: 0.2666, L2: 11.2429
+[Head 05] cosine: 0.3432, L2: 11.2501
 
 --- Layer 1 ---
-[Head 00] cosine: 0.2683, L2: 7.9402
-[Head 01] cosine: 0.0665, L2: 7.9847
-[Head 02] cosine: 0.1519, L2: 7.9698
-[Head 03] cosine: 0.1317, L2: 7.9737
-[Head 04] cosine: -0.1418, L2: 8.0231
-[Head 05] cosine: 0.2654, L2: 7.9425
-[Head 06] cosine: 0.3292, L2: 7.9275
-[Head 07] cosine: -0.1241, L2: 8.0261
-[Head 08] cosine: 0.2495, L2: 7.9505
-[Head 09] cosine: 0.1810, L2: 7.9610
-[Head 10] cosine: 0.3522, L2: 7.9316
-[Head 11] cosine: -0.0442, L2: 8.0086
+[Head 00] cosine: 0.2326, L2: 11.2478
+[Head 01] cosine: 0.2377, L2: 11.2526
+[Head 02] cosine: 0.2784, L2: 11.2610
+[Head 03] cosine: 0.2087, L2: 11.2703
+[Head 04] cosine: 0.2537, L2: 11.2475
+[Head 05] cosine: 0.4169, L2: 11.2274
 
 --- Layer 2 ---
-[Head 00] cosine: 0.2679, L2: 7.9396
-[Head 01] cosine: 0.0773, L2: 7.9841
-[Head 02] cosine: 0.1376, L2: 7.9720
-[Head 03] cosine: 0.1284, L2: 7.9743
-[Head 04] cosine: -0.1721, L2: 8.0276
-[Head 05] cosine: 0.2908, L2: 7.9351
-[Head 06] cosine: 0.3060, L2: 7.9353
-[Head 07] cosine: -0.1446, L2: 8.0296
-[Head 08] cosine: 0.2869, L2: 7.9409
-[Head 09] cosine: 0.1350, L2: 7.9699
-[Head 10] cosine: 0.3459, L2: 7.9317
-[Head 11] cosine: -0.0287, L2: 8.0063
+[Head 00] cosine: 0.2290, L2: 11.2492
+[Head 01] cosine: 0.2281, L2: 11.2557
+[Head 02] cosine: 0.3023, L2: 11.2597
+[Head 03] cosine: 0.2529, L2: 11.2652
+[Head 04] cosine: 0.2591, L2: 11.2465
+[Head 05] cosine: 0.5036, L2: 11.1966
 
 --- Layer 3 ---
-[Head 00] cosine: 0.3038, L2: 7.9288
-[Head 01] cosine: 0.0799, L2: 7.9838
-[Head 02] cosine: 0.1541, L2: 7.9671
-[Head 03] cosine: 0.1364, L2: 7.9715
-[Head 04] cosine: -0.1663, L2: 8.0278
-[Head 05] cosine: 0.2846, L2: 7.9369
-[Head 06] cosine: 0.3372, L2: 7.9261
-[Head 07] cosine: -0.1395, L2: 8.0292
-[Head 08] cosine: 0.3305, L2: 7.9281
-[Head 09] cosine: 0.1498, L2: 7.9691
-[Head 10] cosine: 0.3612, L2: 7.9282
-[Head 11] cosine: -0.0252, L2: 8.0057
+[Head 00] cosine: 0.2380, L2: 11.2454
+[Head 01] cosine: 0.2246, L2: 11.2538
+[Head 02] cosine: 0.3235, L2: 11.2568
+[Head 03] cosine: 0.2366, L2: 11.2677
+[Head 04] cosine: 0.2758, L2: 11.2390
+[Head 05] cosine: 0.5100, L2: 11.2097
 
 --- Layer 4 ---
-[Head 00] cosine: 0.3495, L2: 7.9138
-[Head 01] cosine: 0.0997, L2: 7.9776
-[Head 02] cosine: 0.2092, L2: 7.9537
-[Head 03] cosine: 0.1367, L2: 7.9713
-[Head 04] cosine: -0.1585, L2: 8.0273
-[Head 05] cosine: 0.3316, L2: 7.9215
-[Head 06] cosine: 0.3849, L2: 7.9135
-[Head 07] cosine: -0.1293, L2: 8.0282
-[Head 08] cosine: 0.3394, L2: 7.9260
-[Head 09] cosine: 0.2060, L2: 7.9555
-[Head 10] cosine: 0.3576, L2: 7.9298
-[Head 11] cosine: -0.0158, L2: 8.0043
+[Head 00] cosine: 0.2685, L2: 11.2311
+[Head 01] cosine: 0.2500, L2: 11.2439
+[Head 02] cosine: 0.2808, L2: 11.2625
+[Head 03] cosine: 0.2129, L2: 11.2709
+[Head 04] cosine: 0.3059, L2: 11.2253
+[Head 05] cosine: 0.5176, L2: 11.2028
 
 --- Layer 5 ---
-[Head 00] cosine: 0.3728, L2: 7.9056
-[Head 01] cosine: 0.1214, L2: 7.9725
-[Head 02] cosine: 0.2463, L2: 7.9448
-[Head 03] cosine: 0.1849, L2: 7.9591
-[Head 04] cosine: -0.1494, L2: 8.0264
-[Head 05] cosine: 0.3590, L2: 7.9133
-[Head 06] cosine: 0.4055, L2: 7.9078
-[Head 07] cosine: -0.1099, L2: 8.0251
-[Head 08] cosine: 0.3597, L2: 7.9189
-[Head 09] cosine: 0.2849, L2: 7.9341
-[Head 10] cosine: 0.3963, L2: 7.9196
-[Head 11] cosine: -0.0089, L2: 8.0034
+[Head 00] cosine: 0.2933, L2: 11.2207
+[Head 01] cosine: 0.2765, L2: 11.2321
+[Head 02] cosine: 0.2463, L2: 11.2671
+[Head 03] cosine: 0.1984, L2: 11.2721
+[Head 04] cosine: 0.3490, L2: 11.2043
+[Head 05] cosine: 0.4574, L2: 11.2214
