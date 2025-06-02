@@ -81,7 +81,7 @@ def main():
     # Load model
     checkpoint = torch.load(args.model_ckpt)
     model = get_model("factored", config=checkpoint['config'])  # adjust model_type
-    model.load_state_dict(checkpoint['model_state_dict'])
+    model.load_state_dict(checkpoint['model_state_dict'], strict=False)
     model.to(args.device)
 
     train_tuned_lens_heads(model, dataloader, args.device, args.epochs, args.lr)
