@@ -409,7 +409,11 @@ class FactoredTransformerModelALiBi(nn.Module):
                 # Log
                 if hasattr(self, "_probe_file"):
                     self._probe_file.write(f"\n--- Layer {layer_idx} ---\n")
-                    self._probe_file.write(f"[With LN] mean cosine: {cos_sim_mean.mean():.4f}, mean L2: {l2_diff_mean.mean():.4f}\n")
+                    for h in range(num_heads):
+                        self._probe_file.write(
+                            f"[Head {h:02d}] cosine: {cos_sim_mean[h]:.4f}, L2: {l2_diff_mean[h]:.4f}\n"
+                        )
+
 
 
         if hasattr(self, "_probe_file") and not self.training:
