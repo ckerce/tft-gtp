@@ -8,13 +8,15 @@ from model import get_model
 from utils.data_utils import load_and_prepare_data
 from mytokenizers import create_tokenizer
 from tqdm import tqdm
+from accelerate import Accelerator
+accelerator = Accelerator()
 
 @torch.no_grad()
 def get_final_logits(model, xe):
     """Project xe through final layernorm and LM head to get final logits."""
     return model.lm_head(model.transformer["ln_f"](xe))
 
-def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
+def train_tuned_lens_heads(model, dataloader, optimizer, epochs=3):
     from tqdm import tqdm
     import torch.nn.functional as F
 
@@ -25,14 +27,13 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
         for param in head.parameters():
             param.requires_grad = True
 
-    optimizer = torch.optim.AdamW(model.tuned_lens_heads.parameters(), lr=lr)
     model.train()
 
     for epoch in range(epochs):
         total_loss = 0
         with tqdm(dataloader, desc=f"Epoch {epoch+1}") as progress_bar:
             for batch_idx, batch in enumerate(progress_bar):
-                input_ids = batch['input_ids'].to(device)
+                input_ids = batch['input_ids']
 
                 # Token + context streams
                 tok_emb = model.transformer["wte"](input_ids)
@@ -79,7 +80,7 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
                     lens_loss += kl
 
                 optimizer.zero_grad()
-                lens_loss.backward()
+                accelerator.backward(lens_loss)
                 torch.nn.utils.clip_grad_norm_(model.tuned_lens_heads.parameters(), max_norm=1.0)
                 optimizer.step()
 
@@ -121,16 +122,23 @@ def main():
     )
 
     # Load model
-    checkpoint = torch.load(args.model_ckpt)
-    model = get_model("factored", config=checkpoint['config'])  # adjust model_type
-    model.load_state_dict(checkpoint['model_state_dict'], strict=False)
-    model.to(args.device)
+    checkpoint = torch.load(args.model_ckpt, map_location="cpu")
+    model = get_model("factored", config=checkpoint["config"])  # adjust model_type
+    model.load_state_dict(checkpoint["model_state_dict"], strict=False)
 
-    train_tuned_lens_heads(model, dataloader, args.device, args.epochs, args.lr)
+    # Prepare optimizer before training
+    optimizer = torch.optim.AdamW(model.tuned_lens_heads.parameters(), lr=args.lr)
+
+    # Wrap model, optimizer, and dataloader with accelerate
+    model, optimizer, dataloader = accelerator.prepare(model, optimizer, dataloader)
+
+    train_tuned_lens_heads(model, dataloader, optimizer, args.epochs)
 
     # Save the tuned lens heads
-    torch.save(model.tuned_lens_heads.state_dict(), os.path.join(args.output_dir, "tuned_lens_heads.pt"))
-    print(f"Tuned Lens heads saved to {args.output_dir}")
+    if accelerator.is_main_process:
+        torch.save(model.tuned_lens_heads.cpu().state_dict(), os.path.join(args.output_dir, "tuned_lens_heads.pt"))
+        print(f"Tuned Lens heads saved to {args.output_dir}")
+
 
 
 if __name__ == "__main__":
