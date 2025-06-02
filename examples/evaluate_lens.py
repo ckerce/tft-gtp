@@ -1,8 +1,8 @@
 import torch
 
 # === One-off file paths ===
-full_ckpt_path = "path/to/alibi_model.pt"
-output_path = "tuned_lens_heads.pt"
+full_ckpt_path = "checkpoints/alibi_model.pt"
+output_path = "outputs/tuned_lens_heads/tuned_lens_heads.pt"
 
 # === Load and extract ===
 ckpt = torch.load(full_ckpt_path, map_location="cpu")
