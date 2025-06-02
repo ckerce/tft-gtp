@@ -55,7 +55,8 @@ def main():
     tokenizer = create_tokenizer("gpt2", use_fast=True)
 
     dataloader, _ = load_and_prepare_data(
-        dataset_name="roneneldan/TinyStories",
+        dataset_name="wikimedia/wikipedia",
+        dataset_config="20231101.en",
         tokenizer=tokenizer,
         max_samples=1000,
         max_seq_length=128,
@@ -63,7 +64,6 @@ def main():
         split='train',
         shuffle=False,
     )
-
     ckpt = torch.load(model_ckpt, map_location=device)
     model = get_model("factored", config=ckpt["config"]).to(device)
     model.load_state_dict(ckpt["model_state_dict"], strict=False)
