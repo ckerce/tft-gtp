@@ -45,7 +45,10 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
                     xt_final, xe_final, _, _ = block(xt_final, xe_final, return_ffn_out=True)
                 final_logits = model.lm_head(model.transformer["ln_f"](xe_final)).detach()
 
-                # Debug final logits
+                # === Compute log-softmax of final logits for KL (P distribution) ===
+                final_log_probs = F.log_softmax(final_logits, dim=-1)         # log P(x)
+                final_probs = final_log_probs.exp()                           # P(x)
+
                 if batch_idx == 0:
                     print("\n[DEBUG] Final logits stats:")
                     print(f"  shape: {final_logits.shape}")
@@ -56,34 +59,33 @@ def train_tuned_lens_heads(model, dataloader, device, epochs=3, lr=1e-4):
                 lens_loss = 0
                 for layer_idx, block in enumerate(model.transformer.h):
                     xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out=True)
+
                     xe_flat = xe.view(-1, xe.size(-1))
                     pred_logits = model.tuned_lens_heads[layer_idx](xe_flat)
                     pred_logits = pred_logits.view_as(final_logits)
 
-                    # Debug predicted logits for first layer and batch
-                    if batch_idx == 0 and layer_idx == 0:
+                    pred_log_probs = F.log_softmax(pred_logits, dim=-1)       # log Q(x)
+
+                    # Stable KL: KL(P || Q) = sum P * (log P - log Q)
+                    kl = torch.sum(final_probs * (final_log_probs - pred_log_probs), dim=-1).mean()
+
+                    if batch_idx == 0:
                         print(f"\n[DEBUG] Layer {layer_idx} pred_logits stats:")
                         print(f"  shape: {pred_logits.shape}")
                         print(f"  mean: {pred_logits.mean().item():.4f}, std: {pred_logits.std().item():.4f}")
                         print(f"  sample logits (first token): {pred_logits[0,0,:5].tolist()}")
-
-                    kl = F.kl_div(
-                        F.log_softmax(pred_logits, dim=-1),
-                        F.softmax(final_logits, dim=-1),
-                        reduction='batchmean'
-                    )
-
-                    if batch_idx == 0:
                         print(f"[DEBUG] Layer {layer_idx} KL: {kl.item():.4f}")
 
                     lens_loss += kl
 
                 optimizer.zero_grad()
                 lens_loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.tuned_lens_heads.parameters(), max_norm=1.0)
                 optimizer.step()
 
                 progress_bar.set_postfix(kl_loss=lens_loss.item())
                 total_loss += lens_loss.item()
+
 
         avg_loss = total_loss / len(dataloader)
         print(f"\n[Epoch {epoch+1}] Avg Tuned Lens KL loss: {avg_loss:.4f}")
