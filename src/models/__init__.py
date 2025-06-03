@@ -4,7 +4,7 @@ Model registry for TFT and other transformer variants.
 """
 
 from .model_tft_alibi import TokenFactoredTransformer
-from .vanilla_transformer import VanillaTransformer
+from .model_vanilla import VanillaTransformer
 from config.model_configs import TFTConfig
 from typing import Dict, Type, Any
 
