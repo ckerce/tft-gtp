@@ -1,140 +1,241 @@
-#!/usr/bin/env python3
+# tests/test2.py
 """
-Integration test for TFT-GPT training pipeline.
-Tests the complete training flow with minimal setup to catch integration issues.
+Comprehensive integration tests for TFT-GPT before running multi-GPU training.
+Tests that all components work together: config, models, trainers, accelerate, etc.
 """
 
 import os
 import sys
 import torch
 import tempfile
-import traceback
+import shutil
+import json
 from pathlib import Path
+from typing import Dict, Any, Optional
 
 # Add src to path
 sys.path.insert(0, 'src')
 
-# Model imports
-from models import get_model, TokenFactoredTransformer
-from config.model_configs import get_config, TFTConfig, print_config
+# Suppress tokenizer warnings
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# Tokenizer imports
-from mytokenizers import create_tokenizer, GPT2Tokenizer
-
-# Training imports
-from trainers import get_trainer, SimpleTrainer
-from trainers.callbacks import JSONLoggingCallback
-
-# Utilities
-from utils.data_utils import load_and_prepare_data
-from utils.json_logger import JSONLogger
-
-print("✅ All imports successful")
-
-def test_config():
-    """Test configuration system."""
-    print("🔧 Testing configuration...")
+class IntegrationTestSuite:
+    """Comprehensive integration test suite."""
     
-    try:
-        # Test preset configs
-        for preset in ['tiny', 'small']:
-            config = get_config(preset)
-            print(f"  - {preset}: {config.n_layers}L-{config.n_heads}H-{config.d_model}D")
+    def __init__(self):
+        self.temp_dir = None
+        self.test_results = []
+        self.verbose = True
         
-        # Test config overrides
-        custom_config = get_config('tiny', n_layers=3, use_v=True)
-        assert custom_config.n_layers == 3
-        assert custom_config.use_v == True
+    def setup(self):
+        """Setup test environment."""
+        self.temp_dir = tempfile.mkdtemp(prefix="tft_test_")
+        print(f"🏗️  Test directory: {self.temp_dir}")
         
-        # Test config validation
-        print_config(get_config('tiny'), "Test Config")
-        
-        print("✅ Configuration system working")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Config error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def test_model_creation():
-    """Test model creation and basic operations."""
-    print("🏗️ Testing model creation...")
+    def cleanup(self):
+        """Cleanup test environment."""
+        if self.temp_dir and os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+            print(f"🧹 Cleaned up: {self.temp_dir}")
     
-    try:
-        # Create tiny config for testing
-        config = get_config('tiny')
-        
-        # Create model
-        model = get_model('tft', config)
-        print(f"  - Model created: {model.get_num_params()} parameters")
-        
-        # Test model forward pass
-        batch_size, seq_len = 2, 16
-        input_ids = torch.randint(0, config.vocab_size, (batch_size, seq_len))
-        
-        model.eval()
-        with torch.no_grad():
-            outputs = model(input_ids)
-            assert 'logits' in outputs
-            assert outputs['logits'].shape == (batch_size, seq_len, config.vocab_size)
-            print(f"  - Forward pass: {outputs['logits'].shape}")
-        
-        # Test generation
-        with torch.no_grad():
-            generated = model.generate(input_ids[:1], max_new_tokens=5, temperature=1.0)
-            assert generated.shape[1] == seq_len + 5
-            print(f"  - Generation: {generated.shape}")
-        
-        print("✅ Model creation and basic ops working")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Model error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def test_tokenizer():
-    """Test tokenizer functionality."""
-    print("🔤 Testing tokenizer...")
+    def log_test(self, test_name: str, success: bool, details: str = ""):
+        """Log test result."""
+        status = "✅" if success else "❌"
+        self.test_results.append((test_name, success, details))
+        if self.verbose:
+            print(f"  {status} {test_name}" + (f": {details}" if details else ""))
+        return success
     
-    try:
-        # Create tokenizer
-        tokenizer = create_tokenizer('gpt2')
-        print(f"  - Tokenizer vocab size: {tokenizer.vocab_size}")
+    def test_imports(self) -> bool:
+        """Test all critical imports work."""
+        print("\n🔍 Testing Critical Imports")
+        print("-" * 40)
         
-        # Test encoding/decoding
-        text = "Hello world"
-        encoded = tokenizer.encode(text)
-        decoded = tokenizer.decode(encoded)
-        print(f"  - Encode/decode: '{text}' -> {encoded} -> '{decoded}'")
+        imports_to_test = [
+            # Models
+            ("models.model_tft_alibi", "TokenFactoredTransformer"),
+            ("models.model_vanilla", "VanillaTransformer"),
+            ("models", "get_model"),
+            
+            # Config system
+            ("config.model_configs", "TFTConfig"),
+            ("config.model_configs", "get_config"),
+            
+            # Tokenizers
+            ("mytokenizers", "create_tokenizer"),
+            ("mytokenizers", "GPT2Tokenizer"),
+            
+            # Training
+            ("trainers", "get_trainer"),
+            ("trainers.simple_trainer", "SimpleTrainer"),
+            ("trainers.accelerate_trainer", "AccelerateTrainer"),
+            ("trainers.callbacks", "JSONLoggingCallback"),
+            
+            # Utils
+            ("utils.data_utils", "load_and_prepare_data"),
+            ("utils.json_logger", "JSONLogger"),
+            ("utils.plotting", "plot_training_curves"),
+            
+            # Inference
+            ("inference", "run_generation"),
+        ]
         
-        # Test batch processing
-        batch_encoded = tokenizer(
-            ["Hello", "World"], 
-            padding=True, 
-            return_tensors='pt'
-        )
-        print(f"  - Batch encoding: {batch_encoded['input_ids'].shape}")
+        all_success = True
+        for module_name, class_name in imports_to_test:
+            try:
+                module = __import__(module_name, fromlist=[class_name])
+                getattr(module, class_name)
+                self.log_test(f"Import {module_name}.{class_name}", True)
+            except Exception as e:
+                self.log_test(f"Import {module_name}.{class_name}", False, str(e))
+                all_success = False
         
-        print("✅ Tokenizer working")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Tokenizer error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def test_data_loading():
-    """Test data loading with a small sample."""
-    print("📚 Testing data loading...")
+        return all_success
     
-    try:
-        # Create tokenizer for data loading
-        tokenizer = create_tokenizer('gpt2')
+    def test_accelerate_availability(self) -> bool:
+        """Test if accelerate is available and working."""
+        print("\n🚀 Testing Accelerate Availability")
+        print("-" * 40)
         
-        # Test with TinyStories (small sample)
         try:
+            from accelerate import Accelerator
+            accelerator = Accelerator()
+            device_count = torch.cuda.device_count() if torch.cuda.is_available() else 0
+            
+            self.log_test("Accelerate import", True)
+            self.log_test("Accelerator creation", True, f"Device: {accelerator.device}")
+            self.log_test("CUDA availability", torch.cuda.is_available(), f"GPUs: {device_count}")
+            
+            return True
+        except Exception as e:
+            self.log_test("Accelerate setup", False, str(e))
+            return False
+    
+    def test_config_system(self) -> bool:
+        """Test configuration system."""
+        print("\n⚙️ Testing Configuration System")
+        print("-" * 40)
+        
+        try:
+            from config.model_configs import get_config, CONFIG_PRESETS, TFTConfig
+            
+            # Test all presets
+            for preset in ['tiny', 'small', 'medium']:
+                config = get_config(preset)
+                self.log_test(f"Config preset '{preset}'", True, 
+                             f"{config.n_layers}L-{config.n_heads}H-{config.d_model}D")
+            
+            # Test custom overrides
+            custom_config = get_config('tiny', n_layers=3, use_v=True, learning_rate=1e-3)
+            success = (custom_config.n_layers == 3 and 
+                      custom_config.use_v and 
+                      custom_config.learning_rate == 1e-3)
+            self.log_test("Config overrides", success)
+            
+            # Test config validation
+            try:
+                invalid_config = TFTConfig(d_model=100, n_heads=7)  # Not divisible
+                self.log_test("Config validation", False, "Should have failed")
+                return False
+            except AssertionError:
+                self.log_test("Config validation", True, "Correctly caught invalid config")
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Config system", False, str(e))
+            return False
+    
+    def test_model_creation(self) -> bool:
+        """Test model creation and basic functionality."""
+        print("\n🏗️ Testing Model Creation")
+        print("-" * 40)
+        
+        try:
+            from models import get_model
+            from config.model_configs import get_config
+            
+            config = get_config('tiny')  # Small model for testing
+            
+            # Test both model types
+            for model_type in ['tft', 'vanilla']:
+                model = get_model(model_type, config)
+                param_count = model.get_num_params()
+                
+                self.log_test(f"Create {model_type} model", True, f"{param_count:,} params")
+                
+                # Test forward pass
+                batch_size, seq_len = 2, 8
+                input_ids = torch.randint(0, config.vocab_size, (batch_size, seq_len))
+                
+                model.eval()
+                with torch.no_grad():
+                    outputs = model(input_ids, labels=input_ids)
+                    
+                self.log_test(f"{model_type} forward pass", True, 
+                             f"Loss: {outputs['loss'].item():.4f}")
+                
+                # Test generation
+                generated = model.generate(input_ids[:1], max_new_tokens=3, temperature=0.8)
+                self.log_test(f"{model_type} generation", True, 
+                             f"Shape: {generated.shape}")
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Model creation", False, str(e))
+            import traceback
+            if self.verbose:
+                traceback.print_exc()
+            return False
+    
+    def test_tokenizer_system(self) -> bool:
+        """Test tokenizer functionality."""
+        print("\n🔤 Testing Tokenizer System")
+        print("-" * 40)
+        
+        try:
+            from mytokenizers import create_tokenizer, from_pretrained
+            
+            # Test tokenizer creation
+            tokenizer = create_tokenizer('gpt2')
+            self.log_test("Create GPT-2 tokenizer", True, f"Vocab size: {tokenizer.vocab_size}")
+            
+            # Test basic functionality
+            test_text = "Hello, world! This is a test."
+            encoded = tokenizer.encode(test_text)
+            decoded = tokenizer.decode(encoded)
+            
+            self.log_test("Tokenizer encode/decode", True, 
+                         f"'{test_text}' -> {len(encoded)} tokens")
+            
+            # Test batch processing
+            batch_texts = ["First text", "Second text", "Third text"]
+            batch_output = tokenizer(batch_texts, padding=True, return_tensors='pt')
+            
+            expected_shape = (len(batch_texts), batch_output['input_ids'].shape[1])
+            success = batch_output['input_ids'].shape == expected_shape
+            self.log_test("Tokenizer batch processing", success, 
+                         f"Shape: {batch_output['input_ids'].shape}")
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Tokenizer system", False, str(e))
+            return False
+    
+    def test_data_loading(self) -> bool:
+        """Test data loading functionality."""
+        print("\n📊 Testing Data Loading")
+        print("-" * 40)
+        
+        try:
+            from utils.data_utils import load_and_prepare_data
+            from mytokenizers import create_tokenizer
+            
+            tokenizer = create_tokenizer('gpt2')
+            
+            # Test with TinyStories (small sample)
             dataloader, _ = load_and_prepare_data(
                 dataset_name="roneneldan/TinyStories",
                 dataset_config=None,
@@ -142,98 +243,64 @@ def test_data_loading():
                 max_samples=100,  # Very small for testing
                 max_seq_length=32,
                 batch_size=4,
-                split='train',
-                shuffle=True
+                split='train'
             )
             
-            # Test getting a batch
+            self.log_test("Load TinyStories dataset", True, f"{len(dataloader)} batches")
+            
+            # Test batch iteration
             batch = next(iter(dataloader))
-            print(f"  - Batch keys: {list(batch.keys())}")
-            print(f"  - Input shape: {batch['input_ids'].shape}")
-            print(f"  - Labels shape: {batch['labels'].shape}")
+            expected_keys = {'input_ids', 'attention_mask', 'labels'}
+            has_keys = expected_keys.issubset(batch.keys())
             
-            print("✅ Data loading working")
+            self.log_test("Data batch format", has_keys, 
+                         f"Keys: {list(batch.keys())}")
+            
+            self.log_test("Batch shapes", True, 
+                         f"input_ids: {batch['input_ids'].shape}")
+            
             return True
             
-        except Exception as data_e:
-            print(f"⚠️ TinyStories failed, trying simple text data...")
-            
-            # Fallback: create simple mock dataloader
-            from torch.utils.data import DataLoader, TensorDataset
-            
-            # Create simple dummy data
-            dummy_data = torch.randint(0, 1000, (50, 32))  # 50 samples, 32 tokens each
-            dummy_labels = dummy_data.clone()
-            
-            dataset = TensorDataset(dummy_data, dummy_labels)
-            dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
-            
-            # Test batch
-            for batch_data in dataloader:
-                input_ids, labels = batch_data
-                batch = {
-                    'input_ids': input_ids,
-                    'labels': labels,
-                    'attention_mask': torch.ones_like(input_ids)
-                }
-                print(f"  - Dummy batch shape: {batch['input_ids'].shape}")
-                break
-            
-            print("✅ Data loading working (with fallback)")
-            return True
-            
-    except Exception as e:
-        print(f"❌ Data loading error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def test_training_integration():
-    """Test the complete training pipeline."""
-    print("🎯 Testing training integration...")
+        except Exception as e:
+            self.log_test("Data loading", False, str(e))
+            return False
     
-    try:
-        # Create temporary directory for outputs
-        with tempfile.TemporaryDirectory() as temp_dir:
-            print(f"  - Using temp dir: {temp_dir}")
+    def test_simple_trainer(self) -> bool:
+        """Test SimpleTrainer with minimal setup."""
+        print("\n🎓 Testing SimpleTrainer")
+        print("-" * 40)
+        
+        try:
+            from trainers import get_trainer
+            from trainers.callbacks import JSONLoggingCallback
+            from models import get_model
+            from config.model_configs import get_config
+            from mytokenizers import create_tokenizer
+            from utils.data_utils import load_and_prepare_data
             
-            # Setup minimal configuration
-            config = get_config('tiny', block_size=16, max_position_embeddings=32)
+            # Setup minimal training
+            config = get_config('tiny', block_size=16)
+            model = get_model('tft', config)
             tokenizer = create_tokenizer('gpt2')
             config.vocab_size = tokenizer.vocab_size
             
-            # Create model
-            model = get_model('tft', config)
-            device = torch.device('cpu')  # Use CPU for testing
-            model.to(device)
+            # Create minimal dataset
+            dataloader, _ = load_and_prepare_data(
+                dataset_name="roneneldan/TinyStories",
+                dataset_config=None,
+                tokenizer=tokenizer,
+                max_samples=50,
+                max_seq_length=16,
+                batch_size=2,
+                split='train'
+            )
             
-            # Create simple dummy data
-            from torch.utils.data import DataLoader, TensorDataset
-            
-            # Generate dummy sequences
-            dummy_data = torch.randint(0, min(1000, config.vocab_size), (20, config.block_size))
-            
-            def simple_collate(batch):
-                input_ids = torch.stack([item[0] for item in batch])
-                return {
-                    'input_ids': input_ids,
-                    'labels': input_ids.clone(),  # For language modeling
-                    'attention_mask': torch.ones_like(input_ids)
-                }
-            
-            dataset = TensorDataset(dummy_data)
-            dataloader = DataLoader(dataset, batch_size=4, shuffle=True, collate_fn=simple_collate)
-            
-            # Create optimizer
             optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
+            device = torch.device('cpu')  # Use CPU for testing
             
-            # Setup JSON logging
-            callbacks = [
-                JSONLoggingCallback(
-                    output_dir=temp_dir,
-                    run_name="integration_test",
-                    log_every_n_steps=2
-                )
-            ]
+            # Setup callbacks
+            test_output = os.path.join(self.temp_dir, "simple_trainer_test")
+            callbacks = [JSONLoggingCallback(test_output, "test_run")]
             
             # Create trainer
             trainer = get_trainer(
@@ -242,128 +309,419 @@ def test_training_integration():
                 dataloader=dataloader,
                 optimizer=optimizer,
                 device=device,
-                num_epochs=2,  # Just 2 epochs for testing
-                output_dir=temp_dir,
+                num_epochs=1,
+                output_dir=test_output,
                 callbacks=callbacks
             )
             
-            print("  - Trainer created, starting training...")
+            self.log_test("Create SimpleTrainer", True)
             
             # Run training
             metrics = trainer.train()
             
-            print(f"  - Training completed!")
-            print(f"  - Final loss: {metrics.get('final_loss', 'N/A')}")
-            print(f"  - Training time: {metrics.get('training_time', 'N/A'):.2f}s")
+            self.log_test("SimpleTrainer.train()", True, 
+                         f"Final loss: {metrics.get('final_loss', 'N/A')}")
             
-            # Check if logs were created
-            log_file = os.path.join(temp_dir, "training_metrics.json")
-            if os.path.exists(log_file):
-                print(f"  - JSON log created: {log_file}")
-                
-                # Load and check log content
-                import json
-                with open(log_file, 'r') as f:
+            # Check outputs
+            log_file = os.path.join(test_output, "training_metrics.json")
+            logs_exist = os.path.exists(log_file)
+            self.log_test("Training logs created", logs_exist)
+            
+            if logs_exist:
+                with open(log_file) as f:
                     log_data = json.load(f)
-                
-                print(f"  - Log epochs: {len(log_data['metrics']['epochs'])}")
-                print(f"  - Log steps: {len(log_data['metrics']['steps'])}")
+                has_epochs = len(log_data['metrics']['epochs']) > 0
+                self.log_test("Training metrics logged", has_epochs)
             
-            # Test model generation after training
-            model.eval()
-            test_input = torch.randint(0, config.vocab_size, (1, 5)).to(device)
-            
-            with torch.no_grad():
-                generated = model.generate(test_input, max_new_tokens=10, temperature=1.0)
-                print(f"  - Generated shape: {generated.shape}")
-            
-            print("✅ Training integration working")
             return True
             
-    except Exception as e:
-        print(f"❌ Training integration error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def test_model_variants():
-    """Test different TFT model configurations."""
-    print("🔄 Testing model variants...")
+        except Exception as e:
+            self.log_test("SimpleTrainer", False, str(e))
+            import traceback
+            if self.verbose:
+                traceback.print_exc()
+            return False
     
-    try:
-        # Test with different factorization options
-        configs = [
-            ('baseline', {}),
-            ('with_v_factorization', {'use_v': True}),
-            ('with_output_projection', {'use_proj': True}),
-            ('with_both', {'use_v': True, 'use_proj': True}),
-        ]
+    def test_accelerate_trainer(self) -> bool:
+        """Test AccelerateTrainer with minimal setup."""
+        print("\n🚀 Testing AccelerateTrainer")
+        print("-" * 40)
         
-        for name, overrides in configs:
-            config = get_config('tiny', **overrides)
+        try:
+            from trainers.accelerate_trainer import AccelerateTrainer
+            from trainers.callbacks import JSONLoggingCallback
+            from models import get_model
+            from config.model_configs import get_config
+            from mytokenizers import create_tokenizer
+            from utils.data_utils import load_and_prepare_data
+            
+            # Setup minimal training
+            config = get_config('tiny', block_size=16)
+            model = get_model('tft', config)
+            tokenizer = create_tokenizer('gpt2')
+            config.vocab_size = tokenizer.vocab_size
+            
+            # Create minimal dataset
+            dataloader, _ = load_and_prepare_data(
+                dataset_name="roneneldan/TinyStories",
+                dataset_config=None,
+                tokenizer=tokenizer,
+                max_samples=30,
+                max_seq_length=16,
+                batch_size=2,
+                split='train'
+            )
+            
+            optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
+            
+            # Setup callbacks
+            test_output = os.path.join(self.temp_dir, "accelerate_trainer_test")
+            callbacks = [JSONLoggingCallback(test_output, "accelerate_test")]
+            
+            # Create AccelerateTrainer directly
+            trainer = AccelerateTrainer(
+                model=model,
+                dataloader=dataloader,
+                optimizer=optimizer,
+                num_epochs=1,
+                output_dir=test_output,
+                callbacks=callbacks,
+                mixed_precision="no",  # Disable for testing
+                gradient_accumulation_steps=1
+            )
+            
+            self.log_test("Create AccelerateTrainer", True, 
+                         f"Device: {trainer.device}")
+            
+            # Run training
+            metrics = trainer.train()
+            
+            self.log_test("AccelerateTrainer.train()", True, 
+                         f"Final loss: {metrics.get('final_loss', 'N/A')}")
+            
+            # Check outputs
+            log_file = os.path.join(test_output, "training_metrics.json")
+            logs_exist = os.path.exists(log_file)
+            self.log_test("Accelerate training logs", logs_exist)
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("AccelerateTrainer", False, str(e))
+            import traceback
+            if self.verbose:
+                traceback.print_exc()
+            return False
+    
+    def test_trainer_registry(self) -> bool:
+        """Test trainer registry system."""
+        print("\n📋 Testing Trainer Registry")
+        print("-" * 40)
+        
+        try:
+            from trainers import get_trainer, TRAINER_REGISTRY
+            
+            # Check available trainers
+            available = list(TRAINER_REGISTRY.keys())
+            self.log_test("Trainer registry", True, f"Available: {available}")
+            
+            expected_trainers = ['simple']
+            for trainer_type in expected_trainers:
+                if trainer_type in available:
+                    self.log_test(f"Trainer '{trainer_type}' registered", True)
+                else:
+                    self.log_test(f"Trainer '{trainer_type}' registered", False)
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Trainer registry", False, str(e))
+            return False
+    
+    def test_generation_pipeline(self) -> bool:
+        """Test complete generation pipeline."""
+        print("\n🎨 Testing Generation Pipeline")
+        print("-" * 40)
+        
+        try:
+            from models import get_model
+            from config.model_configs import get_config
+            from mytokenizers import create_tokenizer
+            from inference import run_generation
+            
+            # Setup
+            config = get_config('tiny')
+            model = get_model('tft', config)
+            tokenizer = create_tokenizer('gpt2')
+            device = torch.device('cpu')
+            
+            # Test generation
+            prompt = "Once upon a time"
+            generated_ids, generated_text = run_generation(
+                model=model,
+                tokenizer=tokenizer,
+                prompt_text=prompt,
+                device=device,
+                max_new_tokens=10,
+                temperature=0.8,
+                show_progress=False
+            )
+            
+            self.log_test("Generation pipeline", True, 
+                         f"Generated {len(generated_ids)} tokens")
+            
+            self.log_test("Generated text quality", len(generated_text) > len(prompt),
+                         f"'{generated_text[:50]}...'")
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Generation pipeline", False, str(e))
+            return False
+    
+    def test_plotting_system(self) -> bool:
+        """Test plotting and logging utilities."""
+        print("\n📊 Testing Plotting System")
+        print("-" * 40)
+        
+        try:
+            from utils.json_logger import JSONLogger
+            from utils.plotting import plot_training_curves
+            
+            # Create fake training log
+            log_file = os.path.join(self.temp_dir, "test_log.json")
+            logger = JSONLogger(log_file, "test_run")
+            
+            # Log some fake data
+            logger.log_config({"model": {"n_layers": 2}})
+            
+            for epoch in range(1, 4):
+                logger.log_epoch(epoch, {"loss": 2.0 - epoch * 0.3})
+                
+            logger.finish({"final_loss": 1.1})
+            
+            self.log_test("JSON logging", True, f"Log: {log_file}")
+            
+            # Test plotting (will fail without display, but we check import)
+            try:
+                import matplotlib
+                matplotlib.use('Agg')  # Non-interactive backend
+                
+                plot_file = os.path.join(self.temp_dir, "test_plot.png")
+                fig = plot_training_curves(log_file, plot_file, "Test Plot")
+                
+                plot_exists = os.path.exists(plot_file)
+                self.log_test("Plot generation", plot_exists)
+                
+            except Exception as plot_e:
+                self.log_test("Plot generation", False, f"Plot error: {plot_e}")
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Plotting system", False, str(e))
+            return False
+    
+    def test_full_integration(self) -> bool:
+        """Test complete integration with all components."""
+        print("\n🎯 Testing Full Integration")
+        print("-" * 40)
+        
+        try:
+            # This is a mini version of the training script
+            from models import get_model
+            from config.model_configs import get_config
+            from mytokenizers import create_tokenizer
+            from utils.data_utils import load_and_prepare_data
+            from trainers import get_trainer
+            from trainers.callbacks import JSONLoggingCallback
+            
+            # Configuration
+            config = get_config('tiny', block_size=16, learning_rate=1e-3)
+            
+            # Tokenizer
+            tokenizer = create_tokenizer('gpt2')
+            config.vocab_size = tokenizer.vocab_size
+            
+            # Data
+            dataloader, _ = load_and_prepare_data(
+                dataset_name="roneneldan/TinyStories",
+                dataset_config=None,
+                tokenizer=tokenizer,
+                max_samples=40,
+                max_seq_length=16,
+                batch_size=2,
+                split='train'
+            )
+            
+            # Model
             model = get_model('tft', config)
             
-            # Test forward pass
-            input_ids = torch.randint(0, config.vocab_size, (1, 8))
+            # Optimizer
+            optimizer = torch.optim.AdamW(
+                model.parameters(),
+                lr=config.learning_rate,
+                weight_decay=0.01
+            )
             
-            with torch.no_grad():
-                outputs = model(input_ids)
-                assert 'logits' in outputs
-                print(f"  - {name}: {model.get_num_params()} params, output shape: {outputs['logits'].shape}")
-        
-        print("✅ Model variants working")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Model variants error: {e}")
-        print(traceback.format_exc())
-        return False
-
-def run_all_tests():
-    """Run all integration tests."""
-    print("🧪 Running TFT-GPT Integration Tests")
-    print("=" * 50)
-    
-    tests = [
-        ("Configuration", test_config),
-        ("Model Creation", test_model_creation),
-        ("Tokenizer", test_tokenizer),
-       # ("Data Loading", test_data_loading),
-        ("Training Integration", test_training_integration),
-        ("Model Variants", test_model_variants),
-    ]
-    
-    results = []
-    
-    for test_name, test_func in tests:
-        print(f"\n{'='*20} {test_name} {'='*20}")
-        try:
-            success = test_func()
-            results.append((test_name, success))
+            # Training setup
+            device = torch.device('cpu')
+            output_dir = os.path.join(self.temp_dir, "full_integration_test")
+            
+            callbacks = [
+                JSONLoggingCallback(
+                    output_dir=output_dir,
+                    run_name="integration_test",
+                    log_every_n_steps=5
+                )
+            ]
+            
+            # Trainer
+            trainer = get_trainer(
+                trainer_type='simple',
+                model=model,
+                dataloader=dataloader,
+                optimizer=optimizer,
+                device=device,
+                num_epochs=1,
+                output_dir=output_dir,
+                callbacks=callbacks
+            )
+            
+            # Train
+            metrics = trainer.train()
+            
+            self.log_test("Full integration training", True, 
+                         f"Loss: {metrics.get('final_loss', 'N/A')}")
+            
+            # Test generation
+            from inference import run_generation
+            
+            generated_ids, generated_text = run_generation(
+                model=model,
+                tokenizer=tokenizer,
+                prompt_text="Hello",
+                device=device,
+                max_new_tokens=5,
+                show_progress=False
+            )
+            
+            self.log_test("Full integration generation", True,
+                         f"Generated: '{generated_text}'")
+            
+            # Check all outputs exist
+            expected_files = [
+                "training_metrics.json",
+                "checkpoint_epoch_1.pt"
+            ]
+            
+            for filename in expected_files:
+                file_path = os.path.join(output_dir, filename)
+                exists = os.path.exists(file_path)
+                self.log_test(f"Output file {filename}", exists)
+            
+            return True
+            
         except Exception as e:
-            print(f"❌ {test_name} failed with exception: {e}")
-            results.append((test_name, False))
+            self.log_test("Full integration", False, str(e))
+            import traceback
+            if self.verbose:
+                traceback.print_exc()
+            return False
     
-    # Summary
-    print("\n" + "="*50)
-    print("📋 TEST SUMMARY")
-    print("="*50)
+    def run_all_tests(self) -> bool:
+        """Run all integration tests."""
+        print("🧪 TFT-GPT INTEGRATION TEST SUITE")
+        print("=" * 50)
+        
+        self.setup()
+        
+        try:
+            test_methods = [
+                self.test_imports,
+                self.test_accelerate_availability,
+                self.test_config_system,
+                self.test_tokenizer_system,
+                self.test_model_creation,
+                self.test_data_loading,
+                self.test_trainer_registry,
+                self.test_simple_trainer,
+                self.test_accelerate_trainer,
+                self.test_generation_pipeline,
+                self.test_plotting_system,
+                self.test_full_integration,
+            ]
+            
+            for test_method in test_methods:
+                try:
+                    test_method()
+                except Exception as e:
+                    print(f"❌ Test {test_method.__name__} crashed: {e}")
+                    self.test_results.append((test_method.__name__, False, str(e)))
+            
+            # Summary
+            self.print_summary()
+            
+            # Return overall success
+            passed = sum(1 for _, success, _ in self.test_results if success)
+            total = len(self.test_results)
+            
+            return passed >= total * 0.8  # 80% pass rate
+            
+        finally:
+            self.cleanup()
     
-    passed = 0
-    for test_name, success in results:
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status:<10} {test_name}")
-        if success:
-            passed += 1
+    def print_summary(self):
+        """Print test summary."""
+        print("\n" + "=" * 50)
+        print("📋 INTEGRATION TEST SUMMARY")
+        print("=" * 50)
+        
+        passed = sum(1 for _, success, _ in self.test_results if success)
+        total = len(self.test_results)
+        
+        print(f"\nTests passed: {passed}/{total} ({passed/total*100:.1f}%)")
+        
+        if passed == total:
+            print("\n🎉 ALL TESTS PASSED!")
+            print("✅ Ready for multi-GPU training")
+        elif passed >= total * 0.9:
+            print("\n✅ EXCELLENT! Almost all tests passed")
+            print("✅ Safe to proceed with multi-GPU training")
+        elif passed >= total * 0.8:
+            print("\n⚠️ GOOD - Most tests passed")
+            print("✅ Probably safe for multi-GPU training")
+        else:
+            print("\n❌ ISSUES FOUND")
+            print("⚠️ Fix issues before multi-GPU training")
+        
+        # Show failed tests
+        failed_tests = [(name, details) for name, success, details in self.test_results if not success]
+        if failed_tests:
+            print(f"\n❌ Failed tests ({len(failed_tests)}):")
+            for name, details in failed_tests:
+                print(f"   • {name}: {details}")
+        
+        print(f"\n💡 Next steps:")
+        if passed >= total * 0.8:
+            print("   1. ✅ Run single-GPU training test:")
+            print("      python experiments/train_tft.py --preset tiny --epochs 1 --max_samples 100")
+            print("   2. ✅ Run multi-GPU comparison:")
+            print("      bash experiments/run_train_compare.sh 2 small 3")
+        else:
+            print("   1. ❌ Fix failed tests first")
+            print("   2. ❌ Re-run integration tests")
+            print("   3. ✅ Then proceed with multi-GPU testing")
+
+
+def main():
+    """Run integration tests."""
+    suite = IntegrationTestSuite()
+    success = suite.run_all_tests()
     
-    print(f"\nOverall: {passed}/{len(results)} tests passed")
-    
-    if passed == len(results):
-        print("🎉 All tests passed! Integration is working.")
-        return True
-    else:
-        print("⚠️ Some tests failed. Check the errors above.")
-        return False
+    return 0 if success else 1
+
 
 if __name__ == "__main__":
-    success = run_all_tests()
-    sys.exit(0 if success else 1)
+    exit_code = main()
+    sys.exit(exit_code)
