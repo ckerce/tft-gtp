@@ -19,7 +19,7 @@ from transformers import AutoTokenizer
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config_alibi import GPTConfigALiBi, print_config_alibi, load_alibi_config_preset
+from src.config.config_alibi import GPTConfigALiBi, print_config_alibi, load_alibi_config_preset
 from model.model_token_factored_alibi import FactoredTransformerModelALiBi
 
 # Setup logging

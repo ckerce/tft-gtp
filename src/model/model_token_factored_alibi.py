@@ -23,7 +23,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 import os
 import torch.serialization
-from config_alibi import GPTConfigALiBi, print_config_alibi
+from src.config.config_alibi import GPTConfigALiBi, print_config_alibi
 
 
 class LayerNorm(nn.Module):
