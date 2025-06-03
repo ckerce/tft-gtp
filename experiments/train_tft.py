@@ -11,6 +11,7 @@ import torch
 from pathlib import Path
 
 sys.path.insert(0, 'src')
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 from models import get_model
 from config.model_configs import get_config
@@ -38,7 +39,7 @@ def parse_args():
     parser.add_argument('--block_size', type=int, default=None)
     
     # TFT features
-    parser.add_argument('--use_v', action='store_true', help='Use value factorization')
+    parser.add_argument('--use_v', action='store_true', help='Use value matrix in attention')
     parser.add_argument('--use_proj', action='store_true', help='Use output projection')
     
     # Output
@@ -77,9 +78,9 @@ def main():
     if args.lr:
         config_overrides['learning_rate'] = args.lr
     if args.use_v:
-        config_overrides['use_value_factorization'] = True
+        config_overrides['use_v'] = True
     if args.use_proj:
-        config_overrides['use_output_projection'] = True
+        config_overrides['use_proj'] = True
     
     config = get_config(args.preset, **config_overrides)
     print(f"Config: {config.n_layers}L-{config.n_heads}H-{config.d_model}D, block_size={config.block_size}")

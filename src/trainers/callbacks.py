@@ -9,7 +9,7 @@ import time
 from typing import Dict, Optional, Any
 
 from .base_trainer import Callback
-from src.utils.json_logger import JSONLogger, MetricsAggregator
+from utils.json_logger import JSONLogger, MetricsAggregator
 
 logger = logging.getLogger(__name__)
 

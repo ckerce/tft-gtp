@@ -36,18 +36,18 @@ class ALiBiAttention(nn.Module):
         self.n_heads = config.n_heads
         self.d_model = config.d_model
         self.head_dim = config.d_model // config.n_heads
-        self.use_value_factorization = config.use_value_factorization
-        self.use_output_projection = config.use_output_projection
+        self.use_v = config.use_v
+        self.use_proj = config.use_proj
         
         # Q, K projections (always needed)
         self.qk_proj = nn.Linear(config.d_model, 2 * config.d_model, bias=config.bias)
         
         # Optional V factorization
-        if self.use_value_factorization:
+        if self.use_v:
             self.v_factorization = nn.Parameter(torch.randn(config.n_heads, config.n_heads) * 0.02)
         
         # Optional output projection
-        if self.use_output_projection:
+        if self.use_proj:
             self.output_factorization = nn.Parameter(torch.randn(config.n_heads, config.n_heads) * 0.02)
             self.resid_dropout = nn.Dropout(config.dropout)
         
@@ -120,7 +120,7 @@ class ALiBiAttention(nn.Module):
         k = k.view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
         
         # Handle values based on factorization setting
-        if self.use_value_factorization:
+        if self.use_v:
             v_matrix = self._kronecker_lift(self.v_factorization)
             v_flat = torch.matmul(xt.view(-1, C), v_matrix.t())
             v = v_flat.view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
@@ -144,7 +144,7 @@ class ALiBiAttention(nn.Module):
         y = y.transpose(1, 2).contiguous().view(B, T, C)
         
         # Optional output projection
-        if self.use_output_projection:
+        if self.use_proj:
             proj_matrix = self._kronecker_lift(self.output_factorization)
             y_flat = torch.matmul(y.view(-1, C), proj_matrix.t())
             y = y_flat.view(B, T, C)
@@ -243,7 +243,7 @@ class TokenFactoredTransformer(nn.Module):
             if hasattr(module, 'output_factorization'):
                 torch.nn.init.normal_(module.output_factorization, mean=0.0, std=0.02/math.sqrt(2 * self.config.n_layers))
     
-    def forward(self, input_ids: torch.Tensor, labels: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
+    def forward(self, input_ids: torch.Tensor, attention_mask=None, labels: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
         """Forward pass."""
         B, T = input_ids.size()
         

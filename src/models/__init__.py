@@ -1,9 +1,10 @@
-# models/__init__.py
+# src/models/__init__.py
 """
 Model registry for TFT and other transformer variants.
 """
 
 from .model_tft_alibi import TokenFactoredTransformer
+from .vanilla_transformer import VanillaTransformer
 from config.model_configs import TFTConfig
 from typing import Dict, Type, Any
 
@@ -11,6 +12,8 @@ from typing import Dict, Type, Any
 MODEL_REGISTRY: Dict[str, Type] = {
     'tft': TokenFactoredTransformer,
     'tft-alibi': TokenFactoredTransformer,  # Alias
+    'vanilla': VanillaTransformer,
+    'baseline': VanillaTransformer,  # Alias
 }
 
 
@@ -37,6 +40,7 @@ def list_models() -> list:
 # Export main classes
 __all__ = [
     'TokenFactoredTransformer',
+    'VanillaTransformer',
     'TFTConfig', 
     'get_model',
     'register_model',

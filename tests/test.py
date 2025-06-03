@@ -80,8 +80,8 @@ def create_equivalent_configs():
             dropout=common_params['dropout'],
             bias=common_params['bias'],
             max_position_embeddings=64,
-            use_value_factorization=True,  # old: use_v
-            use_output_projection=True,    # old: use_proj
+            use_v=True,  # old: use_v
+            use_proj=True,    # old: use_proj
         )
         
         print(f"  ✅ Configs created - Old: {old_config.n_layer}L/{old_config.n_head}H/{old_config.n_embd}D")
@@ -314,8 +314,8 @@ def test_config_system():
                 return False
         
         # Test config overrides
-        custom_config = get_config('small', n_layers=8, use_value_factorization=True)
-        if custom_config.n_layers == 8 and custom_config.use_value_factorization:
+        custom_config = get_config('small', n_layers=8, use_v=True)
+        if custom_config.n_layers == 8 and custom_config.use_v:
             print("  ✅ Config overrides work")
         else:
             print("  ❌ Config overrides failed")
