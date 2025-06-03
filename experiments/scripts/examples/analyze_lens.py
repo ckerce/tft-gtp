@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
 from models import get_model
-from src.utils.data_utils import load_and_prepare_data
+from utils.data_utils import load_and_prepare_data
 from mytokenizers import create_tokenizer
 
 

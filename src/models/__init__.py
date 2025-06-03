@@ -1,4 +1,4 @@
-# model/__init__.py
+# models/__init__.py
 """
 Simple model registry for TFT-GPT.
 """

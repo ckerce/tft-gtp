@@ -61,7 +61,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from src.config.config_alibi import GPTConfigALiBi, print_config_alibi, load_alibi_config_preset, create_config_from_args_alibi
 from mytokenizers import create_tokenizer
-from model import get_model
+from models import get_model
 from src.utils.data_utils import load_and_prepare_data
 from src.trainers import get_trainer
 from src.inference.generation import run_generation

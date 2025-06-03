@@ -5,7 +5,7 @@ from transformers import AutoTokenizer
 import os
 import argparse
 from models import get_model  
-from src.utils.data_utils import load_and_prepare_data
+from utils.data_utils import load_and_prepare_data
 from mytokenizers import create_tokenizer
 from tqdm import tqdm
 from accelerate import Accelerator

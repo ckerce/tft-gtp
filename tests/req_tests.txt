@@ -1,0 +1,11 @@
+# Testing requirements for TFT refactor
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-xdist>=3.0.0  # For parallel testing
+torch>=2.0.0
+transformers>=4.20.0
+numpy>=1.21.0
+
+# Optional: for better test output
+pytest-html>=3.0.0
+pytest-benchmark>=4.0.0
