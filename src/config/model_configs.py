@@ -21,8 +21,8 @@ class TFTConfig:
     bias: bool = False
     
     # TFT-specific parameters
-    use_value_factorization: bool = False
-    use_output_projection: bool = False
+    use_v: bool = False
+    use_proj: bool = False
     
     # ALiBi parameters
     block_size: int = 128  # Training sequence length
@@ -101,8 +101,8 @@ def get_config(preset: str, **overrides) -> TFTConfig:
         'd_ff': config.d_ff,
         'dropout': config.dropout,
         'bias': config.bias,
-        'use_value_factorization': config.use_value_factorization,
-        'use_output_projection': config.use_output_projection,
+        'use_v': config.use_v,
+        'use_proj': config.use_proj,
         'block_size': config.block_size,
         'max_position_embeddings': config.max_position_embeddings,
         'learning_rate': config.learning_rate,
@@ -130,8 +130,8 @@ def print_config(config: TFTConfig, title: str = "TFT Configuration"):
     print(f"  Vocabulary Size:      {config.vocab_size:,}")
     
     print(f"\n🔧 TFT FEATURES:")
-    print(f"  Value Factorization:  {config.use_value_factorization}")
-    print(f"  Output Projection:    {config.use_output_projection}")
+    print(f"  Value Factorization:  {config.use_v}")
+    print(f"  Output Projection:    {config.use_proj}")
     
     print(f"\n📏 SEQUENCE HANDLING:")
     print(f"  Training Length:      {config.block_size}")
@@ -175,5 +175,5 @@ if __name__ == "__main__":
     
     # Test overrides
     print(f"\nCUSTOM CONFIG:")
-    custom = get_config('small', n_layers=8, use_value_factorization=True)
-    print(f"  {custom.n_layers}L (overridden), factorization={custom.use_value_factorization}")
+    custom = get_config('small', n_layers=8, use_v=True)
+    print(f"  {custom.n_layers}L (overridden), factorization={custom.use_v}")
