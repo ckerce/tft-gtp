@@ -1,4 +1,4 @@
-# ./config_alibi.py
+# ./old_config.py
 """
 Configuration settings for cleanGPT Token-Factored models with ALiBi positional encoding.
 Extends the base configuration to support ALiBi-specific parameters.

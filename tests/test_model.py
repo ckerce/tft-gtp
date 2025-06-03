@@ -14,7 +14,7 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models.tft_alibi import TokenFactoredTransformer, TFTConfig
+from models.model_tft_alibi import TokenFactoredTransformer, TFTConfig
 
 
 class TestTFTConfig:

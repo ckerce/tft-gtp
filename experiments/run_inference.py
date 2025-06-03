@@ -8,7 +8,7 @@ Supports interactive and one-shot prompt modes.
 import argparse
 import torch
 from transformers import AutoTokenizer
-from models.model_token_factored_alibi import FactoredTransformerModelALiBi
+from models.old_model import FactoredTransformerModelALiBi
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run inference with FactoredTransformerModelALiBi.")

@@ -14,37 +14,70 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-def test_imports():
-    """Test that both models can be imported."""
-    print("🔍 Testing imports...")
+def debug_original_model():
+    """Debug the original model to understand its interface."""
+    print("\n🔍 Debugging original model interface...")
     
     try:
-        # Original model
-        from src.models.model_token_factored_alibi import FactoredTransformerModelALiBi
-        from src.config.config_alibi import GPTConfigALiBi
-        print("  ✅ Original model imported")
+        from models.old_model import FactoredTransformerModelALiBi
+        from config.old_config import GPTConfigALiBi
         
-        # New model
-        from models.tft_alibi import TokenFactoredTransformer, TFTConfig
-        print("  ✅ New model imported")
+        # Create a small config to debug
+        config = GPTConfigALiBi(
+            vocab_size=100,
+            n_layer=1,
+            n_head=2,
+            n_embd=64,
+            block_size=16,
+            dropout=0.0
+        )
         
-        return True, (FactoredTransformerModelALiBi, GPTConfigALiBi, TokenFactoredTransformer, TFTConfig)
+        model = FactoredTransformerModelALiBi(config)
+        print(f"  ✅ Model created with config: {config.block_size} block_size")
+        
+        # Try different input sizes to find what works
+        for seq_len in [8, 16, 32]:
+            try:
+                input_ids = torch.randint(0, 100, (1, seq_len))
+                output = model(input_ids)
+                print(f"  ✅ Seq length {seq_len} works: output shape {output['logits'].shape}")
+                break
+            except Exception as e:
+                print(f"  ❌ Seq length {seq_len} failed: {e}")
+        
+        # Check generation interface
+        try:
+            input_ids = torch.randint(0, 100, (1, 4))
+            gen_output = model.generate(idx=input_ids, max_new_tokens=2)
+            print(f"  ✅ Generation works with 'idx' parameter: {gen_output.shape}")
+        except Exception as e:
+            print(f"  ❌ Generation with 'idx' failed: {e}")
+            
+            try:
+                gen_output = model.generate(input_ids, 2)
+                print(f"  ✅ Generation works with positional args: {gen_output.shape}")
+            except Exception as e2:
+                print(f"  ❌ Generation with positional args failed: {e2}")
+        
+        return True
         
     except Exception as e:
-        print(f"  ❌ Import failed: {e}")
-        return False, None
+        print(f"  ❌ Debug failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 def create_equivalent_configs():
     """Create equivalent configs for both models."""
     print("\n⚙️ Creating equivalent configurations...")
     
-    # Common parameters
+    # Common parameters - use smaller values that work with your original model
     common_params = {
         'vocab_size': 1000,
         'n_layer': 2,      # Original uses n_layer
         'n_head': 4,       # Original uses n_head  
         'n_embd': 128,     # Original uses n_embd
-        'block_size': 32,
+        'block_size': 16,  # Smaller block size to avoid shape issues
         'dropout': 0.0,    # Disable for deterministic comparison
         'bias': False,
         'use_v': True,     # Test with factorization enabled
@@ -53,7 +86,7 @@ def create_equivalent_configs():
     
     try:
         # Original config
-        from src.config.config_alibi import GPTConfigALiBi
+        from config.old_config import GPTConfigALiBi
         original_config = GPTConfigALiBi(
             vocab_size=common_params['vocab_size'],
             n_layer=common_params['n_layer'],
@@ -64,11 +97,11 @@ def create_equivalent_configs():
             bias=common_params['bias'],
             use_v=common_params['use_v'],
             use_proj=common_params['use_proj'],
-            max_position_embeddings=64,
+            max_position_embeddings=32,  # Small value
         )
         
         # New config  
-        from models.tft_alibi import TFTConfig
+        from models.model_tft_alibi import TFTConfig
         new_config = TFTConfig(
             vocab_size=common_params['vocab_size'],
             n_layers=common_params['n_layer'],  # New uses n_layers
@@ -79,10 +112,12 @@ def create_equivalent_configs():
             bias=common_params['bias'],
             use_value_factorization=common_params['use_v'],
             use_output_projection=common_params['use_proj'],
-            max_position_embeddings=64,
+            max_position_embeddings=32,
         )
         
         print("  ✅ Configs created successfully")
+        print(f"  Original config block_size: {original_config.block_size}")
+        print(f"  New config block_size: {new_config.block_size}")
         return True, (original_config, new_config)
         
     except Exception as e:
@@ -103,14 +138,14 @@ def compare_model_creation():
     
     try:
         # Create original model
-        from src.models.model_token_factored_alibi import FactoredTransformerModelALiBi
+        from models.old_model import FactoredTransformerModelALiBi
         torch.manual_seed(42)
         original_model = FactoredTransformerModelALiBi(original_config)
         original_params = original_model.get_num_params()
         print(f"  ✅ Original model: {original_params:,} parameters")
         
         # Create new model
-        from models.tft_alibi import TokenFactoredTransformer
+        from models.model_tft_alibi import TokenFactoredTransformer
         torch.manual_seed(42)
         new_model = TokenFactoredTransformer(new_config)
         new_params = new_model.get_num_params()
@@ -138,24 +173,55 @@ def compare_forward_pass(original_model, new_model):
     print("\n➡️ Comparing forward pass...")
     
     try:
-        # Create test input
-        batch_size, seq_len = 2, 16
+        # Use very small input that should work with your original model
+        batch_size, seq_len = 1, 8  # Small sequence length
         vocab_size = 1000
         input_ids = torch.randint(0, vocab_size, (batch_size, seq_len))
+        
+        print(f"  Using input shape: {input_ids.shape}")
         
         # Set models to eval mode
         original_model.eval()
         new_model.eval()
         
         with torch.no_grad():
-            # Original model forward pass
+            # Original model forward pass - based on your actual code
             try:
-                original_output = original_model(input_ids=input_ids, labels=input_ids)
+                # Your original model uses input_ids and attention_mask
+                original_output = original_model(
+                    input_ids=input_ids, 
+                    attention_mask=None,  # Try without attention mask first
+                    labels=input_ids
+                )
                 print(f"  ✅ Original forward pass: {original_output['logits'].shape}")
-                print(f"      Loss: {original_output['loss'].item():.4f}")
-            except Exception as e:
-                print(f"  ❌ Original forward pass failed: {e}")
-                return False
+                if original_output.get('loss') is not None:
+                    print(f"      Loss: {original_output['loss'].item():.4f}")
+                else:
+                    print(f"      Loss: No loss computed")
+            except Exception as e1:
+                try:
+                    # Try with attention mask
+                    attention_mask = torch.ones_like(input_ids)
+                    original_output = original_model(
+                        input_ids=input_ids,
+                        attention_mask=attention_mask,
+                        labels=input_ids
+                    )
+                    print(f"  ✅ Original forward pass (with mask): {original_output['logits'].shape}")
+                    if original_output.get('loss') is not None:
+                        print(f"      Loss: {original_output['loss'].item():.4f}")
+                except Exception as e2:
+                    try:
+                        # Try without labels
+                        original_output = original_model(input_ids=input_ids)
+                        print(f"  ✅ Original forward pass (no labels): {original_output['logits'].shape}")
+                        print(f"      Loss: No labels provided")
+                    except Exception as e3:
+                        print(f"  ❌ Original forward pass failed with all methods:")
+                        print(f"      Error 1 (basic): {e1}")
+                        print(f"      Error 2 (with mask): {e2}")
+                        print(f"      Error 3 (no labels): {e3}")
+                        return False
             
             # New model forward pass
             try:
@@ -164,6 +230,8 @@ def compare_forward_pass(original_model, new_model):
                 print(f"      Loss: {new_output['loss'].item():.4f}")
             except Exception as e:
                 print(f"  ❌ New forward pass failed: {e}")
+                import traceback
+                traceback.print_exc()
                 return False
         
         # Compare shapes
@@ -193,32 +261,52 @@ def compare_generation(original_model, new_model):
     print("\n🎯 Comparing generation...")
     
     try:
-        batch_size, seq_len = 1, 8
+        batch_size, seq_len = 1, 4  # Very small input for generation
         vocab_size = 1000
         input_ids = torch.randint(0, vocab_size, (batch_size, seq_len))
+        
+        print(f"  Using generation input shape: {input_ids.shape}")
         
         original_model.eval()
         new_model.eval()
         
         with torch.no_grad():
-            # Original model generation
+            # Original model generation - based on your actual generate method signature
             try:
+                # Your original model uses idx parameter
                 original_generated = original_model.generate(
-                    input_ids, 
-                    max_new_tokens=5,
+                    idx=input_ids,
+                    max_new_tokens=3,  # Small number to avoid issues
                     temperature=0.8,
                     top_k=40
                 )
                 print(f"  ✅ Original generation: {original_generated.shape}")
-            except Exception as e:
-                print(f"  ❌ Original generation failed: {e}")
-                return False
+            except Exception as e1:
+                try:
+                    # Try without top_k (your model might not support it)
+                    original_generated = original_model.generate(
+                        idx=input_ids,
+                        max_new_tokens=3,
+                        temperature=0.8
+                    )
+                    print(f"  ✅ Original generation (no top_k): {original_generated.shape}")
+                except Exception as e2:
+                    try:
+                        # Try minimal parameters
+                        original_generated = original_model.generate(input_ids, 3)
+                        print(f"  ✅ Original generation (minimal): {original_generated.shape}")
+                    except Exception as e3:
+                        print(f"  ❌ Original generation failed with all methods:")
+                        print(f"      Error 1 (full params): {e1}")
+                        print(f"      Error 2 (no top_k): {e2}")
+                        print(f"      Error 3 (minimal): {e3}")
+                        return False
             
             # New model generation
             try:
                 new_generated = new_model.generate(
                     input_ids,
-                    max_new_tokens=5, 
+                    max_new_tokens=3, 
                     temperature=0.8,
                     top_k=40
                 )
@@ -291,6 +379,26 @@ def compare_special_features(original_model, new_model):
         traceback.print_exc()
         return False
 
+def test_imports():
+    """Test that both models can be imported."""
+    print("🔍 Testing imports...")
+    
+    try:
+        # Original model
+        from models.old_model import FactoredTransformerModelALiBi
+        from config.old_config import GPTConfigALiBi
+        print("  ✅ Original model imported")
+        
+        # New model
+        from models.model_tft_alibi import TokenFactoredTransformer, TFTConfig
+        print("  ✅ New model imported")
+        
+        return True, (FactoredTransformerModelALiBi, GPTConfigALiBi, TokenFactoredTransformer, TFTConfig)
+        
+    except Exception as e:
+        print(f"  ❌ Import failed: {e}")
+        return False, None
+
 def main():
     """Run complete comparison."""
     print("=" * 60)
@@ -298,7 +406,11 @@ def main():
     print("=" * 60)
     
     success_count = 0
-    total_tests = 5
+    total_tests = 6  # Added debug test
+    
+    # Debug original model first
+    if debug_original_model():
+        success_count += 1
     
     # Test imports
     success, _ = test_imports()

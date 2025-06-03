@@ -1,24 +1,45 @@
 # models/__init__.py
 """
-Simple model registry for TFT-GPT.
+Model registry for TFT and other transformer variants.
 """
 
-from .model_token_factored_alibi import FactoredTransformerModelALiBi
+from .model_tft_alibi import TokenFactoredTransformer
+from config.model_configs import TFTConfig
+from typing import Dict, Type, Any
 
-def get_model(model_type, config):
-    """
-    Simple model factory function.
+# Model registry for extensibility
+MODEL_REGISTRY: Dict[str, Type] = {
+    'tft': TokenFactoredTransformer,
+    'tft-alibi': TokenFactoredTransformer,  # Alias
+}
+
+
+def register_model(name: str, model_class: Type):
+    """Register a new model type."""
+    MODEL_REGISTRY[name] = model_class
+
+
+def get_model(model_type: str, config: TFTConfig):
+    """Get a model instance by type."""
+    if model_type not in MODEL_REGISTRY:
+        available = list(MODEL_REGISTRY.keys())
+        raise ValueError(f"Unknown model type '{model_type}'. Available: {available}")
     
-    Args:
-        model_type: Type of model to create
-        config: Model configuration
-        
-    Returns:
-        Initialized model instance
-    """
-    if model_type.lower() in ['factored', 'factoredalibi', 'factored_alibi']:
-        return FactoredTransformerModelALiBi(config)
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
+    model_class = MODEL_REGISTRY[model_type]
+    return model_class(config)
 
-__all__ = ['FactoredTransformerModelALiBi', 'get_model']
+
+def list_models() -> list:
+    """List available model types."""
+    return list(MODEL_REGISTRY.keys())
+
+
+# Export main classes
+__all__ = [
+    'TokenFactoredTransformer',
+    'TFTConfig', 
+    'get_model',
+    'register_model',
+    'list_models',
+    'MODEL_REGISTRY'
+]

@@ -1,4 +1,4 @@
-# ./model/model_token_factored_alibi.py
+# ./model/old_model.py
 """
 Factored Transformer model with Pre-Layer Normalization and ALiBi positional encoding.
 This model incorporates separate token-like (xt) and embedding (xe) streams to represent
@@ -23,7 +23,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 import os
 import torch.serialization
-from src.config.config_alibi import GPTConfigALiBi, print_config_alibi
+from config.old_config import GPTConfigALiBi, print_config_alibi
 
 
 class LayerNorm(nn.Module):
@@ -363,61 +363,61 @@ class FactoredTransformerModelALiBi(nn.Module):
             self._probe_file.write("=== Symbolic Projection Diagnostic ===\n")
 
 
-        # Pass through transformer blocks
-        ffn_outputs = []
-        for layer_idx, block in enumerate(self.transformer.h):
-            xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out = True)
-            ffn_outputs.append(self.transformer.ln_f(xe))
+        # # Pass through transformer blocks
+        # ffn_outputs = []
+        # for layer_idx, block in enumerate(self.transformer.h):
+        #     xt, xe, ffn_out, attn_out = block(xt, xe, return_ffn_out = True)
+        #     ffn_outputs.append(self.transformer.ln_f(xe))
 
-            # === Probe after each layer ===
-            with torch.no_grad():
-                E = self.transformer.wte.weight             # [V, d]
-                E_T = E.T                                   # [d, V]
-                xe_flat = xe.view(-1, xe.size(-1))          # [B*T, d]
+        #     # === Probe after each layer ===
+        #     with torch.no_grad():
+        #         E = self.transformer.wte.weight             # [V, d]
+        #         E_T = E.T                                   # [d, V]
+        #         xe_flat = xe.view(-1, xe.size(-1))          # [B*T, d]
 
-                # Assuming xe_flat: [B*T, d_model], E: [V, d_model]
-                d_model = xe_flat.size(-1)
-                num_heads = 6  
-                d_head = d_model // num_heads
+        #         # Assuming xe_flat: [B*T, d_model], E: [V, d_model]
+        #         d_model = xe_flat.size(-1)
+        #         num_heads = 6  
+        #         d_head = d_model // num_heads
 
-                # Reshape into heads: [B*T, num_heads, d_head]
-                q = xe_flat.view(-1, num_heads, d_head)  # original
-                q_ln = F.layer_norm(q, [d_head])         # normalized
+        #         # Reshape into heads: [B*T, num_heads, d_head]
+        #         q = xe_flat.view(-1, num_heads, d_head)  # original
+        #         q_ln = F.layer_norm(q, [d_head])         # normalized
 
-                # E: [V, d_model] → [V, num_heads, d_head]
-                E_h = E.view(E.size(0), num_heads, d_head)  # [V, H, d_head]
-                E_T = E_h.permute(1, 2, 0)  # [H, d_head, V]
+        #         # E: [V, d_model] → [V, num_heads, d_head]
+        #         E_h = E.view(E.size(0), num_heads, d_head)  # [V, H, d_head]
+        #         E_T = E_h.permute(1, 2, 0)  # [H, d_head, V]
 
-                # headwise dot product: [B*T, H, d_head] x [H, d_head, V] → [B*T, H, V]
-                logits = torch.einsum('bhd,hdv->bhv', q_ln, E_T)
-                alpha = F.softmax(logits, dim=-1)
+        #         # headwise dot product: [B*T, H, d_head] x [H, d_head, V] → [B*T, H, V]
+        #         logits = torch.einsum('bhd,hdv->bhv', q_ln, E_T)
+        #         alpha = F.softmax(logits, dim=-1)
 
-                # Projected embeddings: [B*T, H, V] x [V, H, d_head] → [B*T, H, d_head]
-                xe_proj = torch.einsum('bhv,vhd->bhd', alpha, E_h)
+        #         # Projected embeddings: [B*T, H, V] x [V, H, d_head] → [B*T, H, d_head]
+        #         xe_proj = torch.einsum('bhv,vhd->bhd', alpha, E_h)
 
-                # Cosine similarity: [B*T, H]
-                cos_sim_headwise = F.cosine_similarity(q_ln, xe_proj, dim=-1)
+        #         # Cosine similarity: [B*T, H]
+        #         cos_sim_headwise = F.cosine_similarity(q_ln, xe_proj, dim=-1)
 
-                # L2 distance: [B*T, H]
-                l2_diff_headwise = torch.norm(q_ln - xe_proj, dim=-1)
+        #         # L2 distance: [B*T, H]
+        #         l2_diff_headwise = torch.norm(q_ln - xe_proj, dim=-1)
 
-                # For logging
-                cos_sim_mean = cos_sim_headwise.mean(dim=0)  # [H]
-                l2_diff_mean = l2_diff_headwise.mean(dim=0)  # [H]
-
-
-                # Log
-                if hasattr(self, "_probe_file"):
-                    self._probe_file.write(f"\n--- Layer {layer_idx} ---\n")
-                    for h in range(num_heads):
-                        self._probe_file.write(
-                            f"[Head {h:02d}] cosine: {cos_sim_mean[h]:.4f}, L2: {l2_diff_mean[h]:.4f}\n"
-                        )
+        #         # For logging
+        #         cos_sim_mean = cos_sim_headwise.mean(dim=0)  # [H]
+        #         l2_diff_mean = l2_diff_headwise.mean(dim=0)  # [H]
 
 
+        #         # Log
+        #         if hasattr(self, "_probe_file"):
+        #             self._probe_file.write(f"\n--- Layer {layer_idx} ---\n")
+        #             for h in range(num_heads):
+        #                 self._probe_file.write(
+        #                     f"[Head {h:02d}] cosine: {cos_sim_mean[h]:.4f}, L2: {l2_diff_mean[h]:.4f}\n"
+        #                 )
 
-        if hasattr(self, "_probe_file") and not self.training:
-            self._probe_file.close()
+
+
+        # if hasattr(self, "_probe_file") and not self.training:
+        #     self._probe_file.close()
 
 
         # Logit Lens decoding

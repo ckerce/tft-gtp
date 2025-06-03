@@ -70,7 +70,7 @@ def compare_with_original():
     try:
         # Import our refactored model
         sys.path.insert(0, str(Path(__file__).parent))
-        from models.tft_alibi import TokenFactoredTransformer, TFTConfig
+        from models.model_tft_alibi import TokenFactoredTransformer, TFTConfig
         
         # Test key features
         config = TFTConfig.small()
@@ -109,7 +109,7 @@ def test_basic_functionality():
     
     try:
         sys.path.insert(0, str(Path(__file__).parent))
-        from models.tft_alibi import TokenFactoredTransformer, TFTConfig
+        from models.model_tft_alibi import TokenFactoredTransformer, TFTConfig
         
         # Test model creation
         config = TFTConfig(

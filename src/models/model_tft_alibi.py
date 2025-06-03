@@ -1,66 +1,17 @@
-# models/tft_alibi.py
+# models/tft_alibi_clean.py
 """
 Token-Factored Transformer with ALiBi positional encoding.
-Clean implementation focusing on the core TFT concept.
+Clean model implementation with config separated.
 """
 
 import math
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from dataclasses import dataclass
 from typing import Optional, Tuple, Dict, Any
 
-
-@dataclass
-class TFTConfig:
-    """Configuration for Token-Factored Transformer with ALiBi."""
-    
-    # Model architecture
-    vocab_size: int = 50257
-    n_layers: int = 6
-    n_heads: int = 6
-    d_model: int = 384
-    d_ff: int = None  # Will be set to 4 * d_model if None
-    dropout: float = 0.1
-    bias: bool = False
-    
-    # TFT-specific parameters
-    use_value_factorization: bool = False
-    use_output_projection: bool = False
-    
-    # ALiBi parameters
-    block_size: int = 128  # Training sequence length
-    max_position_embeddings: int = 512  # Max inference length
-    
-    # Training parameters
-    learning_rate: float = 3e-4
-    weight_decay: float = 0.01
-    
-    def __post_init__(self):
-        if self.d_ff is None:
-            self.d_ff = 4 * self.d_model
-        
-        assert self.d_model % self.n_heads == 0, "d_model must be divisible by n_heads"
-        assert self.max_position_embeddings >= self.block_size, "max_position_embeddings must be >= block_size"
-    
-    @classmethod
-    def small(cls, **kwargs):
-        defaults = dict(n_layers=6, n_heads=6, d_model=384, block_size=128)
-        defaults.update(kwargs)
-        return cls(**defaults)
-    
-    @classmethod
-    def medium(cls, **kwargs):
-        defaults = dict(n_layers=12, n_heads=12, d_model=768, block_size=256)
-        defaults.update(kwargs)
-        return cls(**defaults)
-    
-    @classmethod
-    def large(cls, **kwargs):
-        defaults = dict(n_layers=24, n_heads=16, d_model=1024, block_size=512)
-        defaults.update(kwargs)
-        return cls(**defaults)
+# Import config from separate file
+from config.model_configs import TFTConfig
 
 
 class LayerNorm(nn.Module):
@@ -358,9 +309,3 @@ class TokenFactoredTransformer(nn.Module):
     def get_num_params(self) -> int:
         """Get number of parameters."""
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
-    
-    @classmethod
-    def from_config(cls, config_dict: Dict[str, Any]) -> 'TokenFactoredTransformer':
-        """Create model from config dictionary."""
-        config = TFTConfig(**config_dict)
-        return cls(config)
