@@ -10,7 +10,7 @@ from typing import List, Dict, Optional, Any # For InferenceCallback
 # Assuming Callback is in base_trainer or accessible via from .base_trainer import Callback
 from .base_trainer import Callback
 # For InferenceCallback, assuming your generation functions are structured like this:
-from inference.generation import run_generation
+from src.inference.generation import run_generation
 from mytokenizers import BaseTokenizer
 
 
