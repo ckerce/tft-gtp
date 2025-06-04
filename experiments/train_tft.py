@@ -175,7 +175,7 @@ def main():
     # Create tokenizer
     print("🔤 Creating tokenizer...")
     tokenizer = create_tokenizer('gpt2')
-    config.vocab_size = len(tokenizer)
+    config.vocab_size = tokenizer.vocab_size
     
     # Load data
     print(f"📊 Loading {args.dataset}...")
@@ -276,7 +276,7 @@ def main():
         'metrics': metrics,
         'tokenizer_info': {
             'type': 'gpt2',
-            'vocab_size': len(tokenizer)
+            'vocab_size': tokenizer.vocab_size
         }
     }, model_path)
     print(f"💾 Model saved to {model_path}")
