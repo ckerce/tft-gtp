@@ -705,9 +705,9 @@ class IntegrationTestSuite:
         print(f"\n💡 Next steps:")
         if passed >= total * 0.8:
             print("   1. ✅ Run single-GPU training test:")
-            print("      python experiments/train_tft.py --preset tiny --epochs 1 --max_samples 100")
+            print("      python exptrain_tft.py --preset tiny --epochs 1 --max_samples 100")
             print("   2. ✅ Run multi-GPU comparison:")
-            print("      bash experiments/run_train_compare.sh 2 small 3")
+            print("      bash exprun_train_compare.sh 2 small 3")
         else:
             print("   1. ❌ Fix failed tests first")
             print("   2. ❌ Re-run integration tests")

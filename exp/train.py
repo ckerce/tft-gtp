@@ -245,10 +245,10 @@ def main():
     # Suggest comparison runs
     if args.model in ['tft', 'tft-alibi']:
         print(f"\n💡 To compare with vanilla transformer, run:")
-        print(f"   python experiments/train_tft.py --model vanilla --preset {args.preset} --output_dir ./outputs/vanilla_comparison")
+        print(f"   python exptrain_tft.py --model vanilla --preset {args.preset} --output_dir ./outputs/vanilla_comparison")
     else:
         print(f"\n💡 To compare with TFT, run:")
-        print(f"   python experiments/train_tft.py --model tft --preset {args.preset} --output_dir ./outputs/tft_comparison")
+        print(f"   python exptrain_tft.py --model tft --preset {args.preset} --output_dir ./outputs/tft_comparison")
 
 
 if __name__ == "__main__":

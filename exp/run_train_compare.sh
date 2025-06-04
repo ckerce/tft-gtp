@@ -83,12 +83,12 @@ run_training() {
         cmd_args+=(--trainer accelerate --mixed_precision "$MIXED_PRECISION")
         if [ $NUM_GPUS -gt 1 ]; then
             accelerate launch --num_processes $NUM_GPUS --mixed_precision "$MIXED_PRECISION" \
-                experiments/train_tft.py "${cmd_args[@]}" $extra_args
+                exptrain_tft.py "${cmd_args[@]}" $extra_args
         else
-            python experiments/train_tft.py "${cmd_args[@]}" $extra_args
+            python exptrain_tft.py "${cmd_args[@]}" $extra_args
         fi
     else
-        python experiments/train_tft.py "${cmd_args[@]}" $extra_args
+        python exptrain_tft.py "${cmd_args[@]}" $extra_args
     fi
 }
 
