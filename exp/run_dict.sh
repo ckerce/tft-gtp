@@ -11,7 +11,7 @@ fi
 DATASET="wikimedia/wikipedia"
 DATASET_CONFIG="20231101.en"
 EPOCHS=3
-BATCH_SIZE=512
+BATCH_SIZE=128*6
 MAX_SAMPLES=5000000
 
 # Model size - leave empty to use individual params
@@ -27,13 +27,13 @@ SEED=42
 
 # Dictionary FFN variants to test
 DICT_CONFIGS=(
-    "basic:false:false"           # Basic dict FFN
     "factored:true:true"          # Dict FFN + factorizations
+    "basic:false:false"           # Basic dict FFN
 )
 
 # Hardware
 USE_ACCELERATE=true
-NUM_GPUS=4
+NUM_GPUS=6
 MIXED_PRECISION="bf16"
 
 OUTPUT_BASE="./outputs/wiki_dict"
