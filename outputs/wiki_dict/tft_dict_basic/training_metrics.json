@@ -1,0 +1,135 @@
+{
+  "run_info": {
+    "run_name": "tft_dict_basic_wiki_6L6H768D",
+    "start_time": "2025-06-04T19:39:29.481044",
+    "status": "running"
+  },
+  "config": {
+    "training": {
+      "accelerator_state": {
+        "num_processes": 4,
+        "process_index": 0,
+        "device": "cuda:0",
+        "mixed_precision": "bf16",
+        "gradient_accumulation_steps": 1,
+        "is_main_process": true
+      },
+      "num_epochs": 3,
+      "current_epoch": 1,
+      "current_batch_idx": 549
+    },
+    "system": {
+      "device": "cuda:0",
+      "num_epochs": null
+    }
+  },
+  "metrics": {
+    "train": [],
+    "eval": [],
+    "epochs": [],
+    "steps": [
+      {
+        "step": 50,
+        "timestamp": 1749080387.0921016,
+        "phase": "train",
+        "loss": 7.743901252746582,
+        "learning_rate": 0.0005,
+        "perplexity": 2307.4568187018344
+      },
+      {
+        "step": 100,
+        "timestamp": 1749080403.8091986,
+        "phase": "train",
+        "loss": 6.536440372467041,
+        "learning_rate": 0.0005,
+        "perplexity": 689.8266764367862
+      },
+      {
+        "step": 150,
+        "timestamp": 1749080420.338115,
+        "phase": "train",
+        "loss": 6.1126813888549805,
+        "learning_rate": 0.0005,
+        "perplexity": 451.54786876045245
+      },
+      {
+        "step": 200,
+        "timestamp": 1749080436.8641555,
+        "phase": "train",
+        "loss": 5.725133419036865,
+        "learning_rate": 0.0005,
+        "perplexity": 306.4741520019517
+      },
+      {
+        "step": 250,
+        "timestamp": 1749080454.2100573,
+        "phase": "train",
+        "loss": 5.522914886474609,
+        "learning_rate": 0.0005,
+        "perplexity": 250.3637565342999
+      },
+      {
+        "step": 300,
+        "timestamp": 1749080470.6310976,
+        "phase": "train",
+        "loss": 5.333440780639648,
+        "learning_rate": 0.0005,
+        "perplexity": 207.1495053504692
+      },
+      {
+        "step": 350,
+        "timestamp": 1749080486.7580745,
+        "phase": "train",
+        "loss": 5.302474498748779,
+        "learning_rate": 0.0005,
+        "perplexity": 200.83315701220326
+      },
+      {
+        "step": 400,
+        "timestamp": 1749080503.4041512,
+        "phase": "train",
+        "loss": 5.155466079711914,
+        "learning_rate": 0.0005,
+        "perplexity": 173.3765952440497
+      },
+      {
+        "step": 450,
+        "timestamp": 1749080519.6870644,
+        "phase": "train",
+        "loss": 5.07789945602417,
+        "learning_rate": 0.0005,
+        "perplexity": 160.43669739621663
+      },
+      {
+        "step": 500,
+        "timestamp": 1749080536.6340027,
+        "phase": "train",
+        "loss": 4.987660884857178,
+        "learning_rate": 0.0005,
+        "perplexity": 146.59312394757876
+      },
+      {
+        "step": 550,
+        "timestamp": 1749080553.7099733,
+        "phase": "train",
+        "loss": 4.841190338134766,
+        "learning_rate": 0.0005,
+        "perplexity": 126.61998265543977
+      }
+    ]
+  },
+  "events": [
+    {
+      "timestamp": 1749080369.482765,
+      "event": "training_started",
+      "data": {}
+    },
+    {
+      "timestamp": 1749080369.4832733,
+      "event": "epoch_started",
+      "data": {
+        "epoch": 1
+      }
+    }
+  ]
+}
