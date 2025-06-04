@@ -133,6 +133,13 @@ def main():
     if args.model == 'tft-alibi':
         args.model = 'tft'
     
+    # Suppress output from non-main processes in multi-GPU training
+    is_main_process = int(os.environ.get('LOCAL_RANK', '0')) == 0
+    if not is_main_process:
+        import sys
+        sys.stdout = open(os.devnull, 'w')
+        sys.stderr = open(os.devnull, 'w')
+        
     print(f"🚀 Training {args.model.upper()}: {args.preset} on {args.dataset}")
     if args.verbose:
         print(f"Arguments: {vars(args)}")
