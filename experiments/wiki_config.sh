@@ -1,4 +1,4 @@
-cat > wikipedia_config.sh << 'EOF'
+cat > wiki_config.sh << 'EOF'
 export DATASET="wikimedia/wikipedia"
 export DATASET_CONFIG="20231101.en"
 export BLOCK_SIZE=128
