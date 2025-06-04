@@ -1,0 +1,13 @@
+cat > wikipedia_config.sh << 'EOF'
+export DATASET="wikimedia/wikipedia"
+export DATASET_CONFIG="20231101.en"
+export BLOCK_SIZE=128
+export BATCH_SIZE=128
+export OUTPUT_BASE="./outputs/wikipedia_run"
+export NUM_EPOCHS=3
+export MAX_SAMPLES=5000000
+export N_LAYER=6
+export N_HEAD=6
+export N_EMBD=768
+export LEARNING_RATE=0.0005
+EOF
