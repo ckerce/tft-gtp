@@ -3,6 +3,10 @@
 # Wikipedia model comparison with configurable parameters
 set -e
 
+if [ "${LOCAL_RANK:-0}" != "0" ]; then
+    exec > /dev/null 2>&1
+fi
+
 # === Configuration ===
 DATASET="wikimedia/wikipedia"
 DATASET_CONFIG="20231101.en"
@@ -96,24 +100,3 @@ run_training() {
 run_training "vanilla" "" ""
 run_training "tft" "_basic" ""
 run_training "tft" "_factored" "--use_v --use_proj"
-
-echo "✅ All training complete!"
-
-# Quick results
-echo "=== Results ==="
-for dir in vanilla tft_basic tft_factored; do
-    if [ -f "$OUTPUT_BASE/$dir/training_metrics.json" ]; then
-        final_loss=$(python -c "
-import json
-try:
-    with open('$OUTPUT_BASE/$dir/training_metrics.json') as f:
-        data = json.load(f)
-        epochs = data['metrics']['epochs']
-        print(f'{epochs[-1][\"loss\"]:.4f}' if epochs else 'N/A')
-except: print('ERROR')
-")
-        echo "$dir: $final_loss"
-    else
-        echo "$dir: FAILED"
-    fi
-done
