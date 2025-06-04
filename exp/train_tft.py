@@ -30,7 +30,6 @@ def parse_args():
                        choices=['tiny', 'small', 'medium', 'large'],
                        help='Model size preset')
     parser.add_argument('--model', '--model_type', default='tft', 
-                       choices=['tft', 'vanilla', 'tft-alibi'],
                        help='Model type to train')
     parser.add_argument('--dataset', default='roneneldan/TinyStories',
                        help='Dataset name')
