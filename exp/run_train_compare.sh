@@ -26,8 +26,8 @@ WEIGHT_DECAY=0.01
 SEED=42
 
 # Hardware
-USE_ACCELERATE=false
-NUM_GPUS=1
+USE_ACCELERATE=true
+NUM_GPUS=4
 MIXED_PRECISION="bf16"
 
 OUTPUT_BASE="./outputs/wiki_compare"
