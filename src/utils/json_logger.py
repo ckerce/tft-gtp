@@ -234,7 +234,7 @@ class MetricsAggregator:
         
         # Add perplexity for any loss metrics
         # FIX: Create a list of items first to avoid modifying dict during iteration
-        loss_items = [(key, value) for key, value in averages.items() if 'loss' in key.lower()]
+        loss_items = [(key, value) for key, value in list(averages.items()) if 'loss' in key.lower()]
         
         for key, value in loss_items:
             perplexity_key = key.replace('loss', 'perplexity').replace('Loss', 'Perplexity')
