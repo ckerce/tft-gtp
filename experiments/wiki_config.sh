@@ -1,4 +1,3 @@
-cat > wiki_config.sh << 'EOF'
 export DATASET="wikimedia/wikipedia"
 export DATASET_CONFIG="20231101.en"
 export BLOCK_SIZE=128
@@ -10,4 +9,3 @@ export N_LAYER=6
 export N_HEAD=6
 export N_EMBD=768
 export LEARNING_RATE=0.0005
-EOF
