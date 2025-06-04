@@ -1,20 +1,7 @@
-# models/model_tft_alibi.py
+# src/models/model_tft_dict.py
 """
-Factored Transformer model with Pre-Layer Normalization and ALiBi positional encoding.
-This model incorporates separate token-like (xt) and embedding (xe) streams to represent
-the typical internal transformer state vector (x = xt + xe).
-- xt is updated by the attention mechanism, which serves as a symbolic manipulation
-  operator on the token-like states -- thus providing a restricted symbolic reasoning
-  process.
-- xe is updated by the MLP, potentially introducing context not present in the original
-  tokenized input prompt.
-- ALiBi replaces traditional positional embeddings with linear biases in attention. This
-  positional representation avoids modulating the token-like state with non-token-like
-  information, nor similarly modulating the embedding-like states, thereby preserving
-  the natural informational structure of the internal states.
-- The factored representation provides a "dimensional analysis" accounting of the
-  internal states -- a central concept in the analysis of anything we should try to
-  measure (see e.g. P.W. Bridgman's "Dimensional Analysis").
+Token-Factored Transformer with Dictionary-based interpretable FFN.
+Extends the base TFT with head-wise dictionary decomposition for contextual reasoning.
 """
 
 import math
@@ -23,7 +10,6 @@ import torch.nn as nn
 from torch.nn import functional as F
 from typing import Optional, Tuple, Dict, Any
 
-# Import config from separate file
 from config.model_configs import TFTConfig
 
 
@@ -39,6 +25,69 @@ class LayerNorm(nn.Module):
         return F.layer_norm(x, self.weight.shape, self.weight, self.bias, eps=1e-5)
 
 
+class DictFFN(nn.Module):
+    """
+    Dictionary-based interpretable FFN.
+    Implements: X̃_E,h = softmax(LayerNorm(FFN(X_ffn,h)) E_h^T) E_h
+    """
+    
+    def __init__(self, config: TFTConfig, head_idx: int):
+        super().__init__()
+        self.head_idx = head_idx
+        self.d_head = config.d_model // config.n_heads
+        self.vocab_size = config.dict_vocab_size or config.vocab_size
+        self.dict_loss_weight = config.dict_loss_weight
+        
+        # Standard FFN components
+        self.fc = nn.Linear(config.d_model, config.d_ff, bias=config.bias)
+        self.proj = nn.Linear(config.d_ff, self.d_head, bias=config.bias)  # Output to head dimension
+        self.dropout = nn.Dropout(config.dropout)
+        self.activation = nn.GELU()
+        self.ln = LayerNorm(self.d_head, bias=config.bias)
+        
+        # Dictionary for this head
+        self.dict_embedding = nn.Embedding(self.vocab_size, self.d_head)
+        
+        # Initialize dictionary with small random values
+        torch.nn.init.normal_(self.dict_embedding.weight, mean=0.0, std=0.02)
+    
+    def forward(self, x_ffn: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Forward pass for dictionary FFN.
+        
+        Args:
+            x_ffn: Combined state input [B, T, d_model]
+            
+        Returns:
+            output: Dictionary-reconstructed output [B, T, d_head]
+            dict_weights: Attention weights over dictionary [B, T, vocab_size]
+            dict_loss: Reconstruction loss scalar
+        """
+        B, T, _ = x_ffn.size()
+        
+        # Standard FFN processing
+        h = self.fc(x_ffn)  # [B, T, d_ff]
+        h = self.activation(h)
+        h = self.proj(h)  # [B, T, d_head]
+        h = self.dropout(h)
+        
+        # Layer norm the FFN output
+        x_hat = self.ln(h)  # [B, T, d_head]
+        
+        # Dictionary encoding: project to vocab space
+        # x_hat @ dict_embedding.weight.T: [B, T, vocab_size]
+        dict_logits = torch.matmul(x_hat, self.dict_embedding.weight.T)
+        dict_weights = F.softmax(dict_logits, dim=-1)  # [B, T, vocab_size]
+        
+        # Dictionary decoding: reconstruct using weighted dictionary
+        x_recon = torch.matmul(dict_weights, self.dict_embedding.weight)  # [B, T, d_head]
+        
+        # Reconstruction loss
+        dict_loss = F.mse_loss(x_hat, x_recon)
+        
+        return x_recon, dict_weights, dict_loss
+
+
 class ALiBiAttention(nn.Module):
     """Factored Causal Self-Attention with ALiBi positional encoding."""
     
@@ -52,7 +101,7 @@ class ALiBiAttention(nn.Module):
         self.use_v = config.use_v
         self.use_proj = config.use_proj
         
-        # Q, K projections (always needed)
+        # Q, K projections
         self.qk_proj = nn.Linear(config.d_model, 2 * config.d_model, bias=config.bias)
         
         # Optional V factorization
@@ -92,11 +141,9 @@ class ALiBiAttention(nn.Module):
     
     def _get_alibi_bias(self, seq_len: int, device: torch.device) -> torch.Tensor:
         """Generate ALiBi bias matrix."""
-        # Create relative position matrix
         positions = torch.arange(seq_len, device=device, dtype=torch.float32)
         relative_pos = positions[None, :] - positions[:, None]
         
-        # Apply slopes and causal mask
         alibi_bias = self.alibi_slopes[:, None, None] * relative_pos[None, :, :]
         causal_mask = torch.tril(torch.ones(seq_len, seq_len, device=device, dtype=torch.bool))
         alibi_bias = alibi_bias.masked_fill(~causal_mask[None, :, :], float('-inf'))
@@ -118,13 +165,7 @@ class ALiBiAttention(nn.Module):
         return lifted
     
     def forward(self, x_norm: torch.Tensor, xt: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass for factored attention.
-        
-        Args:
-            x_norm: Normalized combined state (xt + xe) for Q,K computation
-            xt: Token stream for values
-        """
+        """Forward pass for factored attention."""
         B, T, C = x_norm.size()
         
         # Compute Q, K from normalized combined state
@@ -166,71 +207,101 @@ class ALiBiAttention(nn.Module):
         return y
 
 
-class MLP(nn.Module):
-    """Feed-forward network."""
+class TFTDictBlock(nn.Module):
+    """TFT block with dictionary-based interpretable FFN."""
     
     def __init__(self, config: TFTConfig):
         super().__init__()
-        self.fc = nn.Linear(config.d_model, config.d_ff, bias=config.bias)
-        self.proj = nn.Linear(config.d_ff, config.d_model, bias=config.bias)
-        self.dropout = nn.Dropout(config.dropout)
-        self.activation = nn.GELU()
-    
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.fc(x)
-        x = self.activation(x)
-        x = self.proj(x)
-        x = self.dropout(x)
-        return x
-
-
-class TFTBlock(nn.Module):
-    """Single Token-Factored Transformer block with Pre-LN."""
-    
-    def __init__(self, config: TFTConfig):
-        super().__init__()
+        self.config = config
+        self.n_heads = config.n_heads
+        self.d_head = config.d_model // config.n_heads
+        
         self.ln1 = LayerNorm(config.d_model, bias=config.bias)
         self.attention = ALiBiAttention(config)
         self.ln2 = LayerNorm(config.d_model, bias=config.bias)
-        self.mlp = MLP(config)
-    
-    def forward(self, xt: torch.Tensor, xe: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Forward pass for TFT block.
         
-        Args:
-            xt: Token stream
-            xe: Embedding stream
-            
-        Returns:
-            Updated (xt, xe) streams
+        # Dictionary FFN for each head
+        if config.use_dict_ffn:
+            self.dict_ffns = nn.ModuleList([
+                DictFFN(config, head_idx=h) for h in range(config.n_heads)
+            ])
+        else:
+            # Standard FFN
+            self.mlp = nn.Sequential(
+                nn.Linear(config.d_model, config.d_ff, bias=config.bias),
+                nn.GELU(),
+                nn.Linear(config.d_ff, config.d_model, bias=config.bias),
+                nn.Dropout(config.dropout)
+            )
+    
+    def forward(self, xt: torch.Tensor, xe: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, torch.Tensor]]:
         """
-        # Attention updates xt using combined state for Q,K but xt for V
+        Forward pass for TFT block with optional dictionary FFN.
+        
+        Returns:
+            xt: Updated token stream
+            xe: Updated embedding stream  
+            aux_outputs: Dictionary with auxiliary outputs (dict_weights, dict_loss)
+        """
+        aux_outputs = {}
+        
+        # Attention updates xt
         norm_combined = self.ln1(xt + xe)
         attn_out = self.attention(norm_combined, xt)
         xt = xt + attn_out
         
-        # MLP updates xe using combined state
+        # FFN updates xe
         norm_combined = self.ln2(xt + xe)
-        mlp_out = self.mlp(norm_combined)
-        xe = xe + mlp_out
         
-        return xt, xe
+        if self.config.use_dict_ffn:
+            # Dictionary FFN: process each head separately
+            xe_new = torch.zeros_like(xe)
+            total_dict_loss = 0.0
+            dict_weights_all = []
+            
+            # Split combined state into heads
+            B, T, D = norm_combined.size()
+            norm_heads = norm_combined.view(B, T, self.n_heads, self.d_head)
+            
+            for h, dict_ffn in enumerate(self.dict_ffns):
+                # Process this head
+                xe_h, dict_weights_h, dict_loss_h = dict_ffn(norm_combined)
+                
+                # Accumulate head outputs
+                start_idx = h * self.d_head
+                end_idx = (h + 1) * self.d_head
+                xe_new[:, :, start_idx:end_idx] = xe_h
+                
+                total_dict_loss += dict_loss_h
+                dict_weights_all.append(dict_weights_h)
+            
+            xe = xe + xe_new
+            
+            # Store auxiliary outputs
+            aux_outputs['dict_loss'] = total_dict_loss / self.n_heads
+            aux_outputs['dict_weights'] = torch.stack(dict_weights_all, dim=1)  # [B, H, T, V]
+            
+        else:
+            # Standard FFN
+            mlp_out = self.mlp(norm_combined)
+            xe = xe + mlp_out
+        
+        return xt, xe, aux_outputs
 
 
-class TokenFactoredTransformer(nn.Module):
-    """Token-Factored Transformer with ALiBi positional encoding."""
+class TokenFactoredTransformerDict(nn.Module):
+    """Token-Factored Transformer with Dictionary-based interpretable FFN."""
     
     def __init__(self, config: TFTConfig):
         super().__init__()
         self.config = config
         
-        # Token embeddings (no positional embeddings with ALiBi)
+        # Token embeddings
         self.token_embedding = nn.Embedding(config.vocab_size, config.d_model)
         self.dropout = nn.Dropout(config.dropout)
         
         # Transformer blocks
-        self.blocks = nn.ModuleList([TFTBlock(config) for _ in range(config.n_layers)])
+        self.blocks = nn.ModuleList([TFTDictBlock(config) for _ in range(config.n_layers)])
         
         # Final layer norm and output head
         self.ln_f = LayerNorm(config.d_model, bias=config.bias)
@@ -264,31 +335,52 @@ class TokenFactoredTransformer(nn.Module):
         if T > self.config.max_position_embeddings:
             raise ValueError(f"Sequence length {T} exceeds max_position_embeddings {self.config.max_position_embeddings}")
         
-        # Token embeddings only (no positional with ALiBi)
+        # Token embeddings
         token_emb = self.token_embedding(input_ids)
         
         # Initialize factored streams
         xt = self.dropout(token_emb)  # Token stream
         xe = torch.zeros_like(xt)     # Embedding stream
         
+        # Accumulate auxiliary outputs
+        total_dict_loss = 0.0
+        all_dict_weights = []
+        
         # Pass through transformer blocks
         for block in self.blocks:
-            xt, xe = block(xt, xe)
+            xt, xe, aux_outputs = block(xt, xe)
+            
+            if 'dict_loss' in aux_outputs:
+                total_dict_loss += aux_outputs['dict_loss']
+                all_dict_weights.append(aux_outputs['dict_weights'])
         
         # Final processing
         x_final = xt + xe
         x_final = self.ln_f(x_final)
         logits = self.lm_head(x_final)
         
-        # Calculate loss if labels provided
+        # Calculate losses
         loss = None
         if labels is not None:
             shift_logits = logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
-            loss_fn = nn.CrossEntropyLoss()
-            loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            lm_loss = F.cross_entropy(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            
+            # Add dictionary loss if using dictionary FFN
+            if self.config.use_dict_ffn and total_dict_loss > 0:
+                dict_loss_avg = total_dict_loss / self.config.n_layers
+                loss = lm_loss + self.config.dict_loss_weight * dict_loss_avg
+            else:
+                loss = lm_loss
         
-        return {"logits": logits, "loss": loss}
+        outputs = {"logits": logits, "loss": loss}
+        
+        # Add auxiliary outputs for analysis
+        if self.config.use_dict_ffn and all_dict_weights:
+            outputs["dict_weights"] = torch.stack(all_dict_weights, dim=1)  # [B, L, H, T, V]
+            outputs["dict_loss"] = total_dict_loss / self.config.n_layers if total_dict_loss > 0 else 0.0
+        
+        return outputs
     
     @torch.no_grad()
     def generate(self, input_ids: torch.Tensor, max_new_tokens: int, 
@@ -297,23 +389,17 @@ class TokenFactoredTransformer(nn.Module):
         self.eval()
         
         for _ in range(max_new_tokens):
-            # Crop context if too long
             context = input_ids if input_ids.size(1) <= self.config.max_position_embeddings else input_ids[:, -self.config.max_position_embeddings:]
             
-            # Forward pass
             outputs = self(context)
             logits = outputs["logits"][:, -1, :] / temperature
             
-            # Apply top-k filtering
             if top_k is not None:
                 v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
                 logits[logits < v[:, [-1]]] = -float('inf')
             
-            # Sample next token
             probs = F.softmax(logits, dim=-1)
             next_token = torch.multinomial(probs, num_samples=1)
-            
-            # Append to sequence
             input_ids = torch.cat([input_ids, next_token], dim=1)
         
         self.train()

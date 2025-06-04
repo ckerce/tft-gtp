@@ -1,49 +1,54 @@
 # src/models/__init__.py
 """
-Model registry for TFT and other transformer variants.
+Model registry for TFT variants.
 """
 
 from .model_tft_alibi import TokenFactoredTransformer
 from .model_vanilla import VanillaTransformer
-from config.model_configs import TFTConfig
-from typing import Dict, Type, Any
-
-# Model registry for extensibility
-MODEL_REGISTRY: Dict[str, Type] = {
-    'tft': TokenFactoredTransformer,
-    'tft-alibi': TokenFactoredTransformer,  # Alias
-    'vanilla': VanillaTransformer,
-    'baseline': VanillaTransformer,  # Alias
-}
+from .model_tft_dict import TokenFactoredTransformerDict
 
 
-def register_model(name: str, model_class: Type):
-    """Register a new model type."""
-    MODEL_REGISTRY[name] = model_class
-
-
-def get_model(model_type: str, config: TFTConfig):
-    """Get a model instance by type."""
-    if model_type not in MODEL_REGISTRY:
-        available = list(MODEL_REGISTRY.keys())
-        raise ValueError(f"Unknown model type '{model_type}'. Available: {available}")
+def get_model(model_type: str, config):
+    """
+    Factory function to get the appropriate model.
     
-    model_class = MODEL_REGISTRY[model_type]
+    Args:
+        model_type: Type of model ('tft', 'vanilla', 'tft-dict')
+        config: Model configuration
+        
+    Returns:
+        Instantiated model
+    """
+    model_registry = {
+        'tft': TokenFactoredTransformer,
+        'tft-alibi': TokenFactoredTransformer,  # Alias
+        'vanilla': VanillaTransformer,
+        'tft-dict': TokenFactoredTransformerDict,
+        'dict': TokenFactoredTransformerDict,  # Short alias
+    }
+    
+    if model_type not in model_registry:
+        available_models = list(model_registry.keys())
+        raise ValueError(f"Unknown model type '{model_type}'. Available: {available_models}")
+    
+    model_class = model_registry[model_type]
     return model_class(config)
 
 
-def list_models() -> list:
-    """List available model types."""
-    return list(MODEL_REGISTRY.keys())
+def list_models():
+    """List all available model types."""
+    return {
+        'tft': 'Token-Factored Transformer with ALiBi',
+        'vanilla': 'Standard Transformer baseline',
+        'tft-dict': 'Token-Factored Transformer with Dictionary FFN',
+    }
 
 
-# Export main classes
+# Export main components
 __all__ = [
-    'TokenFactoredTransformer',
-    'VanillaTransformer',
-    'TFTConfig', 
     'get_model',
-    'register_model',
     'list_models',
-    'MODEL_REGISTRY'
+    'TokenFactoredTransformer',
+    'VanillaTransformer', 
+    'TokenFactoredTransformerDict'
 ]

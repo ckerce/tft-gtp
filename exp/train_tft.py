@@ -184,6 +184,15 @@ def main():
     tokenizer = create_tokenizer('gpt2')
     config.vocab_size = tokenizer.vocab_size
     
+    # adjust batch size for consistency across multi gpu
+    if trainer_type == 'accelerate':
+        from accelerate import Accelerator
+        accelerator = Accelerator()
+        args.batch_size = args.batch_size // accelerator.num_processes
+        if accelerator.is_main_process:
+            print(f"📏 Adjusted per-GPU batch size: {args.batch_size} "
+                  f"(from total batch size across {accelerator.num_processes} processes)")
+
     # Load data
     print(f"📊 Loading {args.dataset}...")
     try:
