@@ -225,7 +225,7 @@ class MetricsAggregator:
             self.counts[key] += 1
     
     def get_averages(self) -> Dict[str, float]:
-        """Get averaged metrics with automatic perplexity calculation."""
+        """Get averaged metrics with automatic perplexity calculation - FIXED VERSION."""
         averages = {
             key: self.metrics[key] / self.counts[key]
             for key in self.metrics
@@ -233,13 +233,15 @@ class MetricsAggregator:
         }
         
         # Add perplexity for any loss metrics
-        for key, value in averages.items():
-            if 'loss' in key.lower():
-                perplexity_key = key.replace('loss', 'perplexity').replace('Loss', 'Perplexity')
-                try:
-                    averages[perplexity_key] = math.exp(value) if not math.isnan(value) else float('nan')
-                except (OverflowError, ValueError):
-                    averages[perplexity_key] = float('inf')
+        # FIX: Create a list of items first to avoid modifying dict during iteration
+        loss_items = [(key, value) for key, value in averages.items() if 'loss' in key.lower()]
+        
+        for key, value in loss_items:
+            perplexity_key = key.replace('loss', 'perplexity').replace('Loss', 'Perplexity')
+            try:
+                averages[perplexity_key] = math.exp(value) if not math.isnan(value) else float('nan')
+            except (OverflowError, ValueError):
+                averages[perplexity_key] = float('inf')
         
         return averages
     
