@@ -38,7 +38,14 @@ def compare_initial_vs_final():
         "Neural networks learn complex patterns through gradient descent.",
         "Dictionary learning provides interpretable feature representations."
     ]
-    
+    test_texts = [
+        "The cat is happy.",
+        "I like pizza.",
+        "Today is sunny.",
+        "She reads books.",
+        "The dog runs fast."
+    ]
+        
     print(f"\n🧪 Testing on {len(test_texts)} sample texts...")
     
     # === INITIAL MODEL (Untrained) ===
