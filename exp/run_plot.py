@@ -21,7 +21,8 @@ def main():
     log_files = [
         "outputs/wiki_compare/vanilla/training_metrics.json",
         "outputs/wiki_compare/tft_basic/training_metrics.json", 
-        "outputs/wiki_compare/tft_factored/training_metrics.json"
+        "outputs/wiki_compare/tft_factored/training_metrics.json",
+        "outputs/wiki_dict/tft_dict_factored/training_metrics.json"
     ]
     
     # Check if log files exist
