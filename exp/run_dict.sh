@@ -11,7 +11,7 @@ fi
 DATASET="wikimedia/wikipedia"
 DATASET_CONFIG="20231101.en"
 EPOCHS=3
-BATCH_SIZE=$((128*6))
+BATCH_SIZE=$((128*4))
 MAX_SAMPLES=5000000
 
 # Model size - leave empty to use individual params
@@ -33,7 +33,7 @@ DICT_CONFIGS=(
 
 # Hardware
 USE_ACCELERATE=true
-NUM_GPUS=6
+NUM_GPUS=4
 MIXED_PRECISION="bf16"
 
 OUTPUT_BASE="./outputs/wiki_dict"
@@ -80,13 +80,24 @@ run_training() {
         --run_name "$run_name"
     )
     
-    # Add preset or individual params
+    # Add preset - USE DICTIONARY PRESETS to enable dict FFN
     if [ -n "$PRESET" ]; then
-        cmd_args+=(--preset "$PRESET")
+        # Use dictionary version of the preset
+        case "$PRESET" in
+            "tiny")
+                cmd_args+=(--preset "tiny-dict")
+                ;;
+            "small")
+                cmd_args+=(--preset "small-dict")
+                ;;
+            *)
+                # Fallback to tiny-dict for other presets
+                cmd_args+=(--preset "tiny-dict")
+                ;;
+        esac
     else
-        # Override with custom architecture
-        cmd_args+=(--preset tiny)  # Use tiny as base, then override
-        # Note: Would need CLI support for --n_layers, --n_heads, --d_model overrides
+        # Use dictionary preset that enables dict FFN
+        cmd_args+=(--preset "small-dict")
     fi
     
     # Add TFT factorizations if specified
