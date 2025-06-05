@@ -1,7 +1,7 @@
 {
   "run_info": {
     "run_name": "tft_dict_basic_wiki_6L6H768D",
-    "start_time": "2025-06-04T19:39:29.481044",
+    "start_time": "2025-06-05T01:19:07.942183",
     "status": "running"
   },
   "config": {
@@ -15,8 +15,10 @@
         "is_main_process": true
       },
       "num_epochs": 3,
-      "current_epoch": 1,
-      "current_batch_idx": 549
+      "current_epoch": 3,
+      "current_batch_idx": 8255,
+      "loss": 2.895001853255425,
+      "epoch_duration": 5960.571175336838
     },
     "system": {
       "device": "cuda:0",
@@ -26,109 +28,4522 @@
   "metrics": {
     "train": [],
     "eval": [],
-    "epochs": [],
+    "epochs": [
+      {
+        "epoch": 1,
+        "timestamp": 1749106762.548318,
+        "duration": 6014.604078531265,
+        "loss": 3.456398915616702,
+        "perplexity": 31.702606948240287,
+        "accelerator_state": {
+          "num_processes": 4,
+          "process_index": 0,
+          "device": "cuda:0",
+          "mixed_precision": "bf16",
+          "gradient_accumulation_steps": 1,
+          "is_main_process": true
+        },
+        "num_epochs": 3,
+        "current_epoch": 1,
+        "current_batch_idx": 9721,
+        "epoch_duration": 6014.603310585022
+      },
+      {
+        "epoch": 2,
+        "timestamp": 1749112725.2271981,
+        "duration": 5960.575035810471,
+        "loss": 2.895001853255425,
+        "perplexity": 18.083534954635955,
+        "accelerator_state": {
+          "num_processes": 4,
+          "process_index": 0,
+          "device": "cuda:0",
+          "mixed_precision": "bf16",
+          "gradient_accumulation_steps": 1,
+          "is_main_process": true
+        },
+        "num_epochs": 3,
+        "current_epoch": 2,
+        "current_batch_idx": 9721,
+        "epoch_duration": 5960.571175336838
+      }
+    ],
     "steps": [
       {
         "step": 50,
-        "timestamp": 1749080387.0921016,
+        "timestamp": 1749100780.079353,
         "phase": "train",
-        "loss": 7.743901252746582,
+        "loss": 7.494331359863281,
         "learning_rate": 0.0005,
-        "perplexity": 2307.4568187018344
+        "perplexity": 1797.8222671924727
       },
       {
         "step": 100,
-        "timestamp": 1749080403.8091986,
+        "timestamp": 1749100811.167377,
         "phase": "train",
-        "loss": 6.536440372467041,
+        "loss": 7.017086505889893,
         "learning_rate": 0.0005,
-        "perplexity": 689.8266764367862
+        "perplexity": 1115.5317832980872
       },
       {
         "step": 150,
-        "timestamp": 1749080420.338115,
+        "timestamp": 1749100842.3210025,
         "phase": "train",
-        "loss": 6.1126813888549805,
+        "loss": 6.6148271560668945,
         "learning_rate": 0.0005,
-        "perplexity": 451.54786876045245
+        "perplexity": 746.0757645209983
       },
       {
         "step": 200,
-        "timestamp": 1749080436.8641555,
+        "timestamp": 1749100873.424553,
         "phase": "train",
-        "loss": 5.725133419036865,
+        "loss": 6.085160255432129,
         "learning_rate": 0.0005,
-        "perplexity": 306.4741520019517
+        "perplexity": 439.2902056742439
       },
       {
         "step": 250,
-        "timestamp": 1749080454.2100573,
+        "timestamp": 1749100904.535357,
         "phase": "train",
-        "loss": 5.522914886474609,
+        "loss": 5.697689056396484,
         "learning_rate": 0.0005,
-        "perplexity": 250.3637565342999
+        "perplexity": 298.1775326888563
       },
       {
         "step": 300,
-        "timestamp": 1749080470.6310976,
+        "timestamp": 1749100935.6530583,
         "phase": "train",
-        "loss": 5.333440780639648,
+        "loss": 5.363487720489502,
         "learning_rate": 0.0005,
-        "perplexity": 207.1495053504692
+        "perplexity": 213.46816692315437
       },
       {
         "step": 350,
-        "timestamp": 1749080486.7580745,
+        "timestamp": 1749100966.228888,
         "phase": "train",
-        "loss": 5.302474498748779,
+        "loss": 5.201048374176025,
         "learning_rate": 0.0005,
-        "perplexity": 200.83315701220326
+        "perplexity": 181.46238266429475
       },
       {
         "step": 400,
-        "timestamp": 1749080503.4041512,
+        "timestamp": 1749100997.3063438,
         "phase": "train",
-        "loss": 5.155466079711914,
+        "loss": 4.972822189331055,
         "learning_rate": 0.0005,
-        "perplexity": 173.3765952440497
+        "perplexity": 144.4339326250617
       },
       {
         "step": 450,
-        "timestamp": 1749080519.6870644,
+        "timestamp": 1749101028.0049262,
         "phase": "train",
-        "loss": 5.07789945602417,
+        "loss": 4.83189582824707,
         "learning_rate": 0.0005,
-        "perplexity": 160.43669739621663
+        "perplexity": 125.44856428749104
       },
       {
         "step": 500,
-        "timestamp": 1749080536.6340027,
+        "timestamp": 1749101059.4175143,
         "phase": "train",
-        "loss": 4.987660884857178,
+        "loss": 4.680917739868164,
         "learning_rate": 0.0005,
-        "perplexity": 146.59312394757876
+        "perplexity": 107.86902286196246
       },
       {
         "step": 550,
-        "timestamp": 1749080553.7099733,
+        "timestamp": 1749101090.8984666,
         "phase": "train",
-        "loss": 4.841190338134766,
+        "loss": 4.504103660583496,
         "learning_rate": 0.0005,
-        "perplexity": 126.61998265543977
+        "perplexity": 90.38729003753163
+      },
+      {
+        "step": 600,
+        "timestamp": 1749101122.2581594,
+        "phase": "train",
+        "loss": 4.492849349975586,
+        "learning_rate": 0.0005,
+        "perplexity": 89.37574619154135
+      },
+      {
+        "step": 650,
+        "timestamp": 1749101153.0337389,
+        "phase": "train",
+        "loss": 4.366024494171143,
+        "learning_rate": 0.0005,
+        "perplexity": 78.73001708242523
+      },
+      {
+        "step": 700,
+        "timestamp": 1749101183.549662,
+        "phase": "train",
+        "loss": 4.288806438446045,
+        "learning_rate": 0.0005,
+        "perplexity": 72.8794304810529
+      },
+      {
+        "step": 750,
+        "timestamp": 1749101214.173617,
+        "phase": "train",
+        "loss": 4.210093975067139,
+        "learning_rate": 0.0005,
+        "perplexity": 67.36286994290013
+      },
+      {
+        "step": 800,
+        "timestamp": 1749101244.9230561,
+        "phase": "train",
+        "loss": 4.173849582672119,
+        "learning_rate": 0.0005,
+        "perplexity": 64.9650597247829
+      },
+      {
+        "step": 850,
+        "timestamp": 1749101276.1837733,
+        "phase": "train",
+        "loss": 4.146139144897461,
+        "learning_rate": 0.0005,
+        "perplexity": 63.189562986554584
+      },
+      {
+        "step": 900,
+        "timestamp": 1749101306.8016343,
+        "phase": "train",
+        "loss": 4.070687294006348,
+        "learning_rate": 0.0005,
+        "perplexity": 58.597222274846295
+      },
+      {
+        "step": 950,
+        "timestamp": 1749101338.1661112,
+        "phase": "train",
+        "loss": 4.095148086547852,
+        "learning_rate": 0.0005,
+        "perplexity": 60.04823083427432
+      },
+      {
+        "step": 1000,
+        "timestamp": 1749101368.773019,
+        "phase": "train",
+        "loss": 3.987597942352295,
+        "learning_rate": 0.0005,
+        "perplexity": 53.92520222328544
+      },
+      {
+        "step": 1050,
+        "timestamp": 1749101399.9976978,
+        "phase": "train",
+        "loss": 3.986844778060913,
+        "learning_rate": 0.0005,
+        "perplexity": 53.88460297743561
+      },
+      {
+        "step": 1100,
+        "timestamp": 1749101431.058341,
+        "phase": "train",
+        "loss": 3.996633768081665,
+        "learning_rate": 0.0005,
+        "perplexity": 54.4146689909508
+      },
+      {
+        "step": 1150,
+        "timestamp": 1749101462.0965765,
+        "phase": "train",
+        "loss": 3.9865689277648926,
+        "learning_rate": 0.0005,
+        "perplexity": 53.86974094369578
+      },
+      {
+        "step": 1200,
+        "timestamp": 1749101493.1505597,
+        "phase": "train",
+        "loss": 3.8942017555236816,
+        "learning_rate": 0.0005,
+        "perplexity": 49.11683047142038
+      },
+      {
+        "step": 1250,
+        "timestamp": 1749101523.8105843,
+        "phase": "train",
+        "loss": 3.852707862854004,
+        "learning_rate": 0.0005,
+        "perplexity": 47.12048644633381
+      },
+      {
+        "step": 1300,
+        "timestamp": 1749101554.8156772,
+        "phase": "train",
+        "loss": 3.8037054538726807,
+        "learning_rate": 0.0005,
+        "perplexity": 44.86712993220499
+      },
+      {
+        "step": 1350,
+        "timestamp": 1749101585.7243292,
+        "phase": "train",
+        "loss": 3.8331642150878906,
+        "learning_rate": 0.0005,
+        "perplexity": 46.20852085107987
+      },
+      {
+        "step": 1400,
+        "timestamp": 1749101616.5458026,
+        "phase": "train",
+        "loss": 3.81809401512146,
+        "learning_rate": 0.0005,
+        "perplexity": 45.517370171779554
+      },
+      {
+        "step": 1450,
+        "timestamp": 1749101647.6554227,
+        "phase": "train",
+        "loss": 3.846388816833496,
+        "learning_rate": 0.0005,
+        "perplexity": 46.823668714094396
+      },
+      {
+        "step": 1500,
+        "timestamp": 1749101678.6194198,
+        "phase": "train",
+        "loss": 3.7154593467712402,
+        "learning_rate": 0.0005,
+        "perplexity": 41.07745154613474
+      },
+      {
+        "step": 1550,
+        "timestamp": 1749101709.8233476,
+        "phase": "train",
+        "loss": 3.6847047805786133,
+        "learning_rate": 0.0005,
+        "perplexity": 39.83336113203681
+      },
+      {
+        "step": 1600,
+        "timestamp": 1749101740.6457686,
+        "phase": "train",
+        "loss": 3.7954022884368896,
+        "learning_rate": 0.0005,
+        "perplexity": 44.49613308530023
+      },
+      {
+        "step": 1650,
+        "timestamp": 1749101771.643255,
+        "phase": "train",
+        "loss": 3.7032816410064697,
+        "learning_rate": 0.0005,
+        "perplexity": 40.58025592299215
+      },
+      {
+        "step": 1700,
+        "timestamp": 1749101802.7416255,
+        "phase": "train",
+        "loss": 3.770942211151123,
+        "learning_rate": 0.0005,
+        "perplexity": 43.420957278308805
+      },
+      {
+        "step": 1750,
+        "timestamp": 1749101833.5561903,
+        "phase": "train",
+        "loss": 3.7134170532226562,
+        "learning_rate": 0.0005,
+        "perplexity": 40.99364493982501
+      },
+      {
+        "step": 1800,
+        "timestamp": 1749101864.585904,
+        "phase": "train",
+        "loss": 3.7262964248657227,
+        "learning_rate": 0.0005,
+        "perplexity": 41.52503194795056
+      },
+      {
+        "step": 1850,
+        "timestamp": 1749101895.7625635,
+        "phase": "train",
+        "loss": 3.572587490081787,
+        "learning_rate": 0.0005,
+        "perplexity": 35.60861098041777
+      },
+      {
+        "step": 1900,
+        "timestamp": 1749101926.7386928,
+        "phase": "train",
+        "loss": 3.723118305206299,
+        "learning_rate": 0.0005,
+        "perplexity": 41.39326991621486
+      },
+      {
+        "step": 1950,
+        "timestamp": 1749101957.3877707,
+        "phase": "train",
+        "loss": 3.616135835647583,
+        "learning_rate": 0.0005,
+        "perplexity": 37.19356772267637
+      },
+      {
+        "step": 2000,
+        "timestamp": 1749101989.270831,
+        "phase": "train",
+        "loss": 3.590480089187622,
+        "learning_rate": 0.0005,
+        "perplexity": 36.25147569093744
+      },
+      {
+        "step": 2050,
+        "timestamp": 1749102020.1030173,
+        "phase": "train",
+        "loss": 3.623505115509033,
+        "learning_rate": 0.0005,
+        "perplexity": 37.4686699399047
+      },
+      {
+        "step": 2100,
+        "timestamp": 1749102051.1664305,
+        "phase": "train",
+        "loss": 3.6007633209228516,
+        "learning_rate": 0.0005,
+        "perplexity": 36.62618130662393
+      },
+      {
+        "step": 2150,
+        "timestamp": 1749102081.9276092,
+        "phase": "train",
+        "loss": 3.574981689453125,
+        "learning_rate": 0.0005,
+        "perplexity": 35.693967233611986
+      },
+      {
+        "step": 2200,
+        "timestamp": 1749102113.0726268,
+        "phase": "train",
+        "loss": 3.5941779613494873,
+        "learning_rate": 0.0005,
+        "perplexity": 36.3857771755427
+      },
+      {
+        "step": 2250,
+        "timestamp": 1749102143.8765938,
+        "phase": "train",
+        "loss": 3.5545363426208496,
+        "learning_rate": 0.0005,
+        "perplexity": 34.97160136701267
+      },
+      {
+        "step": 2300,
+        "timestamp": 1749102174.6334205,
+        "phase": "train",
+        "loss": 3.5735137462615967,
+        "learning_rate": 0.0005,
+        "perplexity": 35.641608956323154
+      },
+      {
+        "step": 2350,
+        "timestamp": 1749102205.194893,
+        "phase": "train",
+        "loss": 3.6126322746276855,
+        "learning_rate": 0.0005,
+        "perplexity": 37.063485796657275
+      },
+      {
+        "step": 2400,
+        "timestamp": 1749102236.070559,
+        "phase": "train",
+        "loss": 3.5209078788757324,
+        "learning_rate": 0.0005,
+        "perplexity": 33.81511456030221
+      },
+      {
+        "step": 2450,
+        "timestamp": 1749102267.55209,
+        "phase": "train",
+        "loss": 3.583231210708618,
+        "learning_rate": 0.0005,
+        "perplexity": 35.989643291118
+      },
+      {
+        "step": 2500,
+        "timestamp": 1749102298.2553499,
+        "phase": "train",
+        "loss": 3.482107400894165,
+        "learning_rate": 0.0005,
+        "perplexity": 32.52819985291184
+      },
+      {
+        "step": 2550,
+        "timestamp": 1749102329.8048673,
+        "phase": "train",
+        "loss": 3.4878592491149902,
+        "learning_rate": 0.0005,
+        "perplexity": 32.715836232039756
+      },
+      {
+        "step": 2600,
+        "timestamp": 1749102360.625312,
+        "phase": "train",
+        "loss": 3.3731770515441895,
+        "learning_rate": 0.0005,
+        "perplexity": 29.171057946959714
+      },
+      {
+        "step": 2650,
+        "timestamp": 1749102392.4294193,
+        "phase": "train",
+        "loss": 3.511195182800293,
+        "learning_rate": 0.0005,
+        "perplexity": 33.488268477608784
+      },
+      {
+        "step": 2700,
+        "timestamp": 1749102423.606061,
+        "phase": "train",
+        "loss": 3.414999485015869,
+        "learning_rate": 0.0005,
+        "perplexity": 30.416933763322962
+      },
+      {
+        "step": 2750,
+        "timestamp": 1749102454.661742,
+        "phase": "train",
+        "loss": 3.4104814529418945,
+        "learning_rate": 0.0005,
+        "perplexity": 30.279819058544355
+      },
+      {
+        "step": 2800,
+        "timestamp": 1749102486.0493488,
+        "phase": "train",
+        "loss": 3.537722110748291,
+        "learning_rate": 0.0005,
+        "perplexity": 34.388496718855784
+      },
+      {
+        "step": 2850,
+        "timestamp": 1749102517.0611656,
+        "phase": "train",
+        "loss": 3.460826873779297,
+        "learning_rate": 0.0005,
+        "perplexity": 31.84329601823827
+      },
+      {
+        "step": 2900,
+        "timestamp": 1749102547.9142737,
+        "phase": "train",
+        "loss": 3.401409864425659,
+        "learning_rate": 0.0005,
+        "perplexity": 30.006375160186955
+      },
+      {
+        "step": 2950,
+        "timestamp": 1749102579.1895697,
+        "phase": "train",
+        "loss": 3.448882579803467,
+        "learning_rate": 0.0005,
+        "perplexity": 31.46521279299463
+      },
+      {
+        "step": 3000,
+        "timestamp": 1749102610.1566982,
+        "phase": "train",
+        "loss": 3.3590245246887207,
+        "learning_rate": 0.0005,
+        "perplexity": 28.761121427062864
+      },
+      {
+        "step": 3050,
+        "timestamp": 1749102641.519462,
+        "phase": "train",
+        "loss": 3.4027910232543945,
+        "learning_rate": 0.0005,
+        "perplexity": 30.047847363414913
+      },
+      {
+        "step": 3100,
+        "timestamp": 1749102672.61486,
+        "phase": "train",
+        "loss": 3.4493355751037598,
+        "learning_rate": 0.0005,
+        "perplexity": 31.479469615405552
+      },
+      {
+        "step": 3150,
+        "timestamp": 1749102703.4048436,
+        "phase": "train",
+        "loss": 3.4179787635803223,
+        "learning_rate": 0.0005,
+        "perplexity": 30.50768940812432
+      },
+      {
+        "step": 3200,
+        "timestamp": 1749102734.0960686,
+        "phase": "train",
+        "loss": 3.4514822959899902,
+        "learning_rate": 0.0005,
+        "perplexity": 31.54711983740867
+      },
+      {
+        "step": 3250,
+        "timestamp": 1749102765.0557501,
+        "phase": "train",
+        "loss": 3.275179386138916,
+        "learning_rate": 0.0005,
+        "perplexity": 26.44796945417107
+      },
+      {
+        "step": 3300,
+        "timestamp": 1749102795.8596685,
+        "phase": "train",
+        "loss": 3.2823245525360107,
+        "learning_rate": 0.0005,
+        "perplexity": 26.637621337052945
+      },
+      {
+        "step": 3350,
+        "timestamp": 1749102826.8489172,
+        "phase": "train",
+        "loss": 3.299729347229004,
+        "learning_rate": 0.0005,
+        "perplexity": 27.10530180275543
+      },
+      {
+        "step": 3400,
+        "timestamp": 1749102857.7909286,
+        "phase": "train",
+        "loss": 3.3053524494171143,
+        "learning_rate": 0.0005,
+        "perplexity": 27.25814701401511
+      },
+      {
+        "step": 3450,
+        "timestamp": 1749102889.1472757,
+        "phase": "train",
+        "loss": 3.367319345474243,
+        "learning_rate": 0.0005,
+        "perplexity": 29.00068195716355
+      },
+      {
+        "step": 3500,
+        "timestamp": 1749102920.3270617,
+        "phase": "train",
+        "loss": 3.436518669128418,
+        "learning_rate": 0.0005,
+        "perplexity": 31.078574816665544
+      },
+      {
+        "step": 3550,
+        "timestamp": 1749102951.6514978,
+        "phase": "train",
+        "loss": 3.2861921787261963,
+        "learning_rate": 0.0005,
+        "perplexity": 26.740845185938003
+      },
+      {
+        "step": 3600,
+        "timestamp": 1749102982.5789235,
+        "phase": "train",
+        "loss": 3.372957229614258,
+        "learning_rate": 0.0005,
+        "perplexity": 29.164646213449302
+      },
+      {
+        "step": 3650,
+        "timestamp": 1749103013.6384017,
+        "phase": "train",
+        "loss": 3.3463706970214844,
+        "learning_rate": 0.0005,
+        "perplexity": 28.399476077495518
+      },
+      {
+        "step": 3700,
+        "timestamp": 1749103044.5706053,
+        "phase": "train",
+        "loss": 3.438310146331787,
+        "learning_rate": 0.0005,
+        "perplexity": 31.134301276399924
+      },
+      {
+        "step": 3750,
+        "timestamp": 1749103075.531545,
+        "phase": "train",
+        "loss": 3.2907567024230957,
+        "learning_rate": 0.0005,
+        "perplexity": 26.863183402901118
+      },
+      {
+        "step": 3800,
+        "timestamp": 1749103106.307304,
+        "phase": "train",
+        "loss": 3.358456611633301,
+        "learning_rate": 0.0005,
+        "perplexity": 28.744792247931805
+      },
+      {
+        "step": 3850,
+        "timestamp": 1749103137.634869,
+        "phase": "train",
+        "loss": 3.3809852600097656,
+        "learning_rate": 0.0005,
+        "perplexity": 29.399723219857666
+      },
+      {
+        "step": 3900,
+        "timestamp": 1749103168.9929564,
+        "phase": "train",
+        "loss": 3.272317409515381,
+        "learning_rate": 0.0005,
+        "perplexity": 26.372384197065383
+      },
+      {
+        "step": 3950,
+        "timestamp": 1749103200.352602,
+        "phase": "train",
+        "loss": 3.3241653442382812,
+        "learning_rate": 0.0005,
+        "perplexity": 27.775805728678638
+      },
+      {
+        "step": 4000,
+        "timestamp": 1749103232.033228,
+        "phase": "train",
+        "loss": 3.3899896144866943,
+        "learning_rate": 0.0005,
+        "perplexity": 29.665644175826685
+      },
+      {
+        "step": 4050,
+        "timestamp": 1749103263.0702348,
+        "phase": "train",
+        "loss": 3.2626590728759766,
+        "learning_rate": 0.0005,
+        "perplexity": 26.118896935669746
+      },
+      {
+        "step": 4100,
+        "timestamp": 1749103294.3554773,
+        "phase": "train",
+        "loss": 3.2046680450439453,
+        "learning_rate": 0.0005,
+        "perplexity": 24.647316859326704
+      },
+      {
+        "step": 4150,
+        "timestamp": 1749103325.695884,
+        "phase": "train",
+        "loss": 3.2604682445526123,
+        "learning_rate": 0.0005,
+        "perplexity": 26.06173755254825
+      },
+      {
+        "step": 4200,
+        "timestamp": 1749103356.6017635,
+        "phase": "train",
+        "loss": 3.3470003604888916,
+        "learning_rate": 0.0005,
+        "perplexity": 28.41736382111335
+      },
+      {
+        "step": 4250,
+        "timestamp": 1749103387.4006896,
+        "phase": "train",
+        "loss": 3.2704176902770996,
+        "learning_rate": 0.0005,
+        "perplexity": 26.32233162941275
+      },
+      {
+        "step": 4300,
+        "timestamp": 1749103418.0146987,
+        "phase": "train",
+        "loss": 3.1813111305236816,
+        "learning_rate": 0.0005,
+        "perplexity": 24.078302662623404
+      },
+      {
+        "step": 4350,
+        "timestamp": 1749103448.7265968,
+        "phase": "train",
+        "loss": 3.276416063308716,
+        "learning_rate": 0.0005,
+        "perplexity": 26.480697286893296
+      },
+      {
+        "step": 4400,
+        "timestamp": 1749103480.1297624,
+        "phase": "train",
+        "loss": 3.3432669639587402,
+        "learning_rate": 0.0005,
+        "perplexity": 28.311468331553982
+      },
+      {
+        "step": 4450,
+        "timestamp": 1749103511.4140642,
+        "phase": "train",
+        "loss": 3.1487932205200195,
+        "learning_rate": 0.0005,
+        "perplexity": 23.30792008258009
+      },
+      {
+        "step": 4500,
+        "timestamp": 1749103542.5249271,
+        "phase": "train",
+        "loss": 3.1736745834350586,
+        "learning_rate": 0.0005,
+        "perplexity": 23.89512787216312
+      },
+      {
+        "step": 4550,
+        "timestamp": 1749103573.661814,
+        "phase": "train",
+        "loss": 3.174333095550537,
+        "learning_rate": 0.0005,
+        "perplexity": 23.91086828542546
+      },
+      {
+        "step": 4600,
+        "timestamp": 1749103604.5549657,
+        "phase": "train",
+        "loss": 3.092639446258545,
+        "learning_rate": 0.0005,
+        "perplexity": 22.035161912994706
+      },
+      {
+        "step": 4650,
+        "timestamp": 1749103635.4216292,
+        "phase": "train",
+        "loss": 3.209599018096924,
+        "learning_rate": 0.0005,
+        "perplexity": 24.769152251241746
+      },
+      {
+        "step": 4700,
+        "timestamp": 1749103666.2708862,
+        "phase": "train",
+        "loss": 3.3112130165100098,
+        "learning_rate": 0.0005,
+        "perplexity": 27.41836423673893
+      },
+      {
+        "step": 4750,
+        "timestamp": 1749103697.0781717,
+        "phase": "train",
+        "loss": 3.179408073425293,
+        "learning_rate": 0.0005,
+        "perplexity": 24.03252385148604
+      },
+      {
+        "step": 4800,
+        "timestamp": 1749103727.9167204,
+        "phase": "train",
+        "loss": 3.284911632537842,
+        "learning_rate": 0.0005,
+        "perplexity": 26.706624214005647
+      },
+      {
+        "step": 4850,
+        "timestamp": 1749103758.3037198,
+        "phase": "train",
+        "loss": 3.24385929107666,
+        "learning_rate": 0.0005,
+        "perplexity": 25.63245420795263
+      },
+      {
+        "step": 4900,
+        "timestamp": 1749103789.4903584,
+        "phase": "train",
+        "loss": 3.3399829864501953,
+        "learning_rate": 0.0005,
+        "perplexity": 28.21864660197511
+      },
+      {
+        "step": 4950,
+        "timestamp": 1749103820.7463214,
+        "phase": "train",
+        "loss": 3.167293071746826,
+        "learning_rate": 0.0005,
+        "perplexity": 23.743126349938695
+      },
+      {
+        "step": 5000,
+        "timestamp": 1749103851.872184,
+        "phase": "train",
+        "loss": 3.2867941856384277,
+        "learning_rate": 0.0005,
+        "perplexity": 26.756948206157258
+      },
+      {
+        "step": 5050,
+        "timestamp": 1749103882.7861369,
+        "phase": "train",
+        "loss": 3.198723793029785,
+        "learning_rate": 0.0005,
+        "perplexity": 24.50124158069663
+      },
+      {
+        "step": 5100,
+        "timestamp": 1749103914.4573383,
+        "phase": "train",
+        "loss": 3.193119525909424,
+        "learning_rate": 0.0005,
+        "perplexity": 24.36431412549786
+      },
+      {
+        "step": 5150,
+        "timestamp": 1749103945.447792,
+        "phase": "train",
+        "loss": 3.227581262588501,
+        "learning_rate": 0.0005,
+        "perplexity": 25.218586005984807
+      },
+      {
+        "step": 5200,
+        "timestamp": 1749103976.397164,
+        "phase": "train",
+        "loss": 3.1017775535583496,
+        "learning_rate": 0.0005,
+        "perplexity": 22.237444418914695
+      },
+      {
+        "step": 5250,
+        "timestamp": 1749104007.8914275,
+        "phase": "train",
+        "loss": 3.1691994667053223,
+        "learning_rate": 0.0005,
+        "perplexity": 23.788433299059104
+      },
+      {
+        "step": 5300,
+        "timestamp": 1749104038.8658588,
+        "phase": "train",
+        "loss": 3.211609363555908,
+        "learning_rate": 0.0005,
+        "perplexity": 24.818996889676978
+      },
+      {
+        "step": 5350,
+        "timestamp": 1749104069.4686925,
+        "phase": "train",
+        "loss": 3.110058307647705,
+        "learning_rate": 0.0005,
+        "perplexity": 22.422351757218514
+      },
+      {
+        "step": 5400,
+        "timestamp": 1749104100.4481795,
+        "phase": "train",
+        "loss": 3.1930530071258545,
+        "learning_rate": 0.0005,
+        "perplexity": 24.362693494861517
+      },
+      {
+        "step": 5450,
+        "timestamp": 1749104131.6128829,
+        "phase": "train",
+        "loss": 3.1646642684936523,
+        "learning_rate": 0.0005,
+        "perplexity": 23.680792310010098
+      },
+      {
+        "step": 5500,
+        "timestamp": 1749104162.1784835,
+        "phase": "train",
+        "loss": 3.196301221847534,
+        "learning_rate": 0.0005,
+        "perplexity": 24.441957417960126
+      },
+      {
+        "step": 5550,
+        "timestamp": 1749104193.2275543,
+        "phase": "train",
+        "loss": 3.1691040992736816,
+        "learning_rate": 0.0005,
+        "perplexity": 23.78616476544645
+      },
+      {
+        "step": 5600,
+        "timestamp": 1749104224.2220047,
+        "phase": "train",
+        "loss": 3.2055904865264893,
+        "learning_rate": 0.0005,
+        "perplexity": 24.67006305623606
+      },
+      {
+        "step": 5650,
+        "timestamp": 1749104254.686595,
+        "phase": "train",
+        "loss": 3.1510841846466064,
+        "learning_rate": 0.0005,
+        "perplexity": 23.36137890409418
+      },
+      {
+        "step": 5700,
+        "timestamp": 1749104285.3795736,
+        "phase": "train",
+        "loss": 3.140717029571533,
+        "learning_rate": 0.0005,
+        "perplexity": 23.12043895510822
+      },
+      {
+        "step": 5750,
+        "timestamp": 1749104316.489438,
+        "phase": "train",
+        "loss": 3.068721294403076,
+        "learning_rate": 0.0005,
+        "perplexity": 21.5143745274326
+      },
+      {
+        "step": 5800,
+        "timestamp": 1749104347.513974,
+        "phase": "train",
+        "loss": 3.1576054096221924,
+        "learning_rate": 0.0005,
+        "perplexity": 23.514221530591122
+      },
+      {
+        "step": 5850,
+        "timestamp": 1749104378.0030484,
+        "phase": "train",
+        "loss": 3.1841886043548584,
+        "learning_rate": 0.0005,
+        "perplexity": 24.14768712654944
+      },
+      {
+        "step": 5900,
+        "timestamp": 1749104408.9194965,
+        "phase": "train",
+        "loss": 3.100165843963623,
+        "learning_rate": 0.0005,
+        "perplexity": 22.201632982952006
+      },
+      {
+        "step": 5950,
+        "timestamp": 1749104439.3774517,
+        "phase": "train",
+        "loss": 3.112722396850586,
+        "learning_rate": 0.0005,
+        "perplexity": 22.482166543023325
+      },
+      {
+        "step": 6000,
+        "timestamp": 1749104470.0971692,
+        "phase": "train",
+        "loss": 3.0859522819519043,
+        "learning_rate": 0.0005,
+        "perplexity": 21.888300754387753
+      },
+      {
+        "step": 6050,
+        "timestamp": 1749104500.9777062,
+        "phase": "train",
+        "loss": 3.1629951000213623,
+        "learning_rate": 0.0005,
+        "perplexity": 23.64129804854507
+      },
+      {
+        "step": 6100,
+        "timestamp": 1749104532.0777037,
+        "phase": "train",
+        "loss": 3.1423635482788086,
+        "learning_rate": 0.0005,
+        "perplexity": 23.15853854760671
+      },
+      {
+        "step": 6150,
+        "timestamp": 1749104562.7595973,
+        "phase": "train",
+        "loss": 3.178946018218994,
+        "learning_rate": 0.0005,
+        "perplexity": 24.02142206373689
+      },
+      {
+        "step": 6200,
+        "timestamp": 1749104593.7694798,
+        "phase": "train",
+        "loss": 3.0540828704833984,
+        "learning_rate": 0.0005,
+        "perplexity": 21.201731873411525
+      },
+      {
+        "step": 6250,
+        "timestamp": 1749104624.4759502,
+        "phase": "train",
+        "loss": 3.1467065811157227,
+        "learning_rate": 0.0005,
+        "perplexity": 23.259335564916416
+      },
+      {
+        "step": 6300,
+        "timestamp": 1749104655.3091297,
+        "phase": "train",
+        "loss": 3.2177000045776367,
+        "learning_rate": 0.0005,
+        "perplexity": 24.97062176788136
+      },
+      {
+        "step": 6350,
+        "timestamp": 1749104686.4075923,
+        "phase": "train",
+        "loss": 3.1490628719329834,
+        "learning_rate": 0.0005,
+        "perplexity": 23.314205943621175
+      },
+      {
+        "step": 6400,
+        "timestamp": 1749104717.5603664,
+        "phase": "train",
+        "loss": 3.147122859954834,
+        "learning_rate": 0.0005,
+        "perplexity": 23.269019949686253
+      },
+      {
+        "step": 6450,
+        "timestamp": 1749104748.4717662,
+        "phase": "train",
+        "loss": 3.063479423522949,
+        "learning_rate": 0.0005,
+        "perplexity": 21.401894015806448
+      },
+      {
+        "step": 6500,
+        "timestamp": 1749104779.7325177,
+        "phase": "train",
+        "loss": 3.0902395248413086,
+        "learning_rate": 0.0005,
+        "perplexity": 21.982342662364434
+      },
+      {
+        "step": 6550,
+        "timestamp": 1749104810.3618777,
+        "phase": "train",
+        "loss": 3.0551724433898926,
+        "learning_rate": 0.0005,
+        "perplexity": 21.224845295624228
+      },
+      {
+        "step": 6600,
+        "timestamp": 1749104841.620411,
+        "phase": "train",
+        "loss": 3.167879104614258,
+        "learning_rate": 0.0005,
+        "perplexity": 23.757044680256517
+      },
+      {
+        "step": 6650,
+        "timestamp": 1749104872.3145485,
+        "phase": "train",
+        "loss": 3.0466976165771484,
+        "learning_rate": 0.0005,
+        "perplexity": 21.045728471700578
+      },
+      {
+        "step": 6700,
+        "timestamp": 1749104903.0710616,
+        "phase": "train",
+        "loss": 3.023291826248169,
+        "learning_rate": 0.0005,
+        "perplexity": 20.55885660098935
+      },
+      {
+        "step": 6750,
+        "timestamp": 1749104933.3793445,
+        "phase": "train",
+        "loss": 3.0397958755493164,
+        "learning_rate": 0.0005,
+        "perplexity": 20.900976399298557
+      },
+      {
+        "step": 6800,
+        "timestamp": 1749104964.355765,
+        "phase": "train",
+        "loss": 3.1219120025634766,
+        "learning_rate": 0.0005,
+        "perplexity": 22.689721000295794
+      },
+      {
+        "step": 6850,
+        "timestamp": 1749104994.9092622,
+        "phase": "train",
+        "loss": 3.085172414779663,
+        "learning_rate": 0.0005,
+        "perplexity": 21.871237441596826
+      },
+      {
+        "step": 6900,
+        "timestamp": 1749105025.5197964,
+        "phase": "train",
+        "loss": 3.0941829681396484,
+        "learning_rate": 0.0005,
+        "perplexity": 22.06919993001525
+      },
+      {
+        "step": 6950,
+        "timestamp": 1749105056.494027,
+        "phase": "train",
+        "loss": 3.2040975093841553,
+        "learning_rate": 0.0005,
+        "perplexity": 24.63325869686315
+      },
+      {
+        "step": 7000,
+        "timestamp": 1749105087.2654374,
+        "phase": "train",
+        "loss": 3.146872043609619,
+        "learning_rate": 0.0005,
+        "perplexity": 23.26318443099807
+      },
+      {
+        "step": 7050,
+        "timestamp": 1749105117.902557,
+        "phase": "train",
+        "loss": 3.131204605102539,
+        "learning_rate": 0.0005,
+        "perplexity": 22.901550257491095
+      },
+      {
+        "step": 7100,
+        "timestamp": 1749105148.9951558,
+        "phase": "train",
+        "loss": 3.090402126312256,
+        "learning_rate": 0.0005,
+        "perplexity": 21.98591731423015
+      },
+      {
+        "step": 7150,
+        "timestamp": 1749105179.7801898,
+        "phase": "train",
+        "loss": 3.088745355606079,
+        "learning_rate": 0.0005,
+        "perplexity": 21.949521848271555
+      },
+      {
+        "step": 7200,
+        "timestamp": 1749105210.23688,
+        "phase": "train",
+        "loss": 3.0704071521759033,
+        "learning_rate": 0.0005,
+        "perplexity": 21.55067529332377
+      },
+      {
+        "step": 7250,
+        "timestamp": 1749105240.500743,
+        "phase": "train",
+        "loss": 3.102606773376465,
+        "learning_rate": 0.0005,
+        "perplexity": 22.255891795939363
+      },
+      {
+        "step": 7300,
+        "timestamp": 1749105271.094579,
+        "phase": "train",
+        "loss": 3.2073278427124023,
+        "learning_rate": 0.0005,
+        "perplexity": 24.712960996604423
+      },
+      {
+        "step": 7350,
+        "timestamp": 1749105301.6609824,
+        "phase": "train",
+        "loss": 3.070847988128662,
+        "learning_rate": 0.0005,
+        "perplexity": 21.560177700146692
+      },
+      {
+        "step": 7400,
+        "timestamp": 1749105332.9581122,
+        "phase": "train",
+        "loss": 3.2130653858184814,
+        "learning_rate": 0.0005,
+        "perplexity": 24.85516022260314
+      },
+      {
+        "step": 7450,
+        "timestamp": 1749105363.9892075,
+        "phase": "train",
+        "loss": 3.120156764984131,
+        "learning_rate": 0.0005,
+        "perplexity": 22.649930080805657
+      },
+      {
+        "step": 7500,
+        "timestamp": 1749105394.8635108,
+        "phase": "train",
+        "loss": 3.111510992050171,
+        "learning_rate": 0.0005,
+        "perplexity": 22.454948028197737
+      },
+      {
+        "step": 7550,
+        "timestamp": 1749105425.5781634,
+        "phase": "train",
+        "loss": 2.9896602630615234,
+        "learning_rate": 0.0005,
+        "perplexity": 19.878927738160115
+      },
+      {
+        "step": 7600,
+        "timestamp": 1749105456.2213044,
+        "phase": "train",
+        "loss": 3.1093406677246094,
+        "learning_rate": 0.0005,
+        "perplexity": 22.406266354881627
+      },
+      {
+        "step": 7650,
+        "timestamp": 1749105487.0030024,
+        "phase": "train",
+        "loss": 3.023078441619873,
+        "learning_rate": 0.0005,
+        "perplexity": 20.554470125035273
+      },
+      {
+        "step": 7700,
+        "timestamp": 1749105517.92912,
+        "phase": "train",
+        "loss": 3.1273388862609863,
+        "learning_rate": 0.0005,
+        "perplexity": 22.813190200764105
+      },
+      {
+        "step": 7750,
+        "timestamp": 1749105548.8818407,
+        "phase": "train",
+        "loss": 3.065558433532715,
+        "learning_rate": 0.0005,
+        "perplexity": 21.446435052280346
+      },
+      {
+        "step": 7800,
+        "timestamp": 1749105579.3602133,
+        "phase": "train",
+        "loss": 2.9341135025024414,
+        "learning_rate": 0.0005,
+        "perplexity": 18.804825313270936
+      },
+      {
+        "step": 7850,
+        "timestamp": 1749105609.913014,
+        "phase": "train",
+        "loss": 3.0801451206207275,
+        "learning_rate": 0.0005,
+        "perplexity": 21.761560218185856
+      },
+      {
+        "step": 7900,
+        "timestamp": 1749105640.6298344,
+        "phase": "train",
+        "loss": 3.018631935119629,
+        "learning_rate": 0.0005,
+        "perplexity": 20.46327743471108
+      },
+      {
+        "step": 7950,
+        "timestamp": 1749105671.4102745,
+        "phase": "train",
+        "loss": 3.092353582382202,
+        "learning_rate": 0.0005,
+        "perplexity": 22.02886375644503
+      },
+      {
+        "step": 8000,
+        "timestamp": 1749105702.5828109,
+        "phase": "train",
+        "loss": 3.0015709400177,
+        "learning_rate": 0.0005,
+        "perplexity": 20.117114893972143
+      },
+      {
+        "step": 8050,
+        "timestamp": 1749105733.1649969,
+        "phase": "train",
+        "loss": 3.0702810287475586,
+        "learning_rate": 0.0005,
+        "perplexity": 21.54795741967001
+      },
+      {
+        "step": 8100,
+        "timestamp": 1749105763.704483,
+        "phase": "train",
+        "loss": 3.0246596336364746,
+        "learning_rate": 0.0005,
+        "perplexity": 20.586996397466844
+      },
+      {
+        "step": 8150,
+        "timestamp": 1749105794.62981,
+        "phase": "train",
+        "loss": 3.050048351287842,
+        "learning_rate": 0.0005,
+        "perplexity": 21.116365401319285
+      },
+      {
+        "step": 8200,
+        "timestamp": 1749105825.1276262,
+        "phase": "train",
+        "loss": 3.0864734649658203,
+        "learning_rate": 0.0005,
+        "perplexity": 21.89971153823949
+      },
+      {
+        "step": 8250,
+        "timestamp": 1749105855.708528,
+        "phase": "train",
+        "loss": 3.0002071857452393,
+        "learning_rate": 0.0005,
+        "perplexity": 20.08969879124861
+      },
+      {
+        "step": 8300,
+        "timestamp": 1749105886.353261,
+        "phase": "train",
+        "loss": 2.9408974647521973,
+        "learning_rate": 0.0005,
+        "perplexity": 18.932830237675514
+      },
+      {
+        "step": 8350,
+        "timestamp": 1749105916.6874745,
+        "phase": "train",
+        "loss": 2.99452805519104,
+        "learning_rate": 0.0005,
+        "perplexity": 19.97593012834043
+      },
+      {
+        "step": 8400,
+        "timestamp": 1749105947.4864113,
+        "phase": "train",
+        "loss": 2.981240749359131,
+        "learning_rate": 0.0005,
+        "perplexity": 19.71225945120957
+      },
+      {
+        "step": 8450,
+        "timestamp": 1749105978.3866189,
+        "phase": "train",
+        "loss": 3.0865015983581543,
+        "learning_rate": 0.0005,
+        "perplexity": 21.900327660082954
+      },
+      {
+        "step": 8500,
+        "timestamp": 1749106008.9459884,
+        "phase": "train",
+        "loss": 3.030442237854004,
+        "learning_rate": 0.0005,
+        "perplexity": 20.70638771333563
+      },
+      {
+        "step": 8550,
+        "timestamp": 1749106039.5927474,
+        "phase": "train",
+        "loss": 2.959446907043457,
+        "learning_rate": 0.0005,
+        "perplexity": 19.287301134443922
+      },
+      {
+        "step": 8600,
+        "timestamp": 1749106070.3777328,
+        "phase": "train",
+        "loss": 3.0390915870666504,
+        "learning_rate": 0.0005,
+        "perplexity": 20.886261264802183
+      },
+      {
+        "step": 8650,
+        "timestamp": 1749106101.4232216,
+        "phase": "train",
+        "loss": 3.0857858657836914,
+        "learning_rate": 0.0005,
+        "perplexity": 21.884658490321737
+      },
+      {
+        "step": 8700,
+        "timestamp": 1749106132.1104589,
+        "phase": "train",
+        "loss": 2.996673822402954,
+        "learning_rate": 0.0005,
+        "perplexity": 20.018839844904587
+      },
+      {
+        "step": 8750,
+        "timestamp": 1749106162.7394376,
+        "phase": "train",
+        "loss": 2.918793201446533,
+        "learning_rate": 0.0005,
+        "perplexity": 18.518925356851692
+      },
+      {
+        "step": 8800,
+        "timestamp": 1749106193.6666114,
+        "phase": "train",
+        "loss": 2.963383674621582,
+        "learning_rate": 0.0005,
+        "perplexity": 19.3633804111773
+      },
+      {
+        "step": 8850,
+        "timestamp": 1749106225.9400063,
+        "phase": "train",
+        "loss": 2.9795210361480713,
+        "learning_rate": 0.0005,
+        "perplexity": 19.67838915016095
+      },
+      {
+        "step": 8900,
+        "timestamp": 1749106256.5624604,
+        "phase": "train",
+        "loss": 2.9718332290649414,
+        "learning_rate": 0.0005,
+        "perplexity": 19.527685523117967
+      },
+      {
+        "step": 8950,
+        "timestamp": 1749106287.8014898,
+        "phase": "train",
+        "loss": 3.0390872955322266,
+        "learning_rate": 0.0005,
+        "perplexity": 20.886171630885315
+      },
+      {
+        "step": 9000,
+        "timestamp": 1749106319.153513,
+        "phase": "train",
+        "loss": 3.058213949203491,
+        "learning_rate": 0.0005,
+        "perplexity": 21.28949905854014
+      },
+      {
+        "step": 9050,
+        "timestamp": 1749106349.962321,
+        "phase": "train",
+        "loss": 2.9913339614868164,
+        "learning_rate": 0.0005,
+        "perplexity": 19.91222692683849
+      },
+      {
+        "step": 9100,
+        "timestamp": 1749106380.6259766,
+        "phase": "train",
+        "loss": 3.000439167022705,
+        "learning_rate": 0.0005,
+        "perplexity": 20.094359765846626
+      },
+      {
+        "step": 9150,
+        "timestamp": 1749106411.0466356,
+        "phase": "train",
+        "loss": 2.976529598236084,
+        "learning_rate": 0.0005,
+        "perplexity": 19.619610431087402
+      },
+      {
+        "step": 9200,
+        "timestamp": 1749106441.6287441,
+        "phase": "train",
+        "loss": 2.9688408374786377,
+        "learning_rate": 0.0005,
+        "perplexity": 19.469338383542045
+      },
+      {
+        "step": 9250,
+        "timestamp": 1749106472.316354,
+        "phase": "train",
+        "loss": 2.976736307144165,
+        "learning_rate": 0.0005,
+        "perplexity": 19.623666398524445
+      },
+      {
+        "step": 9300,
+        "timestamp": 1749106503.4718933,
+        "phase": "train",
+        "loss": 2.985447406768799,
+        "learning_rate": 0.0005,
+        "perplexity": 19.79535683205706
+      },
+      {
+        "step": 9350,
+        "timestamp": 1749106534.7602456,
+        "phase": "train",
+        "loss": 2.983598232269287,
+        "learning_rate": 0.0005,
+        "perplexity": 19.758785586722745
+      },
+      {
+        "step": 9400,
+        "timestamp": 1749106564.9311244,
+        "phase": "train",
+        "loss": 2.962433338165283,
+        "learning_rate": 0.0005,
+        "perplexity": 19.344987426001836
+      },
+      {
+        "step": 9450,
+        "timestamp": 1749106595.844967,
+        "phase": "train",
+        "loss": 3.0202600955963135,
+        "learning_rate": 0.0005,
+        "perplexity": 20.496622072097935
+      },
+      {
+        "step": 9500,
+        "timestamp": 1749106626.543019,
+        "phase": "train",
+        "loss": 3.063143253326416,
+        "learning_rate": 0.0005,
+        "perplexity": 21.394700546071785
+      },
+      {
+        "step": 9550,
+        "timestamp": 1749106656.7557793,
+        "phase": "train",
+        "loss": 2.9162991046905518,
+        "learning_rate": 0.0005,
+        "perplexity": 18.472794915999284
+      },
+      {
+        "step": 9600,
+        "timestamp": 1749106687.476175,
+        "phase": "train",
+        "loss": 2.9847216606140137,
+        "learning_rate": 0.0005,
+        "perplexity": 19.78099563987394
+      },
+      {
+        "step": 9650,
+        "timestamp": 1749106718.1461089,
+        "phase": "train",
+        "loss": 3.060971975326538,
+        "learning_rate": 0.0005,
+        "perplexity": 21.348297099084455
+      },
+      {
+        "step": 9700,
+        "timestamp": 1749106748.8883207,
+        "phase": "train",
+        "loss": 3.0859036445617676,
+        "learning_rate": 0.0005,
+        "perplexity": 21.887236190453546
+      },
+      {
+        "step": 9750,
+        "timestamp": 1749106782.6904647,
+        "phase": "train",
+        "loss": 2.9255714416503906,
+        "learning_rate": 0.0005,
+        "perplexity": 18.64487746582821
+      },
+      {
+        "step": 9800,
+        "timestamp": 1749106813.1889012,
+        "phase": "train",
+        "loss": 2.9354074001312256,
+        "learning_rate": 0.0005,
+        "perplexity": 18.829172580192154
+      },
+      {
+        "step": 9850,
+        "timestamp": 1749106843.874392,
+        "phase": "train",
+        "loss": 2.936161756515503,
+        "learning_rate": 0.0005,
+        "perplexity": 18.84338184548986
+      },
+      {
+        "step": 9900,
+        "timestamp": 1749106874.3741548,
+        "phase": "train",
+        "loss": 2.9863524436950684,
+        "learning_rate": 0.0005,
+        "perplexity": 19.813280470512655
+      },
+      {
+        "step": 9950,
+        "timestamp": 1749106905.4742324,
+        "phase": "train",
+        "loss": 2.9439690113067627,
+        "learning_rate": 0.0005,
+        "perplexity": 18.991072708600452
+      },
+      {
+        "step": 10000,
+        "timestamp": 1749106936.4784966,
+        "phase": "train",
+        "loss": 2.9214816093444824,
+        "learning_rate": 0.0005,
+        "perplexity": 18.568778765164467
+      },
+      {
+        "step": 10050,
+        "timestamp": 1749106967.358882,
+        "phase": "train",
+        "loss": 2.960212230682373,
+        "learning_rate": 0.0005,
+        "perplexity": 19.30206781185589
+      },
+      {
+        "step": 10100,
+        "timestamp": 1749106997.6348455,
+        "phase": "train",
+        "loss": 2.970628499984741,
+        "learning_rate": 0.0005,
+        "perplexity": 19.504174117779776
+      },
+      {
+        "step": 10150,
+        "timestamp": 1749107028.3814387,
+        "phase": "train",
+        "loss": 3.0698742866516113,
+        "learning_rate": 0.0005,
+        "perplexity": 21.539194740501802
+      },
+      {
+        "step": 10200,
+        "timestamp": 1749107058.9196386,
+        "phase": "train",
+        "loss": 2.9680919647216797,
+        "learning_rate": 0.0005,
+        "perplexity": 19.454763784371877
+      },
+      {
+        "step": 10250,
+        "timestamp": 1749107090.3416486,
+        "phase": "train",
+        "loss": 2.887516498565674,
+        "learning_rate": 0.0005,
+        "perplexity": 17.94867863482103
+      },
+      {
+        "step": 10300,
+        "timestamp": 1749107120.8386421,
+        "phase": "train",
+        "loss": 2.949525833129883,
+        "learning_rate": 0.0005,
+        "perplexity": 19.0968964654484
+      },
+      {
+        "step": 10350,
+        "timestamp": 1749107151.2067635,
+        "phase": "train",
+        "loss": 2.971935987472534,
+        "learning_rate": 0.0005,
+        "perplexity": 19.529692260089078
+      },
+      {
+        "step": 10400,
+        "timestamp": 1749107181.7498088,
+        "phase": "train",
+        "loss": 2.988090991973877,
+        "learning_rate": 0.0005,
+        "perplexity": 19.847756775849003
+      },
+      {
+        "step": 10450,
+        "timestamp": 1749107212.6581209,
+        "phase": "train",
+        "loss": 2.9905734062194824,
+        "learning_rate": 0.0005,
+        "perplexity": 19.897088335362415
+      },
+      {
+        "step": 10500,
+        "timestamp": 1749107243.3608592,
+        "phase": "train",
+        "loss": 2.912430763244629,
+        "learning_rate": 0.0005,
+        "perplexity": 18.401473873813124
+      },
+      {
+        "step": 10550,
+        "timestamp": 1749107273.8811402,
+        "phase": "train",
+        "loss": 2.8624541759490967,
+        "learning_rate": 0.0005,
+        "perplexity": 17.504433224276607
+      },
+      {
+        "step": 10600,
+        "timestamp": 1749107304.1111119,
+        "phase": "train",
+        "loss": 2.933645248413086,
+        "learning_rate": 0.0005,
+        "perplexity": 18.796021938187426
+      },
+      {
+        "step": 10650,
+        "timestamp": 1749107334.1121619,
+        "phase": "train",
+        "loss": 2.9255495071411133,
+        "learning_rate": 0.0005,
+        "perplexity": 18.644468504075665
+      },
+      {
+        "step": 10700,
+        "timestamp": 1749107364.543978,
+        "phase": "train",
+        "loss": 2.998269557952881,
+        "learning_rate": 0.0005,
+        "perplexity": 20.050810120582096
+      },
+      {
+        "step": 10750,
+        "timestamp": 1749107394.8686059,
+        "phase": "train",
+        "loss": 2.927279233932495,
+        "learning_rate": 0.0005,
+        "perplexity": 18.676746248550135
+      },
+      {
+        "step": 10800,
+        "timestamp": 1749107425.7236707,
+        "phase": "train",
+        "loss": 3.015735626220703,
+        "learning_rate": 0.0005,
+        "perplexity": 20.40409520855124
+      },
+      {
+        "step": 10850,
+        "timestamp": 1749107456.38489,
+        "phase": "train",
+        "loss": 2.905949115753174,
+        "learning_rate": 0.0005,
+        "perplexity": 18.28258771215332
+      },
+      {
+        "step": 10900,
+        "timestamp": 1749107486.7045887,
+        "phase": "train",
+        "loss": 2.8766188621520996,
+        "learning_rate": 0.0005,
+        "perplexity": 17.75414237887993
+      },
+      {
+        "step": 10950,
+        "timestamp": 1749107517.1378877,
+        "phase": "train",
+        "loss": 2.9038219451904297,
+        "learning_rate": 0.0005,
+        "perplexity": 18.243738863473673
+      },
+      {
+        "step": 11000,
+        "timestamp": 1749107548.0711994,
+        "phase": "train",
+        "loss": 2.984410285949707,
+        "learning_rate": 0.0005,
+        "perplexity": 19.774837297822526
+      },
+      {
+        "step": 11050,
+        "timestamp": 1749107578.5914114,
+        "phase": "train",
+        "loss": 3.0172667503356934,
+        "learning_rate": 0.0005,
+        "perplexity": 20.435360340060004
+      },
+      {
+        "step": 11100,
+        "timestamp": 1749107609.5458286,
+        "phase": "train",
+        "loss": 3.0138752460479736,
+        "learning_rate": 0.0005,
+        "perplexity": 20.366171121930158
+      },
+      {
+        "step": 11150,
+        "timestamp": 1749107640.0160704,
+        "phase": "train",
+        "loss": 2.990999460220337,
+        "learning_rate": 0.0005,
+        "perplexity": 19.905567375589296
+      },
+      {
+        "step": 11200,
+        "timestamp": 1749107670.511772,
+        "phase": "train",
+        "loss": 2.9383506774902344,
+        "learning_rate": 0.0005,
+        "perplexity": 18.884673695057067
+      },
+      {
+        "step": 11250,
+        "timestamp": 1749107701.6015785,
+        "phase": "train",
+        "loss": 2.9726638793945312,
+        "learning_rate": 0.0005,
+        "perplexity": 19.54391294025552
+      },
+      {
+        "step": 11300,
+        "timestamp": 1749107732.2852306,
+        "phase": "train",
+        "loss": 2.929882049560547,
+        "learning_rate": 0.0005,
+        "perplexity": 18.72542169469306
+      },
+      {
+        "step": 11350,
+        "timestamp": 1749107763.0778003,
+        "phase": "train",
+        "loss": 2.961892604827881,
+        "learning_rate": 0.0005,
+        "perplexity": 19.334529774044302
+      },
+      {
+        "step": 11400,
+        "timestamp": 1749107793.719262,
+        "phase": "train",
+        "loss": 2.9630239009857178,
+        "learning_rate": 0.0005,
+        "perplexity": 19.35641523042348
+      },
+      {
+        "step": 11450,
+        "timestamp": 1749107824.7494366,
+        "phase": "train",
+        "loss": 2.8993330001831055,
+        "learning_rate": 0.0005,
+        "perplexity": 18.162027259647203
+      },
+      {
+        "step": 11500,
+        "timestamp": 1749107855.4175198,
+        "phase": "train",
+        "loss": 2.8830020427703857,
+        "learning_rate": 0.0005,
+        "perplexity": 17.86783274344704
+      },
+      {
+        "step": 11550,
+        "timestamp": 1749107885.8528802,
+        "phase": "train",
+        "loss": 2.992645740509033,
+        "learning_rate": 0.0005,
+        "perplexity": 19.938364508024033
+      },
+      {
+        "step": 11600,
+        "timestamp": 1749107916.2244542,
+        "phase": "train",
+        "loss": 3.002209424972534,
+        "learning_rate": 0.0005,
+        "perplexity": 20.129963470541533
+      },
+      {
+        "step": 11650,
+        "timestamp": 1749107946.284337,
+        "phase": "train",
+        "loss": 2.928773880004883,
+        "learning_rate": 0.0005,
+        "perplexity": 18.704682245989265
+      },
+      {
+        "step": 11700,
+        "timestamp": 1749107977.291792,
+        "phase": "train",
+        "loss": 2.9257712364196777,
+        "learning_rate": 0.0005,
+        "perplexity": 18.64860298697731
+      },
+      {
+        "step": 11750,
+        "timestamp": 1749108007.9006104,
+        "phase": "train",
+        "loss": 2.8575384616851807,
+        "learning_rate": 0.0005,
+        "perplexity": 17.418597576798675
+      },
+      {
+        "step": 11800,
+        "timestamp": 1749108038.089482,
+        "phase": "train",
+        "loss": 2.895084857940674,
+        "learning_rate": 0.0005,
+        "perplexity": 18.08503603506054
+      },
+      {
+        "step": 11850,
+        "timestamp": 1749108068.7432113,
+        "phase": "train",
+        "loss": 2.8202993869781494,
+        "learning_rate": 0.0005,
+        "perplexity": 16.78187419471657
+      },
+      {
+        "step": 11900,
+        "timestamp": 1749108099.5415237,
+        "phase": "train",
+        "loss": 2.9756689071655273,
+        "learning_rate": 0.0005,
+        "perplexity": 19.602731272494097
+      },
+      {
+        "step": 11950,
+        "timestamp": 1749108130.055653,
+        "phase": "train",
+        "loss": 2.925265073776245,
+        "learning_rate": 0.0005,
+        "perplexity": 18.639166149281927
+      },
+      {
+        "step": 12000,
+        "timestamp": 1749108160.3584342,
+        "phase": "train",
+        "loss": 2.979337453842163,
+        "learning_rate": 0.0005,
+        "perplexity": 19.674776877689006
+      },
+      {
+        "step": 12050,
+        "timestamp": 1749108190.9373784,
+        "phase": "train",
+        "loss": 2.9284443855285645,
+        "learning_rate": 0.0005,
+        "perplexity": 18.69852017174838
+      },
+      {
+        "step": 12100,
+        "timestamp": 1749108221.6863837,
+        "phase": "train",
+        "loss": 2.9156556129455566,
+        "learning_rate": 0.0005,
+        "perplexity": 18.46091164876609
+      },
+      {
+        "step": 12150,
+        "timestamp": 1749108251.978363,
+        "phase": "train",
+        "loss": 2.862156391143799,
+        "learning_rate": 0.0005,
+        "perplexity": 17.49922144606976
+      },
+      {
+        "step": 12200,
+        "timestamp": 1749108282.3783512,
+        "phase": "train",
+        "loss": 2.8951339721679688,
+        "learning_rate": 0.0005,
+        "perplexity": 18.08592428944379
+      },
+      {
+        "step": 12250,
+        "timestamp": 1749108312.7374434,
+        "phase": "train",
+        "loss": 2.9880332946777344,
+        "learning_rate": 0.0005,
+        "perplexity": 19.84661164698428
+      },
+      {
+        "step": 12300,
+        "timestamp": 1749108343.4240532,
+        "phase": "train",
+        "loss": 2.9516217708587646,
+        "learning_rate": 0.0005,
+        "perplexity": 19.136964346478635
+      },
+      {
+        "step": 12350,
+        "timestamp": 1749108374.4262686,
+        "phase": "train",
+        "loss": 2.978888988494873,
+        "learning_rate": 0.0005,
+        "perplexity": 19.665955400255015
+      },
+      {
+        "step": 12400,
+        "timestamp": 1749108404.9774897,
+        "phase": "train",
+        "loss": 2.9228992462158203,
+        "learning_rate": 0.0005,
+        "perplexity": 18.595121218202344
+      },
+      {
+        "step": 12450,
+        "timestamp": 1749108435.9812717,
+        "phase": "train",
+        "loss": 3.023968458175659,
+        "learning_rate": 0.0005,
+        "perplexity": 20.572772087058443
+      },
+      {
+        "step": 12500,
+        "timestamp": 1749108466.9310548,
+        "phase": "train",
+        "loss": 2.9881746768951416,
+        "learning_rate": 0.0005,
+        "perplexity": 19.849417803312576
+      },
+      {
+        "step": 12550,
+        "timestamp": 1749108497.8030581,
+        "phase": "train",
+        "loss": 2.876246690750122,
+        "learning_rate": 0.0005,
+        "perplexity": 17.747536024244262
+      },
+      {
+        "step": 12600,
+        "timestamp": 1749108528.6152394,
+        "phase": "train",
+        "loss": 2.880631923675537,
+        "learning_rate": 0.0005,
+        "perplexity": 17.825533998211093
+      },
+      {
+        "step": 12650,
+        "timestamp": 1749108559.4027278,
+        "phase": "train",
+        "loss": 2.868942975997925,
+        "learning_rate": 0.0005,
+        "perplexity": 17.618385297722316
+      },
+      {
+        "step": 12700,
+        "timestamp": 1749108589.5133,
+        "phase": "train",
+        "loss": 2.8481998443603516,
+        "learning_rate": 0.0005,
+        "perplexity": 17.256689136839796
+      },
+      {
+        "step": 12750,
+        "timestamp": 1749108620.0041332,
+        "phase": "train",
+        "loss": 2.9325146675109863,
+        "learning_rate": 0.0005,
+        "perplexity": 18.774783522884302
+      },
+      {
+        "step": 12800,
+        "timestamp": 1749108650.6517606,
+        "phase": "train",
+        "loss": 2.9631993770599365,
+        "learning_rate": 0.0005,
+        "perplexity": 19.359812116206434
+      },
+      {
+        "step": 12850,
+        "timestamp": 1749108681.1834505,
+        "phase": "train",
+        "loss": 2.909602165222168,
+        "learning_rate": 0.0005,
+        "perplexity": 18.349497046633978
+      },
+      {
+        "step": 12900,
+        "timestamp": 1749108711.9758866,
+        "phase": "train",
+        "loss": 2.8947625160217285,
+        "learning_rate": 0.0005,
+        "perplexity": 18.079207409296476
+      },
+      {
+        "step": 12950,
+        "timestamp": 1749108742.405838,
+        "phase": "train",
+        "loss": 2.840144395828247,
+        "learning_rate": 0.0005,
+        "perplexity": 17.11823716072847
+      },
+      {
+        "step": 13000,
+        "timestamp": 1749108773.6572492,
+        "phase": "train",
+        "loss": 2.8490188121795654,
+        "learning_rate": 0.0005,
+        "perplexity": 17.270827598591406
+      },
+      {
+        "step": 13050,
+        "timestamp": 1749108804.4764404,
+        "phase": "train",
+        "loss": 2.936270236968994,
+        "learning_rate": 0.0005,
+        "perplexity": 18.845426094976318
+      },
+      {
+        "step": 13100,
+        "timestamp": 1749108834.9223256,
+        "phase": "train",
+        "loss": 2.9547698497772217,
+        "learning_rate": 0.0005,
+        "perplexity": 19.197303947581677
+      },
+      {
+        "step": 13150,
+        "timestamp": 1749108865.4384696,
+        "phase": "train",
+        "loss": 2.821356773376465,
+        "learning_rate": 0.0005,
+        "perplexity": 16.79962850515728
+      },
+      {
+        "step": 13200,
+        "timestamp": 1749108896.2186704,
+        "phase": "train",
+        "loss": 2.97629976272583,
+        "learning_rate": 0.0005,
+        "perplexity": 19.615101666069993
+      },
+      {
+        "step": 13250,
+        "timestamp": 1749108926.7611454,
+        "phase": "train",
+        "loss": 2.9557271003723145,
+        "learning_rate": 0.0005,
+        "perplexity": 19.215689376537156
+      },
+      {
+        "step": 13300,
+        "timestamp": 1749108957.444708,
+        "phase": "train",
+        "loss": 2.832880973815918,
+        "learning_rate": 0.0005,
+        "perplexity": 16.99435064480571
+      },
+      {
+        "step": 13350,
+        "timestamp": 1749108988.2245398,
+        "phase": "train",
+        "loss": 2.93941593170166,
+        "learning_rate": 0.0005,
+        "perplexity": 18.90480139189569
+      },
+      {
+        "step": 13400,
+        "timestamp": 1749109019.1388898,
+        "phase": "train",
+        "loss": 2.9899611473083496,
+        "learning_rate": 0.0005,
+        "perplexity": 19.884909894283464
+      },
+      {
+        "step": 13450,
+        "timestamp": 1749109050.0863914,
+        "phase": "train",
+        "loss": 2.95650053024292,
+        "learning_rate": 0.0005,
+        "perplexity": 19.230557113520042
+      },
+      {
+        "step": 13500,
+        "timestamp": 1749109080.8326585,
+        "phase": "train",
+        "loss": 2.9059066772460938,
+        "learning_rate": 0.0005,
+        "perplexity": 18.28181184288874
+      },
+      {
+        "step": 13550,
+        "timestamp": 1749109111.5536368,
+        "phase": "train",
+        "loss": 2.86491322517395,
+        "learning_rate": 0.0005,
+        "perplexity": 17.547530454616563
+      },
+      {
+        "step": 13600,
+        "timestamp": 1749109142.27678,
+        "phase": "train",
+        "loss": 2.835263967514038,
+        "learning_rate": 0.0005,
+        "perplexity": 17.034896366208113
+      },
+      {
+        "step": 13650,
+        "timestamp": 1749109173.0549905,
+        "phase": "train",
+        "loss": 2.845662832260132,
+        "learning_rate": 0.0005,
+        "perplexity": 17.21296419649398
+      },
+      {
+        "step": 13700,
+        "timestamp": 1749109203.2295117,
+        "phase": "train",
+        "loss": 2.810824155807495,
+        "learning_rate": 0.0005,
+        "perplexity": 16.623613021899327
+      },
+      {
+        "step": 13750,
+        "timestamp": 1749109234.3056903,
+        "phase": "train",
+        "loss": 2.9841713905334473,
+        "learning_rate": 0.0005,
+        "perplexity": 19.770113744074926
+      },
+      {
+        "step": 13800,
+        "timestamp": 1749109265.1346805,
+        "phase": "train",
+        "loss": 2.944457769393921,
+        "learning_rate": 0.0005,
+        "perplexity": 19.00035701767634
+      },
+      {
+        "step": 13850,
+        "timestamp": 1749109295.9012775,
+        "phase": "train",
+        "loss": 2.877261161804199,
+        "learning_rate": 0.0005,
+        "perplexity": 17.765549521362868
+      },
+      {
+        "step": 13900,
+        "timestamp": 1749109326.5180287,
+        "phase": "train",
+        "loss": 2.926901340484619,
+        "learning_rate": 0.0005,
+        "perplexity": 18.669689761899175
+      },
+      {
+        "step": 13950,
+        "timestamp": 1749109357.1218107,
+        "phase": "train",
+        "loss": 2.85308575630188,
+        "learning_rate": 0.0005,
+        "perplexity": 17.34121011324741
+      },
+      {
+        "step": 14000,
+        "timestamp": 1749109388.097624,
+        "phase": "train",
+        "loss": 2.94931697845459,
+        "learning_rate": 0.0005,
+        "perplexity": 19.092908405814953
+      },
+      {
+        "step": 14050,
+        "timestamp": 1749109418.862476,
+        "phase": "train",
+        "loss": 2.888450860977173,
+        "learning_rate": 0.0005,
+        "perplexity": 17.96545704280968
+      },
+      {
+        "step": 14100,
+        "timestamp": 1749109449.6485968,
+        "phase": "train",
+        "loss": 2.8734872341156006,
+        "learning_rate": 0.0005,
+        "perplexity": 17.698629976308307
+      },
+      {
+        "step": 14150,
+        "timestamp": 1749109480.2920926,
+        "phase": "train",
+        "loss": 2.9212827682495117,
+        "learning_rate": 0.0005,
+        "perplexity": 18.565086895922356
+      },
+      {
+        "step": 14200,
+        "timestamp": 1749109511.026721,
+        "phase": "train",
+        "loss": 2.7860841751098633,
+        "learning_rate": 0.0005,
+        "perplexity": 16.217390840452556
+      },
+      {
+        "step": 14250,
+        "timestamp": 1749109541.6078303,
+        "phase": "train",
+        "loss": 2.992295265197754,
+        "learning_rate": 0.0005,
+        "perplexity": 19.93137782791764
+      },
+      {
+        "step": 14300,
+        "timestamp": 1749109572.4619205,
+        "phase": "train",
+        "loss": 2.935626983642578,
+        "learning_rate": 0.0005,
+        "perplexity": 18.833307609998744
+      },
+      {
+        "step": 14350,
+        "timestamp": 1749109603.4689178,
+        "phase": "train",
+        "loss": 2.920759677886963,
+        "learning_rate": 0.0005,
+        "perplexity": 18.555378217366687
+      },
+      {
+        "step": 14400,
+        "timestamp": 1749109634.0517278,
+        "phase": "train",
+        "loss": 2.930488109588623,
+        "learning_rate": 0.0005,
+        "perplexity": 18.736773863991626
+      },
+      {
+        "step": 14450,
+        "timestamp": 1749109664.5916898,
+        "phase": "train",
+        "loss": 2.8448100090026855,
+        "learning_rate": 0.0005,
+        "perplexity": 17.198290838077618
+      },
+      {
+        "step": 14500,
+        "timestamp": 1749109695.0437984,
+        "phase": "train",
+        "loss": 2.890061140060425,
+        "learning_rate": 0.0005,
+        "perplexity": 17.99440974721774
+      },
+      {
+        "step": 14550,
+        "timestamp": 1749109725.3803205,
+        "phase": "train",
+        "loss": 2.8747758865356445,
+        "learning_rate": 0.0005,
+        "perplexity": 17.721452060367422
+      },
+      {
+        "step": 14600,
+        "timestamp": 1749109755.827626,
+        "phase": "train",
+        "loss": 2.8253464698791504,
+        "learning_rate": 0.0005,
+        "perplexity": 16.866787807783137
+      },
+      {
+        "step": 14650,
+        "timestamp": 1749109786.6090086,
+        "phase": "train",
+        "loss": 2.71401309967041,
+        "learning_rate": 0.0005,
+        "perplexity": 15.089710680553534
+      },
+      {
+        "step": 14700,
+        "timestamp": 1749109816.9975193,
+        "phase": "train",
+        "loss": 2.7221431732177734,
+        "learning_rate": 0.0005,
+        "perplexity": 15.212891193008769
+      },
+      {
+        "step": 14750,
+        "timestamp": 1749109847.1378949,
+        "phase": "train",
+        "loss": 2.879063606262207,
+        "learning_rate": 0.0005,
+        "perplexity": 17.797599813399646
+      },
+      {
+        "step": 14800,
+        "timestamp": 1749109878.275797,
+        "phase": "train",
+        "loss": 2.937217950820923,
+        "learning_rate": 0.0005,
+        "perplexity": 18.863294632124706
+      },
+      {
+        "step": 14850,
+        "timestamp": 1749109908.8792105,
+        "phase": "train",
+        "loss": 2.908700942993164,
+        "learning_rate": 0.0005,
+        "perplexity": 18.332967521511023
+      },
+      {
+        "step": 14900,
+        "timestamp": 1749109939.3106768,
+        "phase": "train",
+        "loss": 2.8755836486816406,
+        "learning_rate": 0.0005,
+        "perplexity": 17.735772561514587
+      },
+      {
+        "step": 14950,
+        "timestamp": 1749109969.499818,
+        "phase": "train",
+        "loss": 2.8416571617126465,
+        "learning_rate": 0.0005,
+        "perplexity": 17.14415264299279
+      },
+      {
+        "step": 15000,
+        "timestamp": 1749110000.7806623,
+        "phase": "train",
+        "loss": 2.8259923458099365,
+        "learning_rate": 0.0005,
+        "perplexity": 16.877685178853877
+      },
+      {
+        "step": 15050,
+        "timestamp": 1749110031.5313551,
+        "phase": "train",
+        "loss": 2.968390941619873,
+        "learning_rate": 0.0005,
+        "perplexity": 19.460581178893165
+      },
+      {
+        "step": 15100,
+        "timestamp": 1749110062.4328437,
+        "phase": "train",
+        "loss": 2.8732519149780273,
+        "learning_rate": 0.0005,
+        "perplexity": 17.69446563995929
+      },
+      {
+        "step": 15150,
+        "timestamp": 1749110093.3030207,
+        "phase": "train",
+        "loss": 2.8560080528259277,
+        "learning_rate": 0.0005,
+        "perplexity": 17.39196038884462
+      },
+      {
+        "step": 15200,
+        "timestamp": 1749110123.9200368,
+        "phase": "train",
+        "loss": 2.913562297821045,
+        "learning_rate": 0.0005,
+        "perplexity": 18.42230756255504
+      },
+      {
+        "step": 15250,
+        "timestamp": 1749110154.8664587,
+        "phase": "train",
+        "loss": 2.8603858947753906,
+        "learning_rate": 0.0005,
+        "perplexity": 17.468266548902115
+      },
+      {
+        "step": 15300,
+        "timestamp": 1749110184.9043438,
+        "phase": "train",
+        "loss": 2.879617214202881,
+        "learning_rate": 0.0005,
+        "perplexity": 17.80745543380442
+      },
+      {
+        "step": 15350,
+        "timestamp": 1749110215.5935287,
+        "phase": "train",
+        "loss": 2.885239601135254,
+        "learning_rate": 0.0005,
+        "perplexity": 17.90785782459241
+      },
+      {
+        "step": 15400,
+        "timestamp": 1749110246.1067586,
+        "phase": "train",
+        "loss": 2.8576619625091553,
+        "learning_rate": 0.0005,
+        "perplexity": 17.420748920795535
+      },
+      {
+        "step": 15450,
+        "timestamp": 1749110276.299062,
+        "phase": "train",
+        "loss": 2.8120195865631104,
+        "learning_rate": 0.0005,
+        "perplexity": 16.643497282935776
+      },
+      {
+        "step": 15500,
+        "timestamp": 1749110307.239082,
+        "phase": "train",
+        "loss": 2.9958701133728027,
+        "learning_rate": 0.0005,
+        "perplexity": 20.002756986383122
+      },
+      {
+        "step": 15550,
+        "timestamp": 1749110337.9096427,
+        "phase": "train",
+        "loss": 2.881699562072754,
+        "learning_rate": 0.0005,
+        "perplexity": 17.84457538560794
+      },
+      {
+        "step": 15600,
+        "timestamp": 1749110368.5679567,
+        "phase": "train",
+        "loss": 2.8854541778564453,
+        "learning_rate": 0.0005,
+        "perplexity": 17.911700846304726
+      },
+      {
+        "step": 15650,
+        "timestamp": 1749110399.0081139,
+        "phase": "train",
+        "loss": 2.8661251068115234,
+        "learning_rate": 0.0005,
+        "perplexity": 17.568808875418767
+      },
+      {
+        "step": 15700,
+        "timestamp": 1749110429.1202393,
+        "phase": "train",
+        "loss": 2.8546717166900635,
+        "learning_rate": 0.0005,
+        "perplexity": 17.36873440601996
+      },
+      {
+        "step": 15750,
+        "timestamp": 1749110459.4627833,
+        "phase": "train",
+        "loss": 2.8213279247283936,
+        "learning_rate": 0.0005,
+        "perplexity": 16.799143865577438
+      },
+      {
+        "step": 15800,
+        "timestamp": 1749110490.3197234,
+        "phase": "train",
+        "loss": 2.926889657974243,
+        "learning_rate": 0.0005,
+        "perplexity": 18.66947165432884
+      },
+      {
+        "step": 15850,
+        "timestamp": 1749110521.026204,
+        "phase": "train",
+        "loss": 2.8810524940490723,
+        "learning_rate": 0.0005,
+        "perplexity": 17.833032466409442
+      },
+      {
+        "step": 15900,
+        "timestamp": 1749110551.4353998,
+        "phase": "train",
+        "loss": 2.8113903999328613,
+        "learning_rate": 0.0005,
+        "perplexity": 16.63302871065298
+      },
+      {
+        "step": 15950,
+        "timestamp": 1749110582.1225753,
+        "phase": "train",
+        "loss": 2.9221091270446777,
+        "learning_rate": 0.0005,
+        "perplexity": 18.58043465926806
+      },
+      {
+        "step": 16000,
+        "timestamp": 1749110612.1941338,
+        "phase": "train",
+        "loss": 2.8350915908813477,
+        "learning_rate": 0.0005,
+        "perplexity": 17.03196020120466
+      },
+      {
+        "step": 16050,
+        "timestamp": 1749110642.5409706,
+        "phase": "train",
+        "loss": 2.8267359733581543,
+        "learning_rate": 0.0005,
+        "perplexity": 16.890240558187422
+      },
+      {
+        "step": 16100,
+        "timestamp": 1749110673.2132475,
+        "phase": "train",
+        "loss": 2.8272128105163574,
+        "learning_rate": 0.0005,
+        "perplexity": 16.898296372999837
+      },
+      {
+        "step": 16150,
+        "timestamp": 1749110703.8737242,
+        "phase": "train",
+        "loss": 2.833247423171997,
+        "learning_rate": 0.0005,
+        "perplexity": 17.00057935484017
+      },
+      {
+        "step": 16200,
+        "timestamp": 1749110734.9893043,
+        "phase": "train",
+        "loss": 2.8296146392822266,
+        "learning_rate": 0.0005,
+        "perplexity": 16.938931967657954
+      },
+      {
+        "step": 16250,
+        "timestamp": 1749110765.547548,
+        "phase": "train",
+        "loss": 2.852375030517578,
+        "learning_rate": 0.0005,
+        "perplexity": 17.328889646844125
+      },
+      {
+        "step": 16300,
+        "timestamp": 1749110796.551805,
+        "phase": "train",
+        "loss": 2.8006272315979004,
+        "learning_rate": 0.0005,
+        "perplexity": 16.454964608666796
+      },
+      {
+        "step": 16350,
+        "timestamp": 1749110827.2613838,
+        "phase": "train",
+        "loss": 2.8501453399658203,
+        "learning_rate": 0.0005,
+        "perplexity": 17.29029462878931
+      },
+      {
+        "step": 16400,
+        "timestamp": 1749110858.11392,
+        "phase": "train",
+        "loss": 2.9710185527801514,
+        "learning_rate": 0.0005,
+        "perplexity": 19.51178325930357
+      },
+      {
+        "step": 16450,
+        "timestamp": 1749110888.5383725,
+        "phase": "train",
+        "loss": 2.8056252002716064,
+        "learning_rate": 0.0005,
+        "perplexity": 16.53741186909476
+      },
+      {
+        "step": 16500,
+        "timestamp": 1749110918.941272,
+        "phase": "train",
+        "loss": 2.8264145851135254,
+        "learning_rate": 0.0005,
+        "perplexity": 16.884813105629508
+      },
+      {
+        "step": 16550,
+        "timestamp": 1749110949.4379218,
+        "phase": "train",
+        "loss": 2.8664729595184326,
+        "learning_rate": 0.0005,
+        "perplexity": 17.574921296192674
+      },
+      {
+        "step": 16600,
+        "timestamp": 1749110980.0433292,
+        "phase": "train",
+        "loss": 2.895796060562134,
+        "learning_rate": 0.0005,
+        "perplexity": 18.097902734970884
+      },
+      {
+        "step": 16650,
+        "timestamp": 1749111010.9455528,
+        "phase": "train",
+        "loss": 2.820073366165161,
+        "learning_rate": 0.0005,
+        "perplexity": 16.778081570489764
+      },
+      {
+        "step": 16700,
+        "timestamp": 1749111041.6756518,
+        "phase": "train",
+        "loss": 2.8893182277679443,
+        "learning_rate": 0.0005,
+        "perplexity": 17.981046443516515
+      },
+      {
+        "step": 16750,
+        "timestamp": 1749111072.231622,
+        "phase": "train",
+        "loss": 2.8975510597229004,
+        "learning_rate": 0.0005,
+        "perplexity": 18.12969242636384
+      },
+      {
+        "step": 16800,
+        "timestamp": 1749111103.6435375,
+        "phase": "train",
+        "loss": 2.8925161361694336,
+        "learning_rate": 0.0005,
+        "perplexity": 18.038640223740174
+      },
+      {
+        "step": 16850,
+        "timestamp": 1749111133.9009352,
+        "phase": "train",
+        "loss": 2.924696683883667,
+        "learning_rate": 0.0005,
+        "perplexity": 18.628574845916624
+      },
+      {
+        "step": 16900,
+        "timestamp": 1749111164.6328194,
+        "phase": "train",
+        "loss": 2.8603355884552,
+        "learning_rate": 0.0005,
+        "perplexity": 17.467387806795262
+      },
+      {
+        "step": 16950,
+        "timestamp": 1749111195.441761,
+        "phase": "train",
+        "loss": 2.9148499965667725,
+        "learning_rate": 0.0005,
+        "perplexity": 18.446045225095805
+      },
+      {
+        "step": 17000,
+        "timestamp": 1749111226.0858262,
+        "phase": "train",
+        "loss": 2.9301109313964844,
+        "learning_rate": 0.0005,
+        "perplexity": 18.729708094110016
+      },
+      {
+        "step": 17050,
+        "timestamp": 1749111256.7015765,
+        "phase": "train",
+        "loss": 2.8300623893737793,
+        "learning_rate": 0.0005,
+        "perplexity": 16.94651807421049
+      },
+      {
+        "step": 17100,
+        "timestamp": 1749111286.9730315,
+        "phase": "train",
+        "loss": 2.8352816104888916,
+        "learning_rate": 0.0005,
+        "perplexity": 17.035196915107612
+      },
+      {
+        "step": 17150,
+        "timestamp": 1749111317.4882324,
+        "phase": "train",
+        "loss": 2.9066319465637207,
+        "learning_rate": 0.0005,
+        "perplexity": 18.29507588951061
+      },
+      {
+        "step": 17200,
+        "timestamp": 1749111348.3050609,
+        "phase": "train",
+        "loss": 2.93154239654541,
+        "learning_rate": 0.0005,
+        "perplexity": 18.756538217107845
+      },
+      {
+        "step": 17250,
+        "timestamp": 1749111378.6364322,
+        "phase": "train",
+        "loss": 2.902820587158203,
+        "learning_rate": 0.0005,
+        "perplexity": 18.225479492634467
+      },
+      {
+        "step": 17300,
+        "timestamp": 1749111409.1959121,
+        "phase": "train",
+        "loss": 2.8830904960632324,
+        "learning_rate": 0.0005,
+        "perplexity": 17.869413281990116
+      },
+      {
+        "step": 17350,
+        "timestamp": 1749111439.6647384,
+        "phase": "train",
+        "loss": 2.966190814971924,
+        "learning_rate": 0.0005,
+        "perplexity": 19.417812501162707
+      },
+      {
+        "step": 17400,
+        "timestamp": 1749111470.169048,
+        "phase": "train",
+        "loss": 2.861423969268799,
+        "learning_rate": 0.0005,
+        "perplexity": 17.486409325998437
+      },
+      {
+        "step": 17450,
+        "timestamp": 1749111501.7339215,
+        "phase": "train",
+        "loss": 2.840040445327759,
+        "learning_rate": 0.0005,
+        "perplexity": 17.116457803892253
+      },
+      {
+        "step": 17500,
+        "timestamp": 1749111532.3222091,
+        "phase": "train",
+        "loss": 2.786938190460205,
+        "learning_rate": 0.0005,
+        "perplexity": 16.231246656870617
+      },
+      {
+        "step": 17550,
+        "timestamp": 1749111562.807229,
+        "phase": "train",
+        "loss": 2.823395013809204,
+        "learning_rate": 0.0005,
+        "perplexity": 16.8339051073431
+      },
+      {
+        "step": 17600,
+        "timestamp": 1749111593.642839,
+        "phase": "train",
+        "loss": 2.7608184814453125,
+        "learning_rate": 0.0005,
+        "perplexity": 15.812780120247783
+      },
+      {
+        "step": 17650,
+        "timestamp": 1749111624.693145,
+        "phase": "train",
+        "loss": 2.8107802867889404,
+        "learning_rate": 0.0005,
+        "perplexity": 16.622883776306985
+      },
+      {
+        "step": 17700,
+        "timestamp": 1749111655.0772812,
+        "phase": "train",
+        "loss": 2.7815611362457275,
+        "learning_rate": 0.0005,
+        "perplexity": 16.14420458830729
+      },
+      {
+        "step": 17750,
+        "timestamp": 1749111685.8076236,
+        "phase": "train",
+        "loss": 2.8655552864074707,
+        "learning_rate": 0.0005,
+        "perplexity": 17.55880066135974
+      },
+      {
+        "step": 17800,
+        "timestamp": 1749111716.675213,
+        "phase": "train",
+        "loss": 2.8874316215515137,
+        "learning_rate": 0.0005,
+        "perplexity": 17.94715526922066
+      },
+      {
+        "step": 17850,
+        "timestamp": 1749111747.1392348,
+        "phase": "train",
+        "loss": 2.864046573638916,
+        "learning_rate": 0.0005,
+        "perplexity": 17.532329448351152
+      },
+      {
+        "step": 17900,
+        "timestamp": 1749111777.0371678,
+        "phase": "train",
+        "loss": 2.887026309967041,
+        "learning_rate": 0.0005,
+        "perplexity": 17.939882553239297
+      },
+      {
+        "step": 17950,
+        "timestamp": 1749111807.70215,
+        "phase": "train",
+        "loss": 2.816546678543091,
+        "learning_rate": 0.0005,
+        "perplexity": 16.719014734253573
+      },
+      {
+        "step": 18000,
+        "timestamp": 1749111838.619327,
+        "phase": "train",
+        "loss": 2.868062973022461,
+        "learning_rate": 0.0005,
+        "perplexity": 17.602887886121717
+      },
+      {
+        "step": 18050,
+        "timestamp": 1749111869.1955323,
+        "phase": "train",
+        "loss": 2.8980250358581543,
+        "learning_rate": 0.0005,
+        "perplexity": 18.13828750468352
+      },
+      {
+        "step": 18100,
+        "timestamp": 1749111899.613283,
+        "phase": "train",
+        "loss": 2.8687658309936523,
+        "learning_rate": 0.0005,
+        "perplexity": 17.615264565202725
+      },
+      {
+        "step": 18150,
+        "timestamp": 1749111930.1985428,
+        "phase": "train",
+        "loss": 2.799846649169922,
+        "learning_rate": 0.0005,
+        "perplexity": 16.442125164214556
+      },
+      {
+        "step": 18200,
+        "timestamp": 1749111960.8493211,
+        "phase": "train",
+        "loss": 2.7889204025268555,
+        "learning_rate": 0.0005,
+        "perplexity": 16.263452338550945
+      },
+      {
+        "step": 18250,
+        "timestamp": 1749111990.8793442,
+        "phase": "train",
+        "loss": 2.9115195274353027,
+        "learning_rate": 0.0005,
+        "perplexity": 18.384713429393248
+      },
+      {
+        "step": 18300,
+        "timestamp": 1749112021.4843328,
+        "phase": "train",
+        "loss": 2.7381651401519775,
+        "learning_rate": 0.0005,
+        "perplexity": 15.45859470338098
+      },
+      {
+        "step": 18350,
+        "timestamp": 1749112052.3605492,
+        "phase": "train",
+        "loss": 2.8957772254943848,
+        "learning_rate": 0.0005,
+        "perplexity": 18.09756186295694
+      },
+      {
+        "step": 18400,
+        "timestamp": 1749112083.39581,
+        "phase": "train",
+        "loss": 2.8897714614868164,
+        "learning_rate": 0.0005,
+        "perplexity": 17.989197907184877
+      },
+      {
+        "step": 18450,
+        "timestamp": 1749112114.2284489,
+        "phase": "train",
+        "loss": 2.7733585834503174,
+        "learning_rate": 0.0005,
+        "perplexity": 16.012322522075845
+      },
+      {
+        "step": 18500,
+        "timestamp": 1749112144.6605089,
+        "phase": "train",
+        "loss": 2.8732848167419434,
+        "learning_rate": 0.0005,
+        "perplexity": 17.69504782866786
+      },
+      {
+        "step": 18550,
+        "timestamp": 1749112175.2858224,
+        "phase": "train",
+        "loss": 2.889347553253174,
+        "learning_rate": 0.0005,
+        "perplexity": 17.981573754160188
+      },
+      {
+        "step": 18600,
+        "timestamp": 1749112206.206909,
+        "phase": "train",
+        "loss": 2.8937149047851562,
+        "learning_rate": 0.0005,
+        "perplexity": 18.06027734587105
+      },
+      {
+        "step": 18650,
+        "timestamp": 1749112236.931668,
+        "phase": "train",
+        "loss": 2.823201894760132,
+        "learning_rate": 0.0005,
+        "perplexity": 16.83065447348636
+      },
+      {
+        "step": 18700,
+        "timestamp": 1749112267.3938594,
+        "phase": "train",
+        "loss": 2.825918436050415,
+        "learning_rate": 0.0005,
+        "perplexity": 16.87643779929836
+      },
+      {
+        "step": 18750,
+        "timestamp": 1749112298.3196297,
+        "phase": "train",
+        "loss": 2.845066547393799,
+        "learning_rate": 0.0005,
+        "perplexity": 17.20270342591401
+      },
+      {
+        "step": 18800,
+        "timestamp": 1749112329.0704203,
+        "phase": "train",
+        "loss": 2.8101871013641357,
+        "learning_rate": 0.0005,
+        "perplexity": 16.613026247892794
+      },
+      {
+        "step": 18850,
+        "timestamp": 1749112360.2399511,
+        "phase": "train",
+        "loss": 2.7689590454101562,
+        "learning_rate": 0.0005,
+        "perplexity": 15.9420304397544
+      },
+      {
+        "step": 18900,
+        "timestamp": 1749112391.0918798,
+        "phase": "train",
+        "loss": 2.822286605834961,
+        "learning_rate": 0.0005,
+        "perplexity": 16.815256609665482
+      },
+      {
+        "step": 18950,
+        "timestamp": 1749112422.5873127,
+        "phase": "train",
+        "loss": 2.7436256408691406,
+        "learning_rate": 0.0005,
+        "perplexity": 15.543237255888501
+      },
+      {
+        "step": 19000,
+        "timestamp": 1749112453.2523046,
+        "phase": "train",
+        "loss": 2.8572945594787598,
+        "learning_rate": 0.0005,
+        "perplexity": 17.414349660476073
+      },
+      {
+        "step": 19050,
+        "timestamp": 1749112483.777719,
+        "phase": "train",
+        "loss": 2.8405470848083496,
+        "learning_rate": 0.0005,
+        "perplexity": 17.125131874311297
+      },
+      {
+        "step": 19100,
+        "timestamp": 1749112514.7392805,
+        "phase": "train",
+        "loss": 2.7865710258483887,
+        "learning_rate": 0.0005,
+        "perplexity": 16.22528821142464
+      },
+      {
+        "step": 19150,
+        "timestamp": 1749112545.1681528,
+        "phase": "train",
+        "loss": 2.799801826477051,
+        "learning_rate": 0.0005,
+        "perplexity": 16.44138820040465
+      },
+      {
+        "step": 19200,
+        "timestamp": 1749112575.6771328,
+        "phase": "train",
+        "loss": 2.868783712387085,
+        "learning_rate": 0.0005,
+        "perplexity": 17.615579553495042
+      },
+      {
+        "step": 19250,
+        "timestamp": 1749112606.1368506,
+        "phase": "train",
+        "loss": 2.827589511871338,
+        "learning_rate": 0.0005,
+        "perplexity": 16.904663183258144
+      },
+      {
+        "step": 19300,
+        "timestamp": 1749112636.5946681,
+        "phase": "train",
+        "loss": 2.8658041954040527,
+        "learning_rate": 0.0005,
+        "perplexity": 17.56317174879247
+      },
+      {
+        "step": 19350,
+        "timestamp": 1749112667.2071762,
+        "phase": "train",
+        "loss": 2.8019635677337646,
+        "learning_rate": 0.0005,
+        "perplexity": 16.476968671625396
+      },
+      {
+        "step": 19400,
+        "timestamp": 1749112698.1587474,
+        "phase": "train",
+        "loss": 2.8273138999938965,
+        "learning_rate": 0.0005,
+        "perplexity": 16.900004699296936
+      },
+      {
+        "step": 19450,
+        "timestamp": 1749112731.0436518,
+        "phase": "train",
+        "loss": 2.829340934753418,
+        "learning_rate": 0.0005,
+        "perplexity": 16.93429633969035
+      },
+      {
+        "step": 19500,
+        "timestamp": 1749112761.7559533,
+        "phase": "train",
+        "loss": 2.769759178161621,
+        "learning_rate": 0.0005,
+        "perplexity": 15.954791284938377
+      },
+      {
+        "step": 19550,
+        "timestamp": 1749112792.5180652,
+        "phase": "train",
+        "loss": 2.8372457027435303,
+        "learning_rate": 0.0005,
+        "perplexity": 17.068688492932534
+      },
+      {
+        "step": 19600,
+        "timestamp": 1749112823.2169986,
+        "phase": "train",
+        "loss": 2.75995135307312,
+        "learning_rate": 0.0005,
+        "perplexity": 15.799074353150827
+      },
+      {
+        "step": 19650,
+        "timestamp": 1749112853.5411062,
+        "phase": "train",
+        "loss": 2.696476936340332,
+        "learning_rate": 0.0005,
+        "perplexity": 14.827401717866884
+      },
+      {
+        "step": 19700,
+        "timestamp": 1749112884.1322422,
+        "phase": "train",
+        "loss": 2.8237671852111816,
+        "learning_rate": 0.0005,
+        "perplexity": 16.840171371397467
+      },
+      {
+        "step": 19750,
+        "timestamp": 1749112914.9911277,
+        "phase": "train",
+        "loss": 2.8253324031829834,
+        "learning_rate": 0.0005,
+        "perplexity": 16.866550549472457
+      },
+      {
+        "step": 19800,
+        "timestamp": 1749112945.8389587,
+        "phase": "train",
+        "loss": 2.9025588035583496,
+        "learning_rate": 0.0005,
+        "perplexity": 18.220708985451346
+      },
+      {
+        "step": 19850,
+        "timestamp": 1749112977.182558,
+        "phase": "train",
+        "loss": 2.8647477626800537,
+        "learning_rate": 0.0005,
+        "perplexity": 17.54462723665928
+      },
+      {
+        "step": 19900,
+        "timestamp": 1749113007.852582,
+        "phase": "train",
+        "loss": 2.879148483276367,
+        "learning_rate": 0.0005,
+        "perplexity": 17.79911048464075
+      },
+      {
+        "step": 19950,
+        "timestamp": 1749113038.739062,
+        "phase": "train",
+        "loss": 2.815412998199463,
+        "learning_rate": 0.0005,
+        "perplexity": 16.700071455724654
+      },
+      {
+        "step": 20000,
+        "timestamp": 1749113069.1664753,
+        "phase": "train",
+        "loss": 2.8657703399658203,
+        "learning_rate": 0.0005,
+        "perplexity": 17.562577149981422
+      },
+      {
+        "step": 20050,
+        "timestamp": 1749113099.805665,
+        "phase": "train",
+        "loss": 2.8260884284973145,
+        "learning_rate": 0.0005,
+        "perplexity": 16.87930691011148
+      },
+      {
+        "step": 20100,
+        "timestamp": 1749113130.4680755,
+        "phase": "train",
+        "loss": 2.876988649368286,
+        "learning_rate": 0.0005,
+        "perplexity": 17.7607088477893
+      },
+      {
+        "step": 20150,
+        "timestamp": 1749113161.0501559,
+        "phase": "train",
+        "loss": 2.7832586765289307,
+        "learning_rate": 0.0005,
+        "perplexity": 16.171633300021092
+      },
+      {
+        "step": 20200,
+        "timestamp": 1749113191.7616522,
+        "phase": "train",
+        "loss": 2.8434998989105225,
+        "learning_rate": 0.0005,
+        "perplexity": 17.175773936713203
+      },
+      {
+        "step": 20250,
+        "timestamp": 1749113222.4944198,
+        "phase": "train",
+        "loss": 2.8037381172180176,
+        "learning_rate": 0.0005,
+        "perplexity": 16.50623382643664
+      },
+      {
+        "step": 20300,
+        "timestamp": 1749113252.4302979,
+        "phase": "train",
+        "loss": 2.7661328315734863,
+        "learning_rate": 0.0005,
+        "perplexity": 15.897038461164893
+      },
+      {
+        "step": 20350,
+        "timestamp": 1749113282.7584205,
+        "phase": "train",
+        "loss": 2.8404712677001953,
+        "learning_rate": 0.0005,
+        "perplexity": 17.123833545554213
+      },
+      {
+        "step": 20400,
+        "timestamp": 1749113313.5546792,
+        "phase": "train",
+        "loss": 2.8680367469787598,
+        "learning_rate": 0.0005,
+        "perplexity": 17.602426238068375
+      },
+      {
+        "step": 20450,
+        "timestamp": 1749113344.0877934,
+        "phase": "train",
+        "loss": 2.8028831481933594,
+        "learning_rate": 0.0005,
+        "perplexity": 16.492127538880005
+      },
+      {
+        "step": 20500,
+        "timestamp": 1749113374.6010842,
+        "phase": "train",
+        "loss": 2.7054991722106934,
+        "learning_rate": 0.0005,
+        "perplexity": 14.96178333326311
+      },
+      {
+        "step": 20550,
+        "timestamp": 1749113404.6924243,
+        "phase": "train",
+        "loss": 2.743553400039673,
+        "learning_rate": 0.0005,
+        "perplexity": 15.542114440093583
+      },
+      {
+        "step": 20600,
+        "timestamp": 1749113435.298258,
+        "phase": "train",
+        "loss": 2.8428802490234375,
+        "learning_rate": 0.0005,
+        "perplexity": 17.165134267108197
+      },
+      {
+        "step": 20650,
+        "timestamp": 1749113465.9830966,
+        "phase": "train",
+        "loss": 2.801797389984131,
+        "learning_rate": 0.0005,
+        "perplexity": 16.47423079354427
+      },
+      {
+        "step": 20700,
+        "timestamp": 1749113496.5690668,
+        "phase": "train",
+        "loss": 2.9072365760803223,
+        "learning_rate": 0.0005,
+        "perplexity": 18.30614097720409
+      },
+      {
+        "step": 20750,
+        "timestamp": 1749113527.0762963,
+        "phase": "train",
+        "loss": 2.719679594039917,
+        "learning_rate": 0.0005,
+        "perplexity": 15.1754591583532
+      },
+      {
+        "step": 20800,
+        "timestamp": 1749113557.7856314,
+        "phase": "train",
+        "loss": 2.8253889083862305,
+        "learning_rate": 0.0005,
+        "perplexity": 16.86750362426592
+      },
+      {
+        "step": 20850,
+        "timestamp": 1749113588.5422685,
+        "phase": "train",
+        "loss": 2.8783111572265625,
+        "learning_rate": 0.0005,
+        "perplexity": 17.784213063638347
+      },
+      {
+        "step": 20900,
+        "timestamp": 1749113619.3832572,
+        "phase": "train",
+        "loss": 2.8081183433532715,
+        "learning_rate": 0.0005,
+        "perplexity": 16.57869344213592
+      },
+      {
+        "step": 20950,
+        "timestamp": 1749113650.442156,
+        "phase": "train",
+        "loss": 2.8403398990631104,
+        "learning_rate": 0.0005,
+        "perplexity": 17.121584158632345
+      },
+      {
+        "step": 21000,
+        "timestamp": 1749113681.7263043,
+        "phase": "train",
+        "loss": 2.8650927543640137,
+        "learning_rate": 0.0005,
+        "perplexity": 17.550681031348475
+      },
+      {
+        "step": 21050,
+        "timestamp": 1749113712.9274898,
+        "phase": "train",
+        "loss": 2.8868799209594727,
+        "learning_rate": 0.0005,
+        "perplexity": 17.93725654385058
+      },
+      {
+        "step": 21100,
+        "timestamp": 1749113743.3555968,
+        "phase": "train",
+        "loss": 2.755250930786133,
+        "learning_rate": 0.0005,
+        "perplexity": 15.724986290945136
+      },
+      {
+        "step": 21150,
+        "timestamp": 1749113774.6472905,
+        "phase": "train",
+        "loss": 2.765718460083008,
+        "learning_rate": 0.0005,
+        "perplexity": 15.890452546245472
+      },
+      {
+        "step": 21200,
+        "timestamp": 1749113805.3553436,
+        "phase": "train",
+        "loss": 2.8277809619903564,
+        "learning_rate": 0.0005,
+        "perplexity": 16.90789989286088
+      },
+      {
+        "step": 21250,
+        "timestamp": 1749113836.0499978,
+        "phase": "train",
+        "loss": 2.7388525009155273,
+        "learning_rate": 0.0005,
+        "perplexity": 15.469223987497628
+      },
+      {
+        "step": 21300,
+        "timestamp": 1749113866.6589048,
+        "phase": "train",
+        "loss": 2.81076717376709,
+        "learning_rate": 0.0005,
+        "perplexity": 16.622665801497963
+      },
+      {
+        "step": 21350,
+        "timestamp": 1749113896.9228675,
+        "phase": "train",
+        "loss": 2.8582305908203125,
+        "learning_rate": 0.0005,
+        "perplexity": 17.430657668763782
+      },
+      {
+        "step": 21400,
+        "timestamp": 1749113927.153991,
+        "phase": "train",
+        "loss": 2.8698198795318604,
+        "learning_rate": 0.0005,
+        "perplexity": 17.63384169794767
+      },
+      {
+        "step": 21450,
+        "timestamp": 1749113957.7712643,
+        "phase": "train",
+        "loss": 2.7695581912994385,
+        "learning_rate": 0.0005,
+        "perplexity": 15.951584903732282
+      },
+      {
+        "step": 21500,
+        "timestamp": 1749113988.2941031,
+        "phase": "train",
+        "loss": 2.829364061355591,
+        "learning_rate": 0.0005,
+        "perplexity": 16.934687976953477
+      },
+      {
+        "step": 21550,
+        "timestamp": 1749114018.709778,
+        "phase": "train",
+        "loss": 2.815570831298828,
+        "learning_rate": 0.0005,
+        "perplexity": 16.702707487783215
+      },
+      {
+        "step": 21600,
+        "timestamp": 1749114049.96874,
+        "phase": "train",
+        "loss": 2.7171499729156494,
+        "learning_rate": 0.0005,
+        "perplexity": 15.137119509133614
+      },
+      {
+        "step": 21650,
+        "timestamp": 1749114080.8343158,
+        "phase": "train",
+        "loss": 2.886784791946411,
+        "learning_rate": 0.0005,
+        "perplexity": 17.93555027149782
+      },
+      {
+        "step": 21700,
+        "timestamp": 1749114111.9674122,
+        "phase": "train",
+        "loss": 2.8657898902893066,
+        "learning_rate": 0.0005,
+        "perplexity": 17.56292050740232
+      },
+      {
+        "step": 21750,
+        "timestamp": 1749114142.870781,
+        "phase": "train",
+        "loss": 2.8102049827575684,
+        "learning_rate": 0.0005,
+        "perplexity": 16.613323314607214
+      },
+      {
+        "step": 21800,
+        "timestamp": 1749114173.5491948,
+        "phase": "train",
+        "loss": 2.830855369567871,
+        "learning_rate": 0.0005,
+        "perplexity": 16.95996165694512
+      },
+      {
+        "step": 21850,
+        "timestamp": 1749114204.0249305,
+        "phase": "train",
+        "loss": 2.8405606746673584,
+        "learning_rate": 0.0005,
+        "perplexity": 17.125364604020355
+      },
+      {
+        "step": 21900,
+        "timestamp": 1749114235.1673288,
+        "phase": "train",
+        "loss": 2.8112998008728027,
+        "learning_rate": 0.0005,
+        "perplexity": 16.631521842147333
+      },
+      {
+        "step": 21950,
+        "timestamp": 1749114266.2181392,
+        "phase": "train",
+        "loss": 2.7988858222961426,
+        "learning_rate": 0.0005,
+        "perplexity": 16.426334715653198
+      },
+      {
+        "step": 22000,
+        "timestamp": 1749114296.6565247,
+        "phase": "train",
+        "loss": 2.8278462886810303,
+        "learning_rate": 0.0005,
+        "perplexity": 16.909004466085786
+      },
+      {
+        "step": 22050,
+        "timestamp": 1749114327.2100272,
+        "phase": "train",
+        "loss": 2.795100450515747,
+        "learning_rate": 0.0005,
+        "perplexity": 16.364272470209176
+      },
+      {
+        "step": 22100,
+        "timestamp": 1749114358.0290303,
+        "phase": "train",
+        "loss": 2.7923505306243896,
+        "learning_rate": 0.0005,
+        "perplexity": 16.31933384895903
+      },
+      {
+        "step": 22150,
+        "timestamp": 1749114388.84942,
+        "phase": "train",
+        "loss": 2.806081533432007,
+        "learning_rate": 0.0005,
+        "perplexity": 16.54496016065471
+      },
+      {
+        "step": 22200,
+        "timestamp": 1749114419.247907,
+        "phase": "train",
+        "loss": 2.8013577461242676,
+        "learning_rate": 0.0005,
+        "perplexity": 16.466989591021665
+      },
+      {
+        "step": 22250,
+        "timestamp": 1749114450.11192,
+        "phase": "train",
+        "loss": 2.8492326736450195,
+        "learning_rate": 0.0005,
+        "perplexity": 17.274521558074962
+      },
+      {
+        "step": 22300,
+        "timestamp": 1749114480.3758671,
+        "phase": "train",
+        "loss": 2.848012924194336,
+        "learning_rate": 0.0005,
+        "perplexity": 17.253463815089685
+      },
+      {
+        "step": 22350,
+        "timestamp": 1749114510.8888493,
+        "phase": "train",
+        "loss": 2.9366092681884766,
+        "learning_rate": 0.0005,
+        "perplexity": 18.851816365956434
+      },
+      {
+        "step": 22400,
+        "timestamp": 1749114541.680753,
+        "phase": "train",
+        "loss": 2.774000883102417,
+        "learning_rate": 0.0005,
+        "perplexity": 16.022610534900917
+      },
+      {
+        "step": 22450,
+        "timestamp": 1749114571.7206664,
+        "phase": "train",
+        "loss": 2.7983620166778564,
+        "learning_rate": 0.0005,
+        "perplexity": 16.41773276231371
+      },
+      {
+        "step": 22500,
+        "timestamp": 1749114602.4517658,
+        "phase": "train",
+        "loss": 2.777491331100464,
+        "learning_rate": 0.0005,
+        "perplexity": 16.078634340977608
+      },
+      {
+        "step": 22550,
+        "timestamp": 1749114632.9591172,
+        "phase": "train",
+        "loss": 2.7340078353881836,
+        "learning_rate": 0.0005,
+        "perplexity": 15.394462015910676
+      },
+      {
+        "step": 22600,
+        "timestamp": 1749114663.7524757,
+        "phase": "train",
+        "loss": 2.762319803237915,
+        "learning_rate": 0.0005,
+        "perplexity": 15.836538021308787
+      },
+      {
+        "step": 22650,
+        "timestamp": 1749114693.9398904,
+        "phase": "train",
+        "loss": 2.7502970695495605,
+        "learning_rate": 0.0005,
+        "perplexity": 15.647279524097916
+      },
+      {
+        "step": 22700,
+        "timestamp": 1749114724.295182,
+        "phase": "train",
+        "loss": 2.6892528533935547,
+        "learning_rate": 0.0005,
+        "perplexity": 14.72067330956488
+      },
+      {
+        "step": 22750,
+        "timestamp": 1749114754.7446766,
+        "phase": "train",
+        "loss": 2.793665885925293,
+        "learning_rate": 0.0005,
+        "perplexity": 16.340813694962158
+      },
+      {
+        "step": 22800,
+        "timestamp": 1749114785.625791,
+        "phase": "train",
+        "loss": 2.744121551513672,
+        "learning_rate": 0.0005,
+        "perplexity": 15.550947224263856
+      },
+      {
+        "step": 22850,
+        "timestamp": 1749114815.9357982,
+        "phase": "train",
+        "loss": 2.7573742866516113,
+        "learning_rate": 0.0005,
+        "perplexity": 15.758411507076424
+      },
+      {
+        "step": 22900,
+        "timestamp": 1749114846.3514986,
+        "phase": "train",
+        "loss": 2.775209903717041,
+        "learning_rate": 0.0005,
+        "perplexity": 16.04199391643052
+      },
+      {
+        "step": 22950,
+        "timestamp": 1749114876.6796186,
+        "phase": "train",
+        "loss": 2.785933494567871,
+        "learning_rate": 0.0005,
+        "perplexity": 16.214947379306665
+      },
+      {
+        "step": 23000,
+        "timestamp": 1749114907.5713375,
+        "phase": "train",
+        "loss": 2.7907440662384033,
+        "learning_rate": 0.0005,
+        "perplexity": 16.2931384669354
+      },
+      {
+        "step": 23050,
+        "timestamp": 1749114938.6821058,
+        "phase": "train",
+        "loss": 2.7386860847473145,
+        "learning_rate": 0.0005,
+        "perplexity": 15.466649872709503
+      },
+      {
+        "step": 23100,
+        "timestamp": 1749114968.9660976,
+        "phase": "train",
+        "loss": 2.7962913513183594,
+        "learning_rate": 0.0005,
+        "perplexity": 16.383772304307527
+      },
+      {
+        "step": 23150,
+        "timestamp": 1749114999.7056913,
+        "phase": "train",
+        "loss": 2.6856436729431152,
+        "learning_rate": 0.0005,
+        "perplexity": 14.667639505092843
+      },
+      {
+        "step": 23200,
+        "timestamp": 1749115030.1277406,
+        "phase": "train",
+        "loss": 2.7662858963012695,
+        "learning_rate": 0.0005,
+        "perplexity": 15.899471923263366
+      },
+      {
+        "step": 23250,
+        "timestamp": 1749115060.5962806,
+        "phase": "train",
+        "loss": 2.738588571548462,
+        "learning_rate": 0.0005,
+        "perplexity": 15.465141743737318
+      },
+      {
+        "step": 23300,
+        "timestamp": 1749115090.9328394,
+        "phase": "train",
+        "loss": 2.7604103088378906,
+        "learning_rate": 0.0005,
+        "perplexity": 15.806327093619457
+      },
+      {
+        "step": 23350,
+        "timestamp": 1749115121.3910394,
+        "phase": "train",
+        "loss": 2.820283889770508,
+        "learning_rate": 0.0005,
+        "perplexity": 16.781614124542745
+      },
+      {
+        "step": 23400,
+        "timestamp": 1749115151.6463175,
+        "phase": "train",
+        "loss": 2.6423559188842773,
+        "learning_rate": 0.0005,
+        "perplexity": 14.046256498419034
+      },
+      {
+        "step": 23450,
+        "timestamp": 1749115182.2684774,
+        "phase": "train",
+        "loss": 2.808396339416504,
+        "learning_rate": 0.0005,
+        "perplexity": 16.583302894321466
+      },
+      {
+        "step": 23500,
+        "timestamp": 1749115212.8522072,
+        "phase": "train",
+        "loss": 2.837493896484375,
+        "learning_rate": 0.0005,
+        "perplexity": 17.072925360341145
+      },
+      {
+        "step": 23550,
+        "timestamp": 1749115243.4867454,
+        "phase": "train",
+        "loss": 2.803436279296875,
+        "learning_rate": 0.0005,
+        "perplexity": 16.50125237096648
+      },
+      {
+        "step": 23600,
+        "timestamp": 1749115274.0370877,
+        "phase": "train",
+        "loss": 2.785491466522217,
+        "learning_rate": 0.0005,
+        "perplexity": 16.207781501682323
+      },
+      {
+        "step": 23650,
+        "timestamp": 1749115304.9309964,
+        "phase": "train",
+        "loss": 2.8298001289367676,
+        "learning_rate": 0.0005,
+        "perplexity": 16.942074255718882
+      },
+      {
+        "step": 23700,
+        "timestamp": 1749115335.437098,
+        "phase": "train",
+        "loss": 2.80031418800354,
+        "learning_rate": 0.0005,
+        "perplexity": 16.44981429357926
+      },
+      {
+        "step": 23750,
+        "timestamp": 1749115365.850909,
+        "phase": "train",
+        "loss": 2.9130899906158447,
+        "learning_rate": 0.0005,
+        "perplexity": 18.41360862840318
+      },
+      {
+        "step": 23800,
+        "timestamp": 1749115396.521453,
+        "phase": "train",
+        "loss": 2.807912826538086,
+        "learning_rate": 0.0005,
+        "perplexity": 16.575286591954246
+      },
+      {
+        "step": 23850,
+        "timestamp": 1749115427.341442,
+        "phase": "train",
+        "loss": 2.84875226020813,
+        "learning_rate": 0.0005,
+        "perplexity": 17.266224638937917
+      },
+      {
+        "step": 23900,
+        "timestamp": 1749115457.7891781,
+        "phase": "train",
+        "loss": 2.854278087615967,
+        "learning_rate": 0.0005,
+        "perplexity": 17.36189891259022
+      },
+      {
+        "step": 23950,
+        "timestamp": 1749115488.472416,
+        "phase": "train",
+        "loss": 2.820463180541992,
+        "learning_rate": 0.0005,
+        "perplexity": 16.784623182826017
+      },
+      {
+        "step": 24000,
+        "timestamp": 1749115518.7121785,
+        "phase": "train",
+        "loss": 2.7207138538360596,
+        "learning_rate": 0.0005,
+        "perplexity": 15.191162644991309
+      },
+      {
+        "step": 24050,
+        "timestamp": 1749115550.1878908,
+        "phase": "train",
+        "loss": 2.753267765045166,
+        "learning_rate": 0.0005,
+        "perplexity": 15.693831939188003
+      },
+      {
+        "step": 24100,
+        "timestamp": 1749115580.790911,
+        "phase": "train",
+        "loss": 2.843658924102783,
+        "learning_rate": 0.0005,
+        "perplexity": 17.178505534656402
+      },
+      {
+        "step": 24150,
+        "timestamp": 1749115611.5016272,
+        "phase": "train",
+        "loss": 2.7778868675231934,
+        "learning_rate": 0.0005,
+        "perplexity": 16.084995284396687
+      },
+      {
+        "step": 24200,
+        "timestamp": 1749115641.9721704,
+        "phase": "train",
+        "loss": 2.751920223236084,
+        "learning_rate": 0.0005,
+        "perplexity": 15.672698087077919
+      },
+      {
+        "step": 24250,
+        "timestamp": 1749115673.3239248,
+        "phase": "train",
+        "loss": 2.8877885341644287,
+        "learning_rate": 0.0005,
+        "perplexity": 17.953561978551864
+      },
+      {
+        "step": 24300,
+        "timestamp": 1749115703.8766181,
+        "phase": "train",
+        "loss": 2.842182159423828,
+        "learning_rate": 0.0005,
+        "perplexity": 17.15315564696196
+      },
+      {
+        "step": 24350,
+        "timestamp": 1749115734.496926,
+        "phase": "train",
+        "loss": 2.797003746032715,
+        "learning_rate": 0.0005,
+        "perplexity": 16.39544817551899
+      },
+      {
+        "step": 24400,
+        "timestamp": 1749115765.0845041,
+        "phase": "train",
+        "loss": 2.772949457168579,
+        "learning_rate": 0.0005,
+        "perplexity": 16.00577280002347
+      },
+      {
+        "step": 24450,
+        "timestamp": 1749115795.6188867,
+        "phase": "train",
+        "loss": 2.7913310527801514,
+        "learning_rate": 0.0005,
+        "perplexity": 16.302705127414118
+      },
+      {
+        "step": 24500,
+        "timestamp": 1749115826.013264,
+        "phase": "train",
+        "loss": 2.7334461212158203,
+        "learning_rate": 0.0005,
+        "perplexity": 15.385817156617726
+      },
+      {
+        "step": 24550,
+        "timestamp": 1749115856.5409496,
+        "phase": "train",
+        "loss": 2.6993603706359863,
+        "learning_rate": 0.0005,
+        "perplexity": 14.870217254724588
+      },
+      {
+        "step": 24600,
+        "timestamp": 1749115886.6807206,
+        "phase": "train",
+        "loss": 2.842991828918457,
+        "learning_rate": 0.0005,
+        "perplexity": 17.167049657845276
+      },
+      {
+        "step": 24650,
+        "timestamp": 1749115917.735584,
+        "phase": "train",
+        "loss": 2.773813247680664,
+        "learning_rate": 0.0005,
+        "perplexity": 16.019604407652416
+      },
+      {
+        "step": 24700,
+        "timestamp": 1749115948.008936,
+        "phase": "train",
+        "loss": 2.7424850463867188,
+        "learning_rate": 0.0005,
+        "perplexity": 15.525518831924673
+      },
+      {
+        "step": 24750,
+        "timestamp": 1749115978.4454234,
+        "phase": "train",
+        "loss": 2.827615261077881,
+        "learning_rate": 0.0005,
+        "perplexity": 16.905098470526113
+      },
+      {
+        "step": 24800,
+        "timestamp": 1749116009.2934997,
+        "phase": "train",
+        "loss": 2.8555874824523926,
+        "learning_rate": 0.0005,
+        "perplexity": 17.384647383491867
+      },
+      {
+        "step": 24850,
+        "timestamp": 1749116039.4152336,
+        "phase": "train",
+        "loss": 2.7469589710235596,
+        "learning_rate": 0.0005,
+        "perplexity": 15.595134444509872
+      },
+      {
+        "step": 24900,
+        "timestamp": 1749116070.399533,
+        "phase": "train",
+        "loss": 2.7999701499938965,
+        "learning_rate": 0.0005,
+        "perplexity": 16.444155905616768
+      },
+      {
+        "step": 24950,
+        "timestamp": 1749116100.9059668,
+        "phase": "train",
+        "loss": 2.7449569702148438,
+        "learning_rate": 0.0005,
+        "perplexity": 15.56394420460025
+      },
+      {
+        "step": 25000,
+        "timestamp": 1749116131.5860734,
+        "phase": "train",
+        "loss": 2.7571778297424316,
+        "learning_rate": 0.0005,
+        "perplexity": 15.755315962338695
+      },
+      {
+        "step": 25050,
+        "timestamp": 1749116162.5242436,
+        "phase": "train",
+        "loss": 2.737318515777588,
+        "learning_rate": 0.0005,
+        "perplexity": 15.445512618898489
+      },
+      {
+        "step": 25100,
+        "timestamp": 1749116193.6964526,
+        "phase": "train",
+        "loss": 2.8377604484558105,
+        "learning_rate": 0.0005,
+        "perplexity": 17.077476788823283
+      },
+      {
+        "step": 25150,
+        "timestamp": 1749116224.5524888,
+        "phase": "train",
+        "loss": 2.6287996768951416,
+        "learning_rate": 0.0005,
+        "perplexity": 13.857126886061488
+      },
+      {
+        "step": 25200,
+        "timestamp": 1749116255.6297793,
+        "phase": "train",
+        "loss": 2.7247653007507324,
+        "learning_rate": 0.0005,
+        "perplexity": 15.252833678121288
+      },
+      {
+        "step": 25250,
+        "timestamp": 1749116286.2171557,
+        "phase": "train",
+        "loss": 2.721076488494873,
+        "learning_rate": 0.0005,
+        "perplexity": 15.196672486043338
+      },
+      {
+        "step": 25300,
+        "timestamp": 1749116316.7768922,
+        "phase": "train",
+        "loss": 2.825955867767334,
+        "learning_rate": 0.0005,
+        "perplexity": 16.877069525163883
+      },
+      {
+        "step": 25350,
+        "timestamp": 1749116347.5029275,
+        "phase": "train",
+        "loss": 2.773932456970215,
+        "learning_rate": 0.0005,
+        "perplexity": 16.021514207143394
+      },
+      {
+        "step": 25400,
+        "timestamp": 1749116378.5573266,
+        "phase": "train",
+        "loss": 2.7970502376556396,
+        "learning_rate": 0.0005,
+        "perplexity": 16.396210444232665
+      },
+      {
+        "step": 25450,
+        "timestamp": 1749116409.1956224,
+        "phase": "train",
+        "loss": 2.8111422061920166,
+        "learning_rate": 0.0005,
+        "perplexity": 16.628901009291713
+      },
+      {
+        "step": 25500,
+        "timestamp": 1749116440.0685198,
+        "phase": "train",
+        "loss": 2.805176258087158,
+        "learning_rate": 0.0005,
+        "perplexity": 16.529989193585877
+      },
+      {
+        "step": 25550,
+        "timestamp": 1749116470.4629707,
+        "phase": "train",
+        "loss": 2.807525634765625,
+        "learning_rate": 0.0005,
+        "perplexity": 16.56887001966182
+      },
+      {
+        "step": 25600,
+        "timestamp": 1749116501.2157145,
+        "phase": "train",
+        "loss": 2.732968807220459,
+        "learning_rate": 0.0005,
+        "perplexity": 15.378475043144956
+      },
+      {
+        "step": 25650,
+        "timestamp": 1749116532.5086057,
+        "phase": "train",
+        "loss": 2.7807741165161133,
+        "learning_rate": 0.0005,
+        "perplexity": 16.13150377932656
+      },
+      {
+        "step": 25700,
+        "timestamp": 1749116563.1382542,
+        "phase": "train",
+        "loss": 2.7672061920166016,
+        "learning_rate": 0.0005,
+        "perplexity": 15.9141108741991
+      },
+      {
+        "step": 25750,
+        "timestamp": 1749116594.0409877,
+        "phase": "train",
+        "loss": 2.7777891159057617,
+        "learning_rate": 0.0005,
+        "perplexity": 16.083423026937865
+      },
+      {
+        "step": 25800,
+        "timestamp": 1749116624.4757593,
+        "phase": "train",
+        "loss": 2.7454018592834473,
+        "learning_rate": 0.0005,
+        "perplexity": 15.570869973726488
+      },
+      {
+        "step": 25850,
+        "timestamp": 1749116654.7878237,
+        "phase": "train",
+        "loss": 2.7401437759399414,
+        "learning_rate": 0.0005,
+        "perplexity": 15.48921191225646
+      },
+      {
+        "step": 25900,
+        "timestamp": 1749116685.829427,
+        "phase": "train",
+        "loss": 2.8067033290863037,
+        "learning_rate": 0.0005,
+        "perplexity": 16.555250944033755
+      },
+      {
+        "step": 25950,
+        "timestamp": 1749116716.2345366,
+        "phase": "train",
+        "loss": 2.771319627761841,
+        "learning_rate": 0.0005,
+        "perplexity": 15.979707367710354
+      },
+      {
+        "step": 26000,
+        "timestamp": 1749116747.2684634,
+        "phase": "train",
+        "loss": 2.722832202911377,
+        "learning_rate": 0.0005,
+        "perplexity": 15.22337693884658
+      },
+      {
+        "step": 26050,
+        "timestamp": 1749116777.5880315,
+        "phase": "train",
+        "loss": 2.697885513305664,
+        "learning_rate": 0.0005,
+        "perplexity": 14.848301970734111
+      },
+      {
+        "step": 26100,
+        "timestamp": 1749116808.2563884,
+        "phase": "train",
+        "loss": 2.860042095184326,
+        "learning_rate": 0.0005,
+        "perplexity": 17.462261998246174
+      },
+      {
+        "step": 26150,
+        "timestamp": 1749116838.798369,
+        "phase": "train",
+        "loss": 2.7697086334228516,
+        "learning_rate": 0.0005,
+        "perplexity": 15.953984874560831
+      },
+      {
+        "step": 26200,
+        "timestamp": 1749116870.0170174,
+        "phase": "train",
+        "loss": 2.809518337249756,
+        "learning_rate": 0.0005,
+        "perplexity": 16.60191976632905
+      },
+      {
+        "step": 26250,
+        "timestamp": 1749116901.1252332,
+        "phase": "train",
+        "loss": 2.762807846069336,
+        "learning_rate": 0.0005,
+        "perplexity": 15.844268816490748
+      },
+      {
+        "step": 26300,
+        "timestamp": 1749116931.9678013,
+        "phase": "train",
+        "loss": 2.77791690826416,
+        "learning_rate": 0.0005,
+        "perplexity": 16.08547849683147
+      },
+      {
+        "step": 26350,
+        "timestamp": 1749116963.12882,
+        "phase": "train",
+        "loss": 2.8281731605529785,
+        "learning_rate": 0.0005,
+        "perplexity": 16.914532447449986
+      },
+      {
+        "step": 26400,
+        "timestamp": 1749116994.2060087,
+        "phase": "train",
+        "loss": 2.8750863075256348,
+        "learning_rate": 0.0005,
+        "perplexity": 17.726954024978536
+      },
+      {
+        "step": 26450,
+        "timestamp": 1749117024.9797928,
+        "phase": "train",
+        "loss": 2.7013399600982666,
+        "learning_rate": 0.0005,
+        "perplexity": 14.899683335853132
+      },
+      {
+        "step": 26500,
+        "timestamp": 1749117055.2360115,
+        "phase": "train",
+        "loss": 2.7893271446228027,
+        "learning_rate": 0.0005,
+        "perplexity": 16.270068714730606
+      },
+      {
+        "step": 26550,
+        "timestamp": 1749117086.021821,
+        "phase": "train",
+        "loss": 2.786109447479248,
+        "learning_rate": 0.0005,
+        "perplexity": 16.21780069752334
+      },
+      {
+        "step": 26600,
+        "timestamp": 1749117116.9488466,
+        "phase": "train",
+        "loss": 2.7587032318115234,
+        "learning_rate": 0.0005,
+        "perplexity": 15.779367493370748
+      },
+      {
+        "step": 26650,
+        "timestamp": 1749117147.2976599,
+        "phase": "train",
+        "loss": 2.8111486434936523,
+        "learning_rate": 0.0005,
+        "perplexity": 16.629008054887926
+      },
+      {
+        "step": 26700,
+        "timestamp": 1749117177.8901896,
+        "phase": "train",
+        "loss": 2.784069299697876,
+        "learning_rate": 0.0005,
+        "perplexity": 16.184747715360103
+      },
+      {
+        "step": 26750,
+        "timestamp": 1749117208.523092,
+        "phase": "train",
+        "loss": 2.75213623046875,
+        "learning_rate": 0.0005,
+        "perplexity": 15.676083868883632
+      },
+      {
+        "step": 26800,
+        "timestamp": 1749117238.7563365,
+        "phase": "train",
+        "loss": 2.7400951385498047,
+        "learning_rate": 0.0005,
+        "perplexity": 15.488458575734082
+      },
+      {
+        "step": 26850,
+        "timestamp": 1749117269.5692205,
+        "phase": "train",
+        "loss": 2.7792115211486816,
+        "learning_rate": 0.0005,
+        "perplexity": 16.106316450178202
+      },
+      {
+        "step": 26900,
+        "timestamp": 1749117300.5657144,
+        "phase": "train",
+        "loss": 2.815871000289917,
+        "learning_rate": 0.0005,
+        "perplexity": 16.70772187518243
+      },
+      {
+        "step": 26950,
+        "timestamp": 1749117330.8633075,
+        "phase": "train",
+        "loss": 2.715881824493408,
+        "learning_rate": 0.0005,
+        "perplexity": 15.117935561528244
+      },
+      {
+        "step": 27000,
+        "timestamp": 1749117361.598597,
+        "phase": "train",
+        "loss": 2.8599467277526855,
+        "learning_rate": 0.0005,
+        "perplexity": 17.460596746575412
+      },
+      {
+        "step": 27050,
+        "timestamp": 1749117392.3731937,
+        "phase": "train",
+        "loss": 2.745720148086548,
+        "learning_rate": 0.0005,
+        "perplexity": 15.575826796102344
+      },
+      {
+        "step": 27100,
+        "timestamp": 1749117423.249693,
+        "phase": "train",
+        "loss": 2.759143352508545,
+        "learning_rate": 0.0005,
+        "perplexity": 15.7863138480956
+      },
+      {
+        "step": 27150,
+        "timestamp": 1749117453.6132913,
+        "phase": "train",
+        "loss": 2.7831711769104004,
+        "learning_rate": 0.0005,
+        "perplexity": 16.170218350181017
+      },
+      {
+        "step": 27200,
+        "timestamp": 1749117484.707284,
+        "phase": "train",
+        "loss": 2.7882633209228516,
+        "learning_rate": 0.0005,
+        "perplexity": 16.2527694333563
+      },
+      {
+        "step": 27250,
+        "timestamp": 1749117515.2283816,
+        "phase": "train",
+        "loss": 2.7726807594299316,
+        "learning_rate": 0.0005,
+        "perplexity": 16.001472662811242
+      },
+      {
+        "step": 27300,
+        "timestamp": 1749117545.8846176,
+        "phase": "train",
+        "loss": 2.757556915283203,
+        "learning_rate": 0.0005,
+        "perplexity": 15.761289707018882
+      },
+      {
+        "step": 27350,
+        "timestamp": 1749117576.9108698,
+        "phase": "train",
+        "loss": 2.7419466972351074,
+        "learning_rate": 0.0005,
+        "perplexity": 15.51716293143096
+      },
+      {
+        "step": 27400,
+        "timestamp": 1749117607.0974996,
+        "phase": "train",
+        "loss": 2.845889091491699,
+        "learning_rate": 0.0005,
+        "perplexity": 17.21685922917301
+      },
+      {
+        "step": 27450,
+        "timestamp": 1749117638.2669103,
+        "phase": "train",
+        "loss": 2.738199234008789,
+        "learning_rate": 0.0005,
+        "perplexity": 15.459121755479872
+      },
+      {
+        "step": 27500,
+        "timestamp": 1749117669.2323513,
+        "phase": "train",
+        "loss": 2.788341522216797,
+        "learning_rate": 0.0005,
+        "perplexity": 16.254040470653912
+      },
+      {
+        "step": 27550,
+        "timestamp": 1749117700.1883638,
+        "phase": "train",
+        "loss": 2.7910876274108887,
+        "learning_rate": 0.0005,
+        "perplexity": 16.298737118375122
+      },
+      {
+        "step": 27600,
+        "timestamp": 1749117730.9305062,
+        "phase": "train",
+        "loss": 2.7299699783325195,
+        "learning_rate": 0.0005,
+        "perplexity": 15.332426707981268
+      },
+      {
+        "step": 27650,
+        "timestamp": 1749117761.421546,
+        "phase": "train",
+        "loss": 2.7213616371154785,
+        "learning_rate": 0.0005,
+        "perplexity": 15.201006414117968
+      },
+      {
+        "step": 27700,
+        "timestamp": 1749117792.0664778,
+        "phase": "train",
+        "loss": 2.820530652999878,
+        "learning_rate": 0.0005,
+        "perplexity": 16.785755720813977
       }
     ]
   },
   "events": [
     {
-      "timestamp": 1749080369.482765,
+      "timestamp": 1749100747.9437225,
       "event": "training_started",
       "data": {}
     },
     {
-      "timestamp": 1749080369.4832733,
+      "timestamp": 1749100747.9442167,
       "event": "epoch_started",
       "data": {
         "epoch": 1
+      }
+    },
+    {
+      "timestamp": 1749106762.552216,
+      "event": "epoch_completed",
+      "data": {
+        "epoch": 1,
+        "duration": 6014.604078531265
+      }
+    },
+    {
+      "timestamp": 1749106764.6521435,
+      "event": "epoch_started",
+      "data": {
+        "epoch": 2
+      }
+    },
+    {
+      "timestamp": 1749112725.2338903,
+      "event": "epoch_completed",
+      "data": {
+        "epoch": 2,
+        "duration": 5960.575035810471
+      }
+    },
+    {
+      "timestamp": 1749112726.7016637,
+      "event": "epoch_started",
+      "data": {
+        "epoch": 3
       }
     }
   ]

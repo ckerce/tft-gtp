@@ -1,0 +1,115 @@
+{
+  "run_info": {
+    "run_name": "tiny_tft_TinyStories",
+    "start_time": "2025-06-04T19:26:31.770782",
+    "status": "completed",
+    "end_time": "2025-06-04T19:26:33.245251",
+    "final_metrics": {
+      "total_training_time": 1.4733092784881592,
+      "total_steps": 33,
+      "accelerator_state": {
+        "num_processes": 3,
+        "process_index": 0,
+        "device": "cuda:0",
+        "mixed_precision": "no",
+        "gradient_accumulation_steps": 1,
+        "is_main_process": true
+      },
+      "num_epochs": 1,
+      "current_epoch": 1,
+      "current_batch_idx": 32,
+      "loss": 9.99073872421727,
+      "epoch_duration": 0.7242865562438965,
+      "status": "Completed",
+      "epoch_losses": [
+        9.99073872421727
+      ],
+      "final_loss": 9.99073872421727,
+      "training_time": 1.473219871520996,
+      "final_perplexity": 21823.414329699426
+    }
+  },
+  "config": {
+    "training": {
+      "accelerator_state": {
+        "num_processes": 3,
+        "process_index": 0,
+        "device": "cuda:0",
+        "mixed_precision": "no",
+        "gradient_accumulation_steps": 1,
+        "is_main_process": true
+      },
+      "num_epochs": 1,
+      "current_epoch": 1,
+      "current_batch_idx": 32,
+      "loss": 9.99073872421727,
+      "epoch_duration": 0.7242865562438965,
+      "status": "Completed",
+      "epoch_losses": [
+        9.99073872421727
+      ],
+      "final_loss": 9.99073872421727,
+      "training_time": 1.473219871520996
+    },
+    "system": {
+      "device": "cuda:0",
+      "num_epochs": null
+    }
+  },
+  "metrics": {
+    "train": [],
+    "eval": [],
+    "epochs": [
+      {
+        "epoch": 1,
+        "timestamp": 1749079592.4965746,
+        "duration": 0.7245783805847168,
+        "loss": 9.99073872421727,
+        "perplexity": 21823.414329699426,
+        "accelerator_state": {
+          "num_processes": 3,
+          "process_index": 0,
+          "device": "cuda:0",
+          "mixed_precision": "no",
+          "gradient_accumulation_steps": 1,
+          "is_main_process": true
+        },
+        "num_epochs": 1,
+        "current_epoch": 1,
+        "current_batch_idx": 32,
+        "epoch_duration": 0.7242865562438965
+      }
+    ],
+    "steps": []
+  },
+  "events": [
+    {
+      "timestamp": 1749079591.7716475,
+      "event": "training_started",
+      "data": {}
+    },
+    {
+      "timestamp": 1749079591.7719753,
+      "event": "epoch_started",
+      "data": {
+        "epoch": 1
+      }
+    },
+    {
+      "timestamp": 1749079592.4974048,
+      "event": "epoch_completed",
+      "data": {
+        "epoch": 1,
+        "duration": 0.7245783805847168
+      }
+    },
+    {
+      "timestamp": 1749079593.2460697,
+      "event": "training_completed",
+      "data": {
+        "total_time": 1.4733092784881592,
+        "total_steps": 33
+      }
+    }
+  ]
+}
