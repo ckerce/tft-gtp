@@ -27,7 +27,6 @@ def parse_args():
     
     # Model & data
     parser.add_argument('--preset', default='small', 
-                       choices=['tiny', 'small', 'medium', 'large'],
                        help='Model size preset')
     parser.add_argument('--model', '--model_type', default='tft', 
                        help='Model type to train')
