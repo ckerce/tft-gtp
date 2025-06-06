@@ -186,7 +186,7 @@ class MLP(nn.Module):
 
 
 class TFTBlock(nn.Module):
-    """Memory-efficient parallelized TFT Block that processes heads in chunks."""
+    """Fallback to your original sequential implementation."""
     
     def __init__(self, config: TFTConfig, shared_dict_embedding: nn.Embedding = None):
         super().__init__()
@@ -200,10 +200,13 @@ class TFTBlock(nn.Module):
             self.dict_vocab_size = config.dict_vocab_size or config.vocab_size
             self.n_heads = config.n_heads
             self.d_head = config.d_model // config.n_heads
-            self.head_layer_norm = LayerNorm(self.d_head, bias=config.bias)
             
-            # Memory optimization: process heads in chunks
-            self.head_chunk_size = min(4, self.n_heads)  # Process 4 heads at a time
+            # Back to individual LayerNorms per head
+            self.head_layer_norms = nn.ModuleList([
+                LayerNorm(self.d_head, bias=config.bias) for _ in range(self.n_heads)
+            ])
+            
+            print("🔄 Fallback to sequential processing (original implementation)")
             
             self.use_dict_ffn = True
         else:
@@ -224,64 +227,40 @@ class TFTBlock(nn.Module):
         if self.use_dict_ffn:
             mlp_out = self.mlp(norm_combined)
             B, T, C = mlp_out.size()
-            
-            # Process heads in chunks to save memory
             xe_new = torch.zeros_like(xe)
             total_dict_loss = 0.0
             
-            for chunk_start in range(0, self.n_heads, self.head_chunk_size):
-                chunk_end = min(chunk_start + self.head_chunk_size, self.n_heads)
-                chunk_size = chunk_end - chunk_start
+            # Back to sequential processing
+            for h in range(self.n_heads):
+                start_idx = h * self.d_head
+                end_idx = (h + 1) * self.d_head
                 
-                # Extract head chunk
-                start_idx = chunk_start * self.d_head
-                end_idx = chunk_end * self.d_head
+                h_head = mlp_out[:, :, start_idx:end_idx]
+                h_head_norm = self.head_layer_norms[h](h_head)
                 
-                mlp_chunk = mlp_out[:, :, start_idx:end_idx]  # (B, T, chunk_size * d_head)
+                dict_emb_head = self.dict_embedding.weight[:self.dict_vocab_size, start_idx:end_idx]
                 
-                # Reshape chunk
-                mlp_heads_chunk = mlp_chunk.reshape(B, T, chunk_size, self.d_head)
-                mlp_flat_chunk = mlp_heads_chunk.reshape(-1, self.d_head)
+                dict_logits = torch.matmul(h_head_norm, dict_emb_head.T)
+                dict_weights = F.softmax(dict_logits, dim=-1)
+                xe_head = torch.matmul(dict_weights, dict_emb_head)
                 
-                # Apply LayerNorm
-                mlp_norm_flat_chunk = self.head_layer_norm(mlp_flat_chunk)
-                mlp_heads_norm_chunk = mlp_norm_flat_chunk.reshape(B, T, chunk_size, self.d_head)
+                xe_new[:, :, start_idx:end_idx] = xe_head
+                dict_loss = F.mse_loss(h_head_norm, xe_head)
+                total_dict_loss += dict_loss
                 
-                # Get dictionary embeddings for this chunk
-                dict_emb_chunk = self.dict_embedding.weight[:self.dict_vocab_size, start_idx:end_idx].reshape(
-                    self.dict_vocab_size, chunk_size, self.d_head
-                )
-                
-                # Dictionary attention for chunk
-                dict_logits_chunk = torch.einsum('bthd,vhd->bthv', mlp_heads_norm_chunk, dict_emb_chunk)
-                dict_weights_chunk = F.softmax(dict_logits_chunk, dim=-1)
-                xe_heads_chunk = torch.einsum('bthv,vhd->bthd', dict_weights_chunk, dict_emb_chunk)
-                
-                # Store results
-                xe_chunk = xe_heads_chunk.reshape(B, T, chunk_size * self.d_head)
-                xe_new[:, :, start_idx:end_idx] = xe_chunk
-                
-                # Accumulate loss
-                chunk_loss = F.mse_loss(mlp_heads_norm_chunk, xe_heads_chunk)
-                total_dict_loss += chunk_loss * chunk_size  # Weight by chunk size
-                
-                # Clean up intermediate tensors to free memory
-                del mlp_chunk, mlp_heads_chunk, mlp_flat_chunk
-                del mlp_norm_flat_chunk, mlp_heads_norm_chunk
-                del dict_emb_chunk, dict_logits_chunk, dict_weights_chunk, xe_heads_chunk
-                
-            # Average loss across all heads
-            dict_loss = total_dict_loss / self.n_heads
+                # Memory cleanup after each head
+                del h_head, h_head_norm, dict_emb_head, dict_logits, dict_weights, xe_head
+                if h % 2 == 0:
+                    torch.cuda.empty_cache()
             
             xe = xe + xe_new
-            aux_outputs['dict_loss'] = dict_loss
+            aux_outputs['dict_loss'] = total_dict_loss / self.n_heads
             
         else:
             mlp_out = self.mlp(norm_combined)
             xe = xe + mlp_out
         
         return xt, xe, aux_outputs
-
 
 class TokenFactoredTransformerDict(nn.Module):
     """Token-Factored Transformer with ALiBi positional encoding."""
