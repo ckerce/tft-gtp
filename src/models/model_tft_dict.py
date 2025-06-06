@@ -184,8 +184,10 @@ class MLP(nn.Module):
         return x
 
 
+
+# Simplest and most efficient version - just use the existing LayerNorm approach
 class TFTBlock(nn.Module):
-    """Single Token-Factored Transformer block with Pre-LN - PARALLELIZED VERSION."""
+    """Simplest parallelized version - flattens and applies single LayerNorm."""
     
     def __init__(self, config: TFTConfig, shared_dict_embedding: nn.Embedding = None):
         super().__init__()
@@ -193,23 +195,15 @@ class TFTBlock(nn.Module):
         self.attention = ALiBiAttention(config)
         self.ln2 = LayerNorm(config.d_model, bias=config.bias)
         
-        # Use dictionary FFN or standard MLP
         if config.use_dict_ffn and shared_dict_embedding is not None:
-            # ONE shared MLP + dictionary operations per head
-            self.mlp = MLP(config)  # Same as standard TFT!
+            self.mlp = MLP(config)
             self.dict_embedding = shared_dict_embedding
             self.dict_vocab_size = config.dict_vocab_size or config.vocab_size
             self.n_heads = config.n_heads
             self.d_head = config.d_model // config.n_heads
             
-            # PARALLELIZED: Single LayerNorm for all heads at once
-            # Group normalization approach - treat each head as a separate "group"
-            self.head_layer_norm = nn.GroupNorm(
-                num_groups=self.n_heads, 
-                num_channels=config.d_model, 
-                eps=1e-5, 
-                affine=True
-            )
+            # Just use a single LayerNorm for d_head dimension
+            self.head_layer_norm = LayerNorm(self.d_head, bias=config.bias)
             
             self.use_dict_ffn = True
         else:
@@ -228,57 +222,40 @@ class TFTBlock(nn.Module):
         norm_combined = self.ln2(xt + xe)
         
         if self.use_dict_ffn:
-            # Standard MLP first
             mlp_out = self.mlp(norm_combined)
-            
-            # PARALLELIZED Dictionary operations for all heads at once
             B, T, C = mlp_out.size()
             
-            # Reshape for head-wise processing: (B, T, n_heads, d_head)
+            # Reshape and flatten for batch LayerNorm
             mlp_heads = mlp_out.view(B, T, self.n_heads, self.d_head)
+            # Flatten to (B*T*n_heads, d_head)
+            mlp_flat = mlp_heads.reshape(-1, self.d_head)
             
-            # Apply group normalization (treats each head as separate group)
-            # Reshape to (B, n_heads, T, d_head) for GroupNorm
-            mlp_heads_norm = self.head_layer_norm(
-                mlp_heads.transpose(1, 2).contiguous()  # (B, n_heads, T, d_head)
-            ).transpose(1, 2)  # Back to (B, T, n_heads, d_head)
+            # Apply LayerNorm to all at once
+            mlp_norm_flat = self.head_layer_norm(mlp_flat)
             
-            # Get dictionary embeddings for all heads at once
-            # dict_emb: (vocab_size, d_model) -> (vocab_size, n_heads, d_head)
+            # Reshape back
+            mlp_heads_norm = mlp_norm_flat.view(B, T, self.n_heads, self.d_head)
+            
+            # Dictionary operations (same as before)
             dict_emb_all = self.dict_embedding.weight[:self.dict_vocab_size].view(
                 self.dict_vocab_size, self.n_heads, self.d_head
             )
             
-            # VECTORIZED dictionary attention for all heads simultaneously
-            # mlp_heads_norm: (B, T, n_heads, d_head)
-            # dict_emb_all: (vocab_size, n_heads, d_head)
-            
-            # Compute logits for all heads: (B, T, n_heads, vocab_size)
             dict_logits = torch.einsum('bthd,vhd->bthv', mlp_heads_norm, dict_emb_all)
-            
-            # Softmax across vocabulary dimension
-            dict_weights = F.softmax(dict_logits, dim=-1)  # (B, T, n_heads, vocab_size)
-            
-            # Apply weights to get new embeddings: (B, T, n_heads, d_head)
+            dict_weights = F.softmax(dict_logits, dim=-1)
             xe_heads = torch.einsum('bthv,vhd->bthd', dict_weights, dict_emb_all)
             
-            # Reshape back to (B, T, d_model)
             xe_new = xe_heads.view(B, T, C)
-            
-            # Compute dictionary loss (MSE between normalized input and output)
             dict_loss = F.mse_loss(mlp_heads_norm, xe_heads)
             
             xe = xe + xe_new
             aux_outputs['dict_loss'] = dict_loss
-            # Optional: store dict_weights for analysis (reshaped for compatibility)
-            # aux_outputs['dict_weights'] = dict_weights.permute(0, 2, 1, 3)  # (B, n_heads, T, vocab_size)
+            
         else:
-            # Standard MLP
             mlp_out = self.mlp(norm_combined)
             xe = xe + mlp_out
         
         return xt, xe, aux_outputs
-
 
 
 
