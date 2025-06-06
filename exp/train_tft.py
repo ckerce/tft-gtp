@@ -217,86 +217,8 @@ def main():
         )
         print(f"Training data loaded: {len(dataloader)} batches")
         
-        # NEW: Load validation data if enabled
-        val_dataloader = None
         if args.val_split > 0:
-            # First, try to load a separate validation split
-            validation_loaded = False
-            
-            # Try common validation split names
-            for split_name in ['validation', 'valid', 'dev', 'test']:
-                try:
-                    val_dataloader, _ = load_and_prepare_data(
-                        dataset_name=args.dataset,
-                        dataset_config=args.dataset_config,
-                        tokenizer=tokenizer,
-                        max_samples=args.max_val_samples,
-                        max_seq_length=config.block_size,
-                        batch_size=args.batch_size,
-                        split=split_name,
-                        shuffle=False
-                    )
-                    print(f"Validation data loaded from '{split_name}' split: {len(val_dataloader)} batches")
-                    validation_loaded = True
-                    break
-                except Exception:
-                    continue
-            
-            # If no validation split exists, create one from training data
-            if not validation_loaded:
-                print(f"⚠️ No validation split found. Creating validation set from training data...")
-                
-                # Load the full training dataset for splitting
-                try:
-                    full_train_dataloader, _ = load_and_prepare_data(
-                        dataset_name=args.dataset,
-                        dataset_config=args.dataset_config,
-                        tokenizer=tokenizer,
-                        max_samples=int(args.max_samples * 1.2),  # Load a bit more for splitting
-                        max_seq_length=config.block_size,
-                        batch_size=args.batch_size,
-                        split='train',
-                        shuffle=True
-                    )
-                    
-                    # Split the dataset
-                    full_dataset = full_train_dataloader.dataset
-                    total_size = len(full_dataset)
-                    val_size = int(total_size * args.val_split)
-                    train_size = total_size - val_size
-                    
-                    # Create random split
-                    indices = torch.randperm(total_size)
-                    train_indices = indices[:train_size]
-                    val_indices = indices[train_size:train_size + min(val_size, args.max_val_samples)]
-                    
-                    # Create new datasets
-                    train_subset = torch.utils.data.Subset(full_dataset, train_indices)
-                    val_subset = torch.utils.data.Subset(full_dataset, val_indices)
-                    
-                    # Create new dataloaders
-                    dataloader = torch.utils.data.DataLoader(
-                        train_subset,
-                        batch_size=args.batch_size,
-                        shuffle=True,
-                        collate_fn=full_train_dataloader.collate_fn,
-                        drop_last=True
-                    )
-                    
-                    val_dataloader = torch.utils.data.DataLoader(
-                        val_subset,
-                        batch_size=args.batch_size,
-                        shuffle=False,
-                        collate_fn=full_train_dataloader.collate_fn,
-                        drop_last=True
-                    )
-                    
-                    print(f"Created train/val split: {len(dataloader)} train batches, {len(val_dataloader)} val batches")
-                    
-                except Exception as split_e:
-                    print(f"⚠️ Could not create train/val split: {split_e}")
-                    print("Proceeding without validation...")
-                    val_dataloader = None
+            print(f"📊 Validation enabled: will use subset of training data every {args.validate_every_n_epochs} epochs")
                 
     except Exception as e:
         print(f"❌ Data loading failed: {e}")
@@ -336,8 +258,7 @@ def main():
         'output_dir': args.output_dir,
         'callbacks': callbacks,
         'clip_grad_norm': args.clip_grad_norm,
-        'val_dataloader': val_dataloader,  # NEW
-        'validate_every_n_epochs': args.validate_every_n_epochs,  # NEW
+        'validate_every_n_epochs': args.validate_every_n_epochs if args.val_split > 0 else None,
     }
     
     # Add trainer-specific arguments

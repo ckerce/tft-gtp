@@ -161,9 +161,10 @@ class SimpleTrainer(BaseTrainer):
             self.trainer_state.update(epoch_end_logs)
             
             # NEW: Run validation if enabled and it's time
-            if (self.val_dataloader is not None and 
-                epoch % self.validate_every_n_epochs == 0):
-                val_metrics = self.validate()
+            if (hasattr(self, 'validate_every_n_epochs') and 
+                epoch % getattr(self, 'validate_every_n_epochs', 1) == 0):
+                # Just use a subset of training data for validation
+                val_metrics = self.validate_on_subset()
                 if val_metrics and 'val_loss' in val_metrics:
                     training_metrics['validation_losses'].append(val_metrics['val_loss'])
                     epoch_end_logs.update(val_metrics)
@@ -250,4 +251,49 @@ class SimpleTrainer(BaseTrainer):
         self.trainer_state.update(eval_metrics)
         self._trigger_callbacks('on_evaluate_end', logs=self.trainer_state)
 
-        return eval_metrics
+    def validate_on_subset(self, num_batches: int = 50) -> Dict[str, Any]:
+        """Run validation on a subset of training data."""
+        logger.info(f"Running validation on {num_batches} batches...")
+        
+        self.model.eval()
+        total_loss = 0.0
+        total_samples = 0
+        batches_processed = 0
+
+        with torch.no_grad():
+            for batch_idx, batch_data in enumerate(self.dataloader):
+                if batches_processed >= num_batches:
+                    break
+                    
+                # Move data to device
+                batch_data = {k: v.to(self.device) if isinstance(v, torch.Tensor) else v 
+                             for k, v in batch_data.items()}
+                
+                outputs = self.model(**batch_data)
+                loss = outputs.get('loss')
+
+                if loss is None or torch.isnan(loss):
+                    continue
+
+                batch_size = batch_data.get('input_ids', next(iter(batch_data.values()))).size(0)
+                total_loss += loss.item() * batch_size
+                total_samples += batch_size
+                batches_processed += 1
+
+        avg_loss = total_loss / total_samples if total_samples > 0 else float('nan')
+        val_metrics = {'val_loss': avg_loss}
+        
+        if avg_loss is not None and not torch.isnan(torch.tensor(avg_loss)):
+            val_metrics['val_perplexity'] = torch.exp(torch.tensor(avg_loss)).item()
+        else:
+            val_metrics['val_perplexity'] = float('nan')
+
+        self.model.train()
+        
+        logger.info(f"Validation results: Loss: {val_metrics['val_loss']:.6f}, Perplexity: {val_metrics['val_perplexity']:.6f}")
+        
+        # Trigger callbacks
+        self.trainer_state.update(val_metrics)
+        self._trigger_callbacks('on_validate_end', logs=self.trainer_state)
+
+        return val_metrics
