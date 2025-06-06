@@ -185,7 +185,6 @@ class MLP(nn.Module):
 
 
 
-# Simplest and most efficient version - just use the existing LayerNorm approach
 class TFTBlock(nn.Module):
     """Simplest parallelized version - flattens and applies single LayerNorm."""
     
@@ -225,19 +224,20 @@ class TFTBlock(nn.Module):
             mlp_out = self.mlp(norm_combined)
             B, T, C = mlp_out.size()
             
-            # Reshape and flatten for batch LayerNorm
-            mlp_heads = mlp_out.view(B, T, self.n_heads, self.d_head)
-            # Flatten to (B*T*n_heads, d_head)
+            # FIXED: Use .reshape() instead of .view() for head processing
+            mlp_heads = mlp_out.reshape(B, T, self.n_heads, self.d_head)
+            
+            # Flatten to (B*T*n_heads, d_head) - use .reshape() to handle non-contiguous tensors
             mlp_flat = mlp_heads.reshape(-1, self.d_head)
             
             # Apply LayerNorm to all at once
             mlp_norm_flat = self.head_layer_norm(mlp_flat)
             
-            # Reshape back
-            mlp_heads_norm = mlp_norm_flat.view(B, T, self.n_heads, self.d_head)
+            # Reshape back - use .reshape() again
+            mlp_heads_norm = mlp_norm_flat.reshape(B, T, self.n_heads, self.d_head)
             
-            # Dictionary operations (same as before)
-            dict_emb_all = self.dict_embedding.weight[:self.dict_vocab_size].view(
+            # Dictionary operations
+            dict_emb_all = self.dict_embedding.weight[:self.dict_vocab_size].reshape(
                 self.dict_vocab_size, self.n_heads, self.d_head
             )
             
@@ -245,7 +245,8 @@ class TFTBlock(nn.Module):
             dict_weights = F.softmax(dict_logits, dim=-1)
             xe_heads = torch.einsum('bthv,vhd->bthd', dict_weights, dict_emb_all)
             
-            xe_new = xe_heads.view(B, T, C)
+            # FIXED: Use .reshape() for final output
+            xe_new = xe_heads.reshape(B, T, C)
             dict_loss = F.mse_loss(mlp_heads_norm, xe_heads)
             
             xe = xe + xe_new
@@ -256,7 +257,6 @@ class TFTBlock(nn.Module):
             xe = xe + mlp_out
         
         return xt, xe, aux_outputs
-
 
 
 class TokenFactoredTransformerDict(nn.Module):
