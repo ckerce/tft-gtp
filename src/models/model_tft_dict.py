@@ -283,7 +283,7 @@ class TFTBlock(nn.Module):
         
         return xt, xe, aux_outputs
 
-class TokenFactoredTransformer(nn.Module):
+class TokenFactoredTransformerDict(nn.Module):
     """Token-Factored Transformer with ALiBi positional encoding."""
     
     def __init__(self, config: TFTConfig):
