@@ -184,6 +184,8 @@ class MLP(nn.Module):
         return x
 
 
+# Fixed model_tft_dict.py - Replace the TFTBlock class with this:
+
 class TFTBlock(nn.Module):
     """Single Token-Factored Transformer block with Pre-LN - FIXED."""
     
@@ -201,6 +203,10 @@ class TFTBlock(nn.Module):
             self.dict_vocab_size = config.dict_vocab_size or config.vocab_size
             self.n_heads = config.n_heads
             self.d_head = config.d_model // config.n_heads
+            # Create LayerNorm modules for each head
+            self.head_layer_norms = nn.ModuleList([
+                LayerNorm(self.d_head, bias=config.bias) for _ in range(self.n_heads)
+            ])
             self.use_dict_ffn = True
         else:
             self.mlp = MLP(config)
@@ -221,7 +227,7 @@ class TFTBlock(nn.Module):
             # Standard MLP first
             mlp_out = self.mlp(norm_combined)
             
-            # Dictionary operations per head
+            # Dictionary operations per head with nn.LayerNorm
             B, T, C = mlp_out.size()
             xe_new = torch.zeros_like(xe)
             total_dict_loss = 0.0
@@ -233,13 +239,13 @@ class TFTBlock(nn.Module):
                 end_idx = (h + 1) * self.d_head
                 h_head = mlp_out[:, :, start_idx:end_idx]
                 
-                # Dictionary operations: softmax(ln(h) @ E.T) @ E
-                h_head_norm = F.layer_norm(h_head, (self.d_head,))
+                # Head-wise layer norm using nn.LayerNorm
+                h_head_norm = self.head_layer_norms[h](h_head)
                 
                 # Get dictionary slice for this head
                 dict_emb_head = self.dict_embedding.weight[:self.dict_vocab_size, start_idx:end_idx]
                 
-                # Dictionary attention
+                # Dictionary attention: softmax(ln(h_head) @ E.T) @ E
                 dict_logits = torch.matmul(h_head_norm, dict_emb_head.T)
                 dict_weights = F.softmax(dict_logits, dim=-1)
                 xe_head = torch.matmul(dict_weights, dict_emb_head)
@@ -259,6 +265,9 @@ class TFTBlock(nn.Module):
             xe = xe + mlp_out
         
         return xt, xe, aux_outputs
+
+
+
 
 class TokenFactoredTransformerDict(nn.Module):
     """Token-Factored Transformer with ALiBi positional encoding."""
