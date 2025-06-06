@@ -8,10 +8,17 @@ if [ "${LOCAL_RANK:-0}" != "0" ]; then
 fi
 
 # === Configuration ===
+
+# Hardware
+USE_ACCELERATE=true
+NUM_GPUS=4
+MIXED_PRECISION="bf16"
+
+# Broad
 DATASET="wikimedia/wikipedia"
 DATASET_CONFIG="20231101.en"
 EPOCHS=3
-BATCH_SIZE=128
+BATCH_SIZE=$((128*NUM_GPUS))
 MAX_SAMPLES=5000000
 
 # Model size - leave empty to use individual params
@@ -30,10 +37,6 @@ VAL_SPLIT=0.1
 MAX_VAL_SAMPLES=10000
 VALIDATE_EVERY_N_EPOCHS=1
 
-# Hardware
-USE_ACCELERATE=true
-NUM_GPUS=4
-MIXED_PRECISION="bf16"
 
 OUTPUT_BASE="./outputs/wiki_compare_enhanced"
 
@@ -44,7 +47,7 @@ if [ -n "$PRESET" ]; then
 else
     echo "Config: ${N_LAYERS}L-${N_HEADS}H-${D_MODEL}D | Epochs: $EPOCHS | Samples: $MAX_SAMPLES"
 fi
-echo "Validation: ${VAL_SPLIT*100}% split, every $VALIDATE_EVERY_N_EPOCHS epochs"
+echo "Validation: 10% split, every $VALIDATE_EVERY_N_EPOCHS epochs"
 
 rm -rf "$OUTPUT_BASE"
 mkdir -p "$OUTPUT_BASE"
@@ -145,21 +148,32 @@ echo ""
 # Run enhanced comparisons
 echo "🚀 Starting enhanced model comparison runs..."
 
-# # 1. Vanilla transformer baseline
-# run_training "vanilla" "_baseline" ""
+# 1. Vanilla transformer baseline
+run_training "vanilla" "_baseline" ""
 
-# # 2. Basic TFT (no factorizations)
-# run_training "tft" "_basic" ""
+# 2. Basic TFT (no factorizations)
+run_training "tft" "_basic" ""
 
-# # 5. TFT with both factorizations
-# run_training "tft" "_full_fact" "--use_v --use_proj"
+# 3. TFT with value factorization
+run_training "tft" "_value_fact" "--use_v"
 
-# 9. NEW: TFT Dictionary FFN + Full factorization
-run_training "tft-dict" "_dict_full" "--use_v --use_proj"
+# 4. TFT with output projection factorization
+run_training "tft" "_proj_fact" "--use_proj"
+
+# 5. TFT with both factorizations
+run_training "tft" "_full_fact" "--use_v --use_proj"
 
 # 6. NEW: TFT Dictionary FFN (basic)
 run_training "tft-dict" "_dict_basic" ""
 
+# 7. NEW: TFT Dictionary FFN + Value factorization
+run_training "tft-dict" "_dict_value" "--use_v"
+
+# 8. NEW: TFT Dictionary FFN + Output projection
+run_training "tft-dict" "_dict_proj" "--use_proj"
+
+# 9. NEW: TFT Dictionary FFN + Full factorization
+run_training "tft-dict" "_dict_full" "--use_v --use_proj"
 
 # Generate comparison report
 echo ""
@@ -173,7 +187,7 @@ cat > "$OUTPUT_BASE/comparison_summary.md" << EOF
 - **Samples**: $MAX_SAMPLES training, $MAX_VAL_SAMPLES validation
 - **Architecture**: ${N_LAYERS}L-${N_HEADS}H-${D_MODEL}D (if custom) or $PRESET preset
 - **Training**: $EPOCHS epochs, batch size $BATCH_SIZE, LR $LR
-- **Validation**: ${VAL_SPLIT*100}% split, every $VALIDATE_EVERY_N_EPOCHS epochs
+- **Validation**: 10% split, every $VALIDATE_EVERY_N_EPOCHS epochs
 - **Hardware**: $NUM_GPUS GPUs, $MIXED_PRECISION precision
 
 ## Models Compared
