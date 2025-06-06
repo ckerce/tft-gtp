@@ -192,25 +192,8 @@ def print_config(config: TFTConfig, title: str = "TFT Configuration"):
     print(f"  Dropout:              {config.dropout}")
     print(f"  Bias in Linear:       {config.bias}")
     
-    # Estimate parameters
-    token_emb_params = config.vocab_size * config.d_model
-    layer_params = config.n_layers * (
-        # Layer norms
-        2 * config.d_model * 2 +
-        # Attention (Q,K,V projections)
-        config.d_model * 3 * config.d_model +
-        # MLP (if not using dict FFN)
-        (0 if config.use_dict_ffn else config.d_model * config.d_ff + config.d_ff * config.d_model)
-    )
-    dict_params = config.n_layers * config.n_heads * config.dict_vocab_size * (config.d_model // config.n_heads) if config.use_dict_ffn else 0
-    estimated_params = token_emb_params + layer_params + dict_params
-    
-    print(f"\n📊 ESTIMATED STATS:")
-    print(f"  Total Parameters:     ~{estimated_params/1e6:.1f}M")
-    if config.use_dict_ffn:
-        base_params = estimated_params - dict_params
-        print(f"  Base Model:           ~{base_params/1e6:.1f}M")
-        print(f"  Dictionary Addition:  ~{dict_params/1e6:.1f}M ({dict_params/base_params*100:.0f}% overhead)")
+    print(f"\n📊 MODEL STATS:")
+    print(f"  Use model.get_num_params() for actual parameter count")
     print(f"  Memory per token:     ~{config.d_model * 4 / 1024:.1f} KB")
-    
+
     print("=" * 60)

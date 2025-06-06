@@ -274,15 +274,10 @@ def main():
     total_params = model.get_num_params()
     print(f"Model created: {total_params/1e6:.2f}M parameters")
     
-    # For dictionary models, show parameter breakdown
     if args.model == 'tft-dict' and config.use_dict_ffn:
-        # Estimate dictionary parameters
-        dict_params_per_layer = config.n_heads * config.dict_vocab_size * (config.d_model // config.n_heads)
-        total_dict_params = config.n_layers * dict_params_per_layer
-        base_params = total_params - total_dict_params
-        print(f"  Base model: {base_params/1e6:.2f}M parameters")
-        print(f"  Dictionary: {total_dict_params/1e6:.2f}M parameters ({total_dict_params/base_params*100:.0f}% overhead)")
-    
+        print(f"  💡 Dictionary FFN uses shared token embeddings")
+        print(f"  Small overhead for additional FFN layers only")
+
     # Create optimizer
     optimizer = torch.optim.AdamW(
         model.parameters(),
