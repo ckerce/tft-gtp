@@ -225,11 +225,12 @@ def aggressive_memory_cleanup(stage=""):
 class TFTBlock(nn.Module):
     """TFT Block with extensive memory debugging and aggressive cleanup."""
     
-    def __init__(self, config: TFTConfig, shared_dict_embedding: nn.Embedding = None):
+    def __init__(self, config: TFTConfig, shared_dict_embedding: nn.Embedding = None, debug: bool = False):
         super().__init__()
         self.ln1 = LayerNorm(config.d_model, bias=config.bias)
         self.attention = ALiBiAttention(config)
         self.ln2 = LayerNorm(config.d_model, bias=config.bias)
+        self.debug = debug
         
         if config.use_dict_ffn and shared_dict_embedding is not None:
             self.mlp = MLP(config)
@@ -246,10 +247,11 @@ class TFTBlock(nn.Module):
             # Memory optimization settings
             self.cleanup_every_n_heads = 1  # Cleanup after every head
             
-            print(f"🚀 Debug Memory TFT Block initialized:")
-            print(f"  Heads: {self.n_heads}, Head dim: {self.d_head}")
-            print(f"  Dict vocab: {self.dict_vocab_size}")
-            print(f"  Cleanup frequency: every {self.cleanup_every_n_heads} heads")
+            if self.debug:
+                print(f"🚀 Debug Memory TFT Block initialized:")
+                print(f"  Heads: {self.n_heads}, Head dim: {self.d_head}")
+                print(f"  Dict vocab: {self.dict_vocab_size}")
+                print(f"  Cleanup frequency: every {self.cleanup_every_n_heads} heads")
             
             self.use_dict_ffn = True
         else:
@@ -257,88 +259,112 @@ class TFTBlock(nn.Module):
             self.use_dict_ffn = False
     
     def forward(self, xt: torch.Tensor, xe: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, torch.Tensor]]:
-        print("\n" + "="*60)
-        print("🔄 TFT Block Forward Pass Starting")
-        get_gpu_memory_info("start of forward")
+        if self.debug:
+            print("\n" + "="*60)
+            print("🔄 TFT Block Forward Pass Starting")
+            get_gpu_memory_info("start of forward")
         
         aux_outputs = {}
         
         # Attention updates xt
-        print("\n🎯 Attention Phase")
+        if self.debug:
+            print("\n🎯 Attention Phase")
         norm_combined = self.ln1(xt + xe)
-        get_gpu_memory_info("after ln1")
+        if self.debug:
+            get_gpu_memory_info("after ln1")
         
         attn_out = self.attention(norm_combined, xt)
-        get_gpu_memory_info("after attention")
+        if self.debug:
+            get_gpu_memory_info("after attention")
         
         xt = xt + attn_out
         
         # Clean up attention intermediates
         del norm_combined, attn_out
-        aggressive_memory_cleanup("after attention cleanup")
+        if self.debug:
+            aggressive_memory_cleanup("after attention cleanup")
+        else:
+            torch.cuda.empty_cache()
         
         # MLP updates xe
-        print("\n🔧 MLP Phase")
+        if self.debug:
+            print("\n🔧 MLP Phase")
         norm_combined = self.ln2(xt + xe)
-        get_gpu_memory_info("after ln2")
+        if self.debug:
+            get_gpu_memory_info("after ln2")
         
         if self.use_dict_ffn:
-            print("\n📚 Dictionary FFN Phase")
+            if self.debug:
+                print("\n📚 Dictionary FFN Phase")
             mlp_out = self.mlp(norm_combined)
-            get_gpu_memory_info("after MLP")
-            
-            B, T, C = mlp_out.size()
-            print(f"MLP output shape: {mlp_out.shape}, Memory: {mlp_out.numel() * 4 / 1024**3:.3f} GB")
+            if self.debug:
+                get_gpu_memory_info("after MLP")
+                print(f"MLP output shape: {mlp_out.shape}, Memory: {mlp_out.numel() * 4 / 1024**3:.3f} GB")
             
             # Clean up norm_combined immediately
             del norm_combined
-            aggressive_memory_cleanup("after MLP cleanup")
+            if self.debug:
+                aggressive_memory_cleanup("after MLP cleanup")
+            else:
+                torch.cuda.empty_cache()
             
             xe_new = torch.zeros_like(xe)
             total_dict_loss = 0.0
             
-            print(f"\n🔄 Processing {self.n_heads} heads sequentially...")
+            if self.debug:
+                print(f"\n🔄 Processing {self.n_heads} heads sequentially...")
             
             for h in range(self.n_heads):
-                print(f"\n--- Head {h+1}/{self.n_heads} ---")
-                get_gpu_memory_info(f"start head {h}")
+                if self.debug:
+                    print(f"\n--- Head {h+1}/{self.n_heads} ---")
+                    get_gpu_memory_info(f"start head {h}")
                 
                 # Extract head slice
                 start_idx = h * self.d_head
                 end_idx = (h + 1) * self.d_head
                 
                 h_head = mlp_out[:, :, start_idx:end_idx]
-                print(f"Head slice shape: {h_head.shape}, Memory: {h_head.numel() * 4 / 1024**3:.3f} GB")
-                get_gpu_memory_info("after head slice")
+                if self.debug:
+                    print(f"Head slice shape: {h_head.shape}, Memory: {h_head.numel() * 4 / 1024**3:.3f} GB")
+                    get_gpu_memory_info("after head slice")
                 
                 # Head normalization
                 h_head_norm = self.head_layer_norms[h](h_head)
-                get_gpu_memory_info("after head norm")
+                if self.debug:
+                    get_gpu_memory_info("after head norm")
                 
                 # Get dictionary embeddings for this head
                 dict_emb_head = self.dict_embedding.weight[:self.dict_vocab_size, start_idx:end_idx]
-                print(f"Dict emb shape: {dict_emb_head.shape}, Memory: {dict_emb_head.numel() * 4 / 1024**3:.3f} GB")
-                get_gpu_memory_info("after dict embedding slice")
+                if self.debug:
+                    print(f"Dict emb shape: {dict_emb_head.shape}, Memory: {dict_emb_head.numel() * 4 / 1024**3:.3f} GB")
+                    get_gpu_memory_info("after dict embedding slice")
                 
                 # Dictionary attention - THE MEMORY-INTENSIVE PART
-                print("💥 Computing dictionary logits (memory-intensive!)")
+                if self.debug:
+                    print("💥 Computing dictionary logits (memory-intensive!)")
                 dict_logits = torch.matmul(h_head_norm, dict_emb_head.T)
-                print(f"Dict logits shape: {dict_logits.shape}, Memory: {dict_logits.numel() * 4 / 1024**3:.3f} GB")
-                get_gpu_memory_info("after dict logits")
+                if self.debug:
+                    print(f"Dict logits shape: {dict_logits.shape}, Memory: {dict_logits.numel() * 4 / 1024**3:.3f} GB")
+                    get_gpu_memory_info("after dict logits")
                 
-                print("💥 Computing softmax (memory-intensive!)")
+                if self.debug:
+                    print("💥 Computing softmax (memory-intensive!)")
                 dict_weights = F.softmax(dict_logits, dim=-1)
-                print(f"Dict weights shape: {dict_weights.shape}, Memory: {dict_weights.numel() * 4 / 1024**3:.3f} GB")
-                get_gpu_memory_info("after softmax")
+                if self.debug:
+                    print(f"Dict weights shape: {dict_weights.shape}, Memory: {dict_weights.numel() * 4 / 1024**3:.3f} GB")
+                    get_gpu_memory_info("after softmax")
                 
                 # Clean up logits immediately after softmax
                 del dict_logits
                 torch.cuda.empty_cache()
-                get_gpu_memory_info("after logits cleanup")
+                if self.debug:
+                    get_gpu_memory_info("after logits cleanup")
                 
-                print("🔄 Computing weighted output")
+                if self.debug:
+                    print("🔄 Computing weighted output")
                 xe_head = torch.matmul(dict_weights, dict_emb_head)
-                get_gpu_memory_info("after weighted output")
+                if self.debug:
+                    get_gpu_memory_info("after weighted output")
                 
                 # Store results
                 xe_new[:, :, start_idx:end_idx] = xe_head
@@ -348,19 +374,28 @@ class TFTBlock(nn.Module):
                 total_dict_loss += dict_loss
                 
                 # Aggressive cleanup after each head
-                print(f"🧹 Cleaning up head {h} intermediates")
+                if self.debug:
+                    print(f"🧹 Cleaning up head {h} intermediates")
                 del h_head, h_head_norm, dict_emb_head, dict_weights, xe_head, dict_loss
                 
                 # Force cleanup every head (aggressive mode)
                 if (h + 1) % self.cleanup_every_n_heads == 0:
-                    aggressive_memory_cleanup(f"after head {h}")
+                    if self.debug:
+                        aggressive_memory_cleanup(f"after head {h}")
+                    else:
+                        torch.cuda.empty_cache()
                 
-                print(f"✅ Head {h+1} completed")
+                if self.debug:
+                    print(f"✅ Head {h+1} completed")
             
             # Final cleanup after all heads
-            print("\n🧹 Final head processing cleanup")
+            if self.debug:
+                print("\n🧹 Final head processing cleanup")
             del mlp_out
-            aggressive_memory_cleanup("after all heads")
+            if self.debug:
+                aggressive_memory_cleanup("after all heads")
+            else:
+                torch.cuda.empty_cache()
             
             # Update xe
             xe = xe + xe_new
@@ -371,20 +406,24 @@ class TFTBlock(nn.Module):
             torch.cuda.empty_cache()
             
         else:
-            print("\n🔧 Standard MLP (no dictionary)")
+            if self.debug:
+                print("\n🔧 Standard MLP (no dictionary)")
             mlp_out = self.mlp(norm_combined)
             xe = xe + mlp_out
             
             # Clean up
             del norm_combined, mlp_out
-            aggressive_memory_cleanup("after standard MLP")
+            if self.debug:
+                aggressive_memory_cleanup("after standard MLP")
+            else:
+                torch.cuda.empty_cache()
         
-        print("\n✅ TFT Block Forward Pass Complete")
-        get_gpu_memory_info("end of forward")
-        print("="*60)
+        if self.debug:
+            print("\n✅ TFT Block Forward Pass Complete")
+            get_gpu_memory_info("end of forward")
+            print("="*60)
         
         return xt, xe, aux_outputs
-
 class TokenFactoredTransformerDict(nn.Module):
     """Token-Factored Transformer with ALiBi positional encoding."""
     
