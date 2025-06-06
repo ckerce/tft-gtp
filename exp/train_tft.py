@@ -1,6 +1,7 @@
 """
 Enhanced training script for Token-Factored Transformer with ALiBi.
 Supports both single GPU and multi-GPU training via Accelerate.
+Includes Dictionary FFN model support.
 """
 
 import argparse
@@ -22,13 +23,14 @@ from utils.plotting import quick_plot
 
 
 def parse_args():
-    """Enhanced argument parser with multi-GPU support."""
+    """Enhanced argument parser with multi-GPU and dictionary model support."""
     parser = argparse.ArgumentParser(description='Train TFT with ALiBi')
     
     # Model & data
     parser.add_argument('--preset', default='small', 
-                       help='Model size preset')
+                       help='Model size preset (can be overridden by individual params)')
     parser.add_argument('--model', '--model_type', default='tft', 
+                       choices=['tft', 'tft-alibi', 'vanilla', 'tft-dict', 'dict'],
                        help='Model type to train')
     parser.add_argument('--dataset', default='roneneldan/TinyStories',
                        help='Dataset name')
@@ -36,6 +38,16 @@ def parse_args():
                        help='Dataset configuration')
     parser.add_argument('--max_samples', type=int, default=50000,
                        help='Maximum samples to use')
+    
+    # Model architecture (overrides preset if specified)
+    parser.add_argument('--n_layers', type=int, default=None,
+                       help='Number of layers (overrides preset)')
+    parser.add_argument('--n_heads', type=int, default=None,
+                       help='Number of attention heads (overrides preset)')
+    parser.add_argument('--d_model', type=int, default=None,
+                       help='Model dimension (overrides preset)')
+    parser.add_argument('--d_ff', type=int, default=None,
+                       help='Feed-forward dimension (overrides preset, default: 4 * d_model)')
     
     # Training
     parser.add_argument('--epochs', type=int, default=5,
@@ -57,6 +69,12 @@ def parse_args():
     parser.add_argument('--use_proj', action='store_true', 
                        help='Use output projection factorization')
     
+    # Dictionary FFN features
+    parser.add_argument('--use_dict_ffn', action='store_true',
+                       help='Use dictionary FFN (automatically enabled for dict models)')
+    parser.add_argument('--dict_loss_weight', type=float, default=1.0,
+                       help='Weight for dictionary reconstruction loss')
+    
     # Training infrastructure
     parser.add_argument('--trainer', default='simple', 
                        choices=['simple', 'accelerate'],
@@ -68,6 +86,12 @@ def parse_args():
                        help='Gradient accumulation steps')
     parser.add_argument('--seed', type=int, default=None,
                        help='Random seed for reproducibility')
+    
+    # Validation
+    parser.add_argument('--validation_split', type=float, default=0.1,
+                       help='Fraction of data to use for validation')
+    parser.add_argument('--validate_every_n_epochs', type=int, default=1,
+                       help='Run validation every N epochs')
     
     # Output & logging
     parser.add_argument('--output_dir', default='./outputs/training_run',
@@ -127,9 +151,15 @@ def main():
     """Main training function."""
     args = parse_args()
     
-    # Normalize model name
-    if args.model == 'tft-alibi':
+    # Normalize model name and handle dictionary models
+    if args.model in ['tft-alibi']:
         args.model = 'tft'
+    elif args.model in ['dict']:
+        args.model = 'tft-dict'
+    
+    # Auto-enable dictionary FFN for dict models
+    if args.model == 'tft-dict':
+        args.use_dict_ffn = True
     
     # Suppress output from non-main processes in multi-GPU training
     is_main_process = int(os.environ.get('LOCAL_RANK', '0')) == 0
@@ -137,8 +167,11 @@ def main():
         import sys
         sys.stdout = open(os.devnull, 'w')
         sys.stderr = open(os.devnull, 'w')
-        
-    print(f"🚀 Training {args.model.upper()}: {args.preset} on {args.dataset}")
+    
+    # Display model info
+    model_display = args.model.upper()
+    
+    print(f"🚀 Training {model_display}: {args.preset} on {args.dataset}")
     if args.verbose:
         print(f"Arguments: {vars(args)}")
     
@@ -158,31 +191,56 @@ def main():
     
     # Load config with overrides
     config_overrides = {}
+    
+    # Architecture overrides
+    if args.n_layers:
+        config_overrides['n_layers'] = args.n_layers
+    if args.n_heads:
+        config_overrides['n_heads'] = args.n_heads
+    if args.d_model:
+        config_overrides['d_model'] = args.d_model
+    if args.d_ff:
+        config_overrides['d_ff'] = args.d_ff
+    
+    # Training overrides
     if args.block_size:
         config_overrides['block_size'] = args.block_size
     if args.lr:
         config_overrides['learning_rate'] = args.lr
     if args.weight_decay:
         config_overrides['weight_decay'] = args.weight_decay
+    
+    # TFT feature overrides
     if args.use_v:
         config_overrides['use_v'] = True
     if args.use_proj:
         config_overrides['use_proj'] = True
     
+    # Dictionary FFN overrides
+    if args.use_dict_ffn:
+        config_overrides['use_dict_ffn'] = True
+        if args.dict_loss_weight != 1.0:
+            config_overrides['dict_loss_weight'] = args.dict_loss_weight
+    
     config = get_config(args.preset, **config_overrides)
     
     if args.verbose:
-        print_config(config, f"{args.model.upper()} Configuration")
+        print_config(config, f"{model_display} Configuration")
     else:
-        print(f"Config: {config.n_layers}L-{config.n_heads}H-{config.d_model}D, "
-              f"block_size={config.block_size}, factorization=v:{config.use_v}/proj:{config.use_proj}")
+        config_summary = f"{config.n_layers}L-{config.n_heads}H-{config.d_model}D"
+        config_summary += f", d_ff={config.d_ff}, block_size={config.block_size}"
+        if args.model == 'tft':
+            config_summary += f", factorization=v:{config.use_v}/proj:{config.use_proj}"
+        elif args.model == 'tft-dict':
+            config_summary += f", dict_ffn=True, dict_weight={config.dict_loss_weight}"
+        print(f"Config: {config_summary}")
     
     # Create tokenizer
     print("🔤 Creating tokenizer...")
     tokenizer = create_tokenizer('gpt2')
     config.vocab_size = tokenizer.vocab_size
     
-    # adjust batch size for consistency across multi gpu
+    # Adjust batch size for consistency across multi GPU
     if trainer_type == 'accelerate':
         from accelerate import Accelerator
         accelerator = Accelerator()
@@ -216,6 +274,15 @@ def main():
     total_params = model.get_num_params()
     print(f"Model created: {total_params/1e6:.2f}M parameters")
     
+    # For dictionary models, show parameter breakdown
+    if args.model == 'tft-dict' and config.use_dict_ffn:
+        # Estimate dictionary parameters
+        dict_params_per_layer = config.n_heads * config.dict_vocab_size * (config.d_model // config.n_heads)
+        total_dict_params = config.n_layers * dict_params_per_layer
+        base_params = total_params - total_dict_params
+        print(f"  Base model: {base_params/1e6:.2f}M parameters")
+        print(f"  Dictionary: {total_dict_params/1e6:.2f}M parameters ({total_dict_params/base_params*100:.0f}% overhead)")
+    
     # Create optimizer
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -243,6 +310,8 @@ def main():
         'output_dir': args.output_dir,
         'callbacks': callbacks,
         'clip_grad_norm': args.clip_grad_norm,
+        'validation_split': args.validation_split,
+        'validate_every_n_epochs': args.validate_every_n_epochs,
     }
     
     # Add trainer-specific arguments
@@ -265,9 +334,14 @@ def main():
     try:
         metrics = trainer.train()
         final_loss = metrics.get('final_loss', 'N/A')
+        final_val_loss = metrics.get('final_val_loss', 'N/A')
         training_time = metrics.get('training_time', 0)
         
-        print(f"✅ Training completed! Final loss: {final_loss:.4f}, Time: {training_time:.1f}s")
+        print(f"✅ Training completed!")
+        print(f"  Final training loss: {final_loss:.4f}")
+        if final_val_loss != 'N/A' and final_val_loss == final_val_loss:  # Check for NaN
+            print(f"  Final validation loss: {final_val_loss:.4f}")
+        print(f"  Training time: {training_time:.1f}s")
         
     except Exception as e:
         print(f"❌ Training failed: {e}")
