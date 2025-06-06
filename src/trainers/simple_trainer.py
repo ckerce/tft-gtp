@@ -31,8 +31,7 @@ class SimpleTrainer(BaseTrainer):
                  clip_grad_norm: Optional[float] = None,
                  log_interval: int = 10,
                  callbacks: Optional[List[Callback]] = None,
-                 val_dataloader: Optional[DataLoader] = None,    # NEW
-                 validate_every_n_epochs: int = 1):              # NEW
+                 **kwargs):  # Accept any additional args
         """
         Initialize the simple trainer.
 
@@ -56,8 +55,8 @@ class SimpleTrainer(BaseTrainer):
             device=device,
             output_dir=output_dir,
             callbacks=callbacks,
-            val_dataloader=val_dataloader,
-            validate_every_n_epochs=validate_every_n_epochs
+            val_dataloader=kwargs.get('val_dataloader'),
+            validate_every_n_epochs=kwargs.get('validate_every_n_epochs', 1)
         )
         
         self.num_epochs = num_epochs
