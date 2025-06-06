@@ -186,7 +186,7 @@ class MLP(nn.Module):
 
 
 class TFTBlock(nn.Module):
-    """Simplest parallelized version - flattens and applies single LayerNorm."""
+    """Memory-efficient parallelized TFT Block that processes heads in chunks."""
     
     def __init__(self, config: TFTConfig, shared_dict_embedding: nn.Embedding = None):
         super().__init__()
@@ -200,9 +200,10 @@ class TFTBlock(nn.Module):
             self.dict_vocab_size = config.dict_vocab_size or config.vocab_size
             self.n_heads = config.n_heads
             self.d_head = config.d_model // config.n_heads
-            
-            # Just use a single LayerNorm for d_head dimension
             self.head_layer_norm = LayerNorm(self.d_head, bias=config.bias)
+            
+            # Memory optimization: process heads in chunks
+            self.head_chunk_size = min(4, self.n_heads)  # Process 4 heads at a time
             
             self.use_dict_ffn = True
         else:
@@ -224,30 +225,53 @@ class TFTBlock(nn.Module):
             mlp_out = self.mlp(norm_combined)
             B, T, C = mlp_out.size()
             
-            # FIXED: Use .reshape() instead of .view() for head processing
-            mlp_heads = mlp_out.reshape(B, T, self.n_heads, self.d_head)
+            # Process heads in chunks to save memory
+            xe_new = torch.zeros_like(xe)
+            total_dict_loss = 0.0
             
-            # Flatten to (B*T*n_heads, d_head) - use .reshape() to handle non-contiguous tensors
-            mlp_flat = mlp_heads.reshape(-1, self.d_head)
-            
-            # Apply LayerNorm to all at once
-            mlp_norm_flat = self.head_layer_norm(mlp_flat)
-            
-            # Reshape back - use .reshape() again
-            mlp_heads_norm = mlp_norm_flat.reshape(B, T, self.n_heads, self.d_head)
-            
-            # Dictionary operations
-            dict_emb_all = self.dict_embedding.weight[:self.dict_vocab_size].reshape(
-                self.dict_vocab_size, self.n_heads, self.d_head
-            )
-            
-            dict_logits = torch.einsum('bthd,vhd->bthv', mlp_heads_norm, dict_emb_all)
-            dict_weights = F.softmax(dict_logits, dim=-1)
-            xe_heads = torch.einsum('bthv,vhd->bthd', dict_weights, dict_emb_all)
-            
-            # FIXED: Use .reshape() for final output
-            xe_new = xe_heads.reshape(B, T, C)
-            dict_loss = F.mse_loss(mlp_heads_norm, xe_heads)
+            for chunk_start in range(0, self.n_heads, self.head_chunk_size):
+                chunk_end = min(chunk_start + self.head_chunk_size, self.n_heads)
+                chunk_size = chunk_end - chunk_start
+                
+                # Extract head chunk
+                start_idx = chunk_start * self.d_head
+                end_idx = chunk_end * self.d_head
+                
+                mlp_chunk = mlp_out[:, :, start_idx:end_idx]  # (B, T, chunk_size * d_head)
+                
+                # Reshape chunk
+                mlp_heads_chunk = mlp_chunk.reshape(B, T, chunk_size, self.d_head)
+                mlp_flat_chunk = mlp_heads_chunk.reshape(-1, self.d_head)
+                
+                # Apply LayerNorm
+                mlp_norm_flat_chunk = self.head_layer_norm(mlp_flat_chunk)
+                mlp_heads_norm_chunk = mlp_norm_flat_chunk.reshape(B, T, chunk_size, self.d_head)
+                
+                # Get dictionary embeddings for this chunk
+                dict_emb_chunk = self.dict_embedding.weight[:self.dict_vocab_size, start_idx:end_idx].reshape(
+                    self.dict_vocab_size, chunk_size, self.d_head
+                )
+                
+                # Dictionary attention for chunk
+                dict_logits_chunk = torch.einsum('bthd,vhd->bthv', mlp_heads_norm_chunk, dict_emb_chunk)
+                dict_weights_chunk = F.softmax(dict_logits_chunk, dim=-1)
+                xe_heads_chunk = torch.einsum('bthv,vhd->bthd', dict_weights_chunk, dict_emb_chunk)
+                
+                # Store results
+                xe_chunk = xe_heads_chunk.reshape(B, T, chunk_size * self.d_head)
+                xe_new[:, :, start_idx:end_idx] = xe_chunk
+                
+                # Accumulate loss
+                chunk_loss = F.mse_loss(mlp_heads_norm_chunk, xe_heads_chunk)
+                total_dict_loss += chunk_loss * chunk_size  # Weight by chunk size
+                
+                # Clean up intermediate tensors to free memory
+                del mlp_chunk, mlp_heads_chunk, mlp_flat_chunk
+                del mlp_norm_flat_chunk, mlp_heads_norm_chunk
+                del dict_emb_chunk, dict_logits_chunk, dict_weights_chunk, xe_heads_chunk
+                
+            # Average loss across all heads
+            dict_loss = total_dict_loss / self.n_heads
             
             xe = xe + xe_new
             aux_outputs['dict_loss'] = dict_loss
