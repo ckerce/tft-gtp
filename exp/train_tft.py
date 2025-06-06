@@ -1,5 +1,5 @@
 """
-Enhanced training script for Token-Factored Transformer with ALiBi.
+Enhanced training script for Token-Factored Transformer with ALiBi and validation support.
 Supports both single GPU and multi-GPU training via Accelerate.
 """
 
@@ -22,8 +22,8 @@ from utils.plotting import quick_plot
 
 
 def parse_args():
-    """Enhanced argument parser with multi-GPU support."""
-    parser = argparse.ArgumentParser(description='Train TFT with ALiBi')
+    """Enhanced argument parser with validation support."""
+    parser = argparse.ArgumentParser(description='Train TFT with ALiBi and validation')
     
     # Model & data
     parser.add_argument('--preset', default='small', 
@@ -36,6 +36,14 @@ def parse_args():
                        help='Dataset configuration')
     parser.add_argument('--max_samples', type=int, default=50000,
                        help='Maximum samples to use')
+    
+    # NEW: Validation arguments
+    parser.add_argument('--val_split', type=float, default=0.1,
+                       help='Fraction of data to use for validation (0.0 to disable)')
+    parser.add_argument('--max_val_samples', type=int, default=5000,
+                       help='Maximum validation samples to use')
+    parser.add_argument('--validate_every_n_epochs', type=int, default=1,
+                       help='Run validation every N epochs')
     
     # Training
     parser.add_argument('--epochs', type=int, default=5,
@@ -124,7 +132,7 @@ def setup_device_and_trainer_type(args):
 
 
 def main():
-    """Main training function."""
+    """Main training function with validation support."""
     args = parse_args()
     
     # Normalize model name
@@ -139,6 +147,9 @@ def main():
         sys.stderr = open(os.devnull, 'w')
         
     print(f"🚀 Training {args.model.upper()}: {args.preset} on {args.dataset}")
+    if args.val_split > 0:
+        print(f"📊 Validation enabled: {args.val_split*100:.1f}% split, every {args.validate_every_n_epochs} epochs")
+    
     if args.verbose:
         print(f"Arguments: {vars(args)}")
     
@@ -204,7 +215,38 @@ def main():
             split='train',
             shuffle=True
         )
-        print(f"Data loaded: {len(dataloader)} batches")
+        print(f"Training data loaded: {len(dataloader)} batches")
+        
+        # NEW: Load validation data if enabled
+        val_dataloader = None
+        if args.val_split > 0:
+            try:
+                val_dataloader, _ = load_and_prepare_data(
+                    dataset_name=args.dataset,
+                    dataset_config=args.dataset_config,
+                    tokenizer=tokenizer,
+                    max_samples=args.max_val_samples,
+                    max_seq_length=config.block_size,
+                    batch_size=args.batch_size,
+                    split='validation' if 'validation' in ['train', 'test', 'validation'] else 'train',  # Try validation split first
+                    shuffle=False
+                )
+                print(f"Validation data loaded: {len(val_dataloader)} batches")
+            except Exception as val_e:
+                print(f"⚠️ Could not load validation split: {val_e}")
+                print("Will use training data for validation instead")
+                # Use a subset of training data for validation
+                val_samples = min(args.max_val_samples, len(dataloader.dataset))
+                val_indices = torch.randperm(len(dataloader.dataset))[:val_samples]
+                val_subset = torch.utils.data.Subset(dataloader.dataset, val_indices)
+                val_dataloader = torch.utils.data.DataLoader(
+                    val_subset, 
+                    batch_size=args.batch_size,
+                    shuffle=False,
+                    collate_fn=dataloader.collate_fn
+                )
+                print(f"Validation data created from training subset: {len(val_dataloader)} batches")
+                
     except Exception as e:
         print(f"❌ Data loading failed: {e}")
         print("This might be due to network issues or dataset access problems.")
@@ -243,6 +285,8 @@ def main():
         'output_dir': args.output_dir,
         'callbacks': callbacks,
         'clip_grad_norm': args.clip_grad_norm,
+        'val_dataloader': val_dataloader,  # NEW
+        'validate_every_n_epochs': args.validate_every_n_epochs,  # NEW
     }
     
     # Add trainer-specific arguments
@@ -268,6 +312,11 @@ def main():
         training_time = metrics.get('training_time', 0)
         
         print(f"✅ Training completed! Final loss: {final_loss:.4f}, Time: {training_time:.1f}s")
+        
+        # NEW: Print final validation results if available
+        if 'validation_losses' in metrics and metrics['validation_losses']:
+            final_val_loss = metrics['validation_losses'][-1]
+            print(f"📊 Final validation loss: {final_val_loss:.4f}")
         
     except Exception as e:
         print(f"❌ Training failed: {e}")

@@ -1,6 +1,6 @@
-# src/utils/json_logger.py (Enhanced with perplexity)
+# src/utils/json_logger.py (Enhanced with validation logging)
 """
-Enhanced JSON logger for training metrics with perplexity calculation.
+Enhanced JSON logger for training metrics with perplexity calculation and validation support.
 """
 
 import json
@@ -45,6 +45,7 @@ class JSONLogger:
             "metrics": {
                 "train": [],
                 "eval": [],
+                "validation": [],  # NEW: separate validation metrics
                 "epochs": [],
                 "steps": []
             },
@@ -80,7 +81,7 @@ class JSONLogger:
         Args:
             step: Step number
             metrics: Dictionary of metrics (loss, lr, etc.)
-            phase: Training phase ('train', 'eval')
+            phase: Training phase ('train', 'eval', 'validation')
         """
         entry = {
             "step": step,
@@ -111,7 +112,7 @@ class JSONLogger:
         }
         
         # Add perplexity calculations for various loss types
-        for loss_key in ['loss', 'avg_loss', 'train_loss', 'eval_loss']:
+        for loss_key in ['loss', 'avg_loss', 'train_loss', 'eval_loss', 'val_loss', 'validation_loss']:
             if loss_key in metrics:
                 perplexity_key = loss_key.replace('loss', 'perplexity')
                 entry[perplexity_key] = self._calculate_perplexity(metrics[loss_key])
@@ -158,6 +159,32 @@ class JSONLogger:
         
         self.log_data["metrics"]["eval"].append(entry)
         self._save()
+    
+    def log_validation_metrics(self, epoch: int, step: int, metrics: Dict[str, float]):
+        """NEW: Log validation metrics with perplexity."""
+        entry = {
+            "epoch": epoch,
+            "step": step,
+            "timestamp": time.time(),
+            **metrics
+        }
+        
+        # Add perplexity for validation metrics
+        for loss_key in ['val_loss', 'validation_loss', 'loss']:
+            if loss_key in metrics:
+                perplexity_key = loss_key.replace('loss', 'perplexity').replace('val_', 'val_perplexity_')
+                if loss_key == 'loss':
+                    perplexity_key = 'perplexity'
+                entry[perplexity_key] = self._calculate_perplexity(metrics[loss_key])
+        
+        self.log_data["metrics"]["validation"].append(entry)
+        self._save()
+        
+        # Log validation results
+        val_loss = metrics.get('val_loss', metrics.get('validation_loss', metrics.get('loss')))
+        if val_loss is not None:
+            val_perplexity = self._calculate_perplexity(val_loss)
+            logger.info(f"Validation metrics logged: loss={val_loss:.4f}, perplexity={val_perplexity:.2f}")
     
     def log_event(self, event: str, data: Optional[Dict[str, Any]] = None):
         """
@@ -337,6 +364,22 @@ class JSONLoggingCallback:
                     epoch=logs.get('current_epoch', 0),
                     step=self.step_count,
                     metrics=eval_metrics
+                )
+    
+    def on_validate_end(self, logs: Optional[Dict[str, Any]] = None):
+        """NEW: Called after validation."""
+        if logs:
+            # Extract validation metrics
+            val_metrics = {}
+            for key, value in logs.items():
+                if 'val' in key.lower() or 'validation' in key.lower() or key in ['loss', 'perplexity']:
+                    val_metrics[key] = value
+            
+            if val_metrics:
+                self.logger.log_validation_metrics(
+                    epoch=logs.get('current_epoch', 0),
+                    step=self.step_count,
+                    metrics=val_metrics
                 )
     
     def on_train_end(self, logs: Optional[Dict[str, Any]] = None):
