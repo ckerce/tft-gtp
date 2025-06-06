@@ -11,7 +11,7 @@ fi
 DATASET="wikimedia/wikipedia"
 DATASET_CONFIG="20231101.en"
 EPOCHS=3
-BATCH_SIZE=128
+BATCH_SIZE=512
 MAX_SAMPLES=5000000
 
 # Model size - leave empty to use individual params
