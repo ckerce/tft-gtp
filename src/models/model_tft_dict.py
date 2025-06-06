@@ -184,8 +184,6 @@ class MLP(nn.Module):
         return x
 
 
-# Fixed model_tft_dict.py - Replace the TFTBlock class with this:
-
 class TFTBlock(nn.Module):
     """Single Token-Factored Transformer block with Pre-LN - FIXED."""
     
@@ -231,7 +229,7 @@ class TFTBlock(nn.Module):
             B, T, C = mlp_out.size()
             xe_new = torch.zeros_like(xe)
             total_dict_loss = 0.0
-            dict_weights_all = []
+            #dict_weights_all = []
             
             for h in range(self.n_heads):
                 # Extract head slice
@@ -254,11 +252,11 @@ class TFTBlock(nn.Module):
                 xe_new[:, :, start_idx:end_idx] = xe_head
                 dict_loss = F.mse_loss(h_head_norm, xe_head)
                 total_dict_loss += dict_loss
-                dict_weights_all.append(dict_weights)
+                #dict_weights_all.append(dict_weights)
             
             xe = xe + xe_new
             aux_outputs['dict_loss'] = total_dict_loss / self.n_heads
-            aux_outputs['dict_weights'] = torch.stack(dict_weights_all, dim=1)
+            #aux_outputs['dict_weights'] = torch.stack(dict_weights_all, dim=1)
         else:
             # Standard MLP
             mlp_out = self.mlp(norm_combined)
@@ -336,7 +334,7 @@ class TokenFactoredTransformerDict(nn.Module):
             
             if 'dict_loss' in aux_outputs:
                 total_dict_loss += aux_outputs['dict_loss']
-                all_dict_weights.append(aux_outputs['dict_weights'])
+                #all_dict_weights.append(aux_outputs['dict_weights'])
         
         # Final processing
         x_final = xt + xe
