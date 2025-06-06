@@ -220,32 +220,83 @@ def main():
         # NEW: Load validation data if enabled
         val_dataloader = None
         if args.val_split > 0:
-            try:
-                val_dataloader, _ = load_and_prepare_data(
-                    dataset_name=args.dataset,
-                    dataset_config=args.dataset_config,
-                    tokenizer=tokenizer,
-                    max_samples=args.max_val_samples,
-                    max_seq_length=config.block_size,
-                    batch_size=args.batch_size,
-                    split='validation' if 'validation' in ['train', 'test', 'validation'] else 'train',  # Try validation split first
-                    shuffle=False
-                )
-                print(f"Validation data loaded: {len(val_dataloader)} batches")
-            except Exception as val_e:
-                print(f"⚠️ Could not load validation split: {val_e}")
-                print("Will use training data for validation instead")
-                # Use a subset of training data for validation
-                val_samples = min(args.max_val_samples, len(dataloader.dataset))
-                val_indices = torch.randperm(len(dataloader.dataset))[:val_samples]
-                val_subset = torch.utils.data.Subset(dataloader.dataset, val_indices)
-                val_dataloader = torch.utils.data.DataLoader(
-                    val_subset, 
-                    batch_size=args.batch_size,
-                    shuffle=False,
-                    collate_fn=dataloader.collate_fn
-                )
-                print(f"Validation data created from training subset: {len(val_dataloader)} batches")
+            # First, try to load a separate validation split
+            validation_loaded = False
+            
+            # Try common validation split names
+            for split_name in ['validation', 'valid', 'dev', 'test']:
+                try:
+                    val_dataloader, _ = load_and_prepare_data(
+                        dataset_name=args.dataset,
+                        dataset_config=args.dataset_config,
+                        tokenizer=tokenizer,
+                        max_samples=args.max_val_samples,
+                        max_seq_length=config.block_size,
+                        batch_size=args.batch_size,
+                        split=split_name,
+                        shuffle=False
+                    )
+                    print(f"Validation data loaded from '{split_name}' split: {len(val_dataloader)} batches")
+                    validation_loaded = True
+                    break
+                except Exception:
+                    continue
+            
+            # If no validation split exists, create one from training data
+            if not validation_loaded:
+                print(f"⚠️ No validation split found. Creating validation set from training data...")
+                
+                # Load the full training dataset for splitting
+                try:
+                    full_train_dataloader, _ = load_and_prepare_data(
+                        dataset_name=args.dataset,
+                        dataset_config=args.dataset_config,
+                        tokenizer=tokenizer,
+                        max_samples=int(args.max_samples * 1.2),  # Load a bit more for splitting
+                        max_seq_length=config.block_size,
+                        batch_size=args.batch_size,
+                        split='train',
+                        shuffle=True
+                    )
+                    
+                    # Split the dataset
+                    full_dataset = full_train_dataloader.dataset
+                    total_size = len(full_dataset)
+                    val_size = int(total_size * args.val_split)
+                    train_size = total_size - val_size
+                    
+                    # Create random split
+                    indices = torch.randperm(total_size)
+                    train_indices = indices[:train_size]
+                    val_indices = indices[train_size:train_size + min(val_size, args.max_val_samples)]
+                    
+                    # Create new datasets
+                    train_subset = torch.utils.data.Subset(full_dataset, train_indices)
+                    val_subset = torch.utils.data.Subset(full_dataset, val_indices)
+                    
+                    # Create new dataloaders
+                    dataloader = torch.utils.data.DataLoader(
+                        train_subset,
+                        batch_size=args.batch_size,
+                        shuffle=True,
+                        collate_fn=full_train_dataloader.collate_fn,
+                        drop_last=True
+                    )
+                    
+                    val_dataloader = torch.utils.data.DataLoader(
+                        val_subset,
+                        batch_size=args.batch_size,
+                        shuffle=False,
+                        collate_fn=full_train_dataloader.collate_fn,
+                        drop_last=True
+                    )
+                    
+                    print(f"Created train/val split: {len(dataloader)} train batches, {len(val_dataloader)} val batches")
+                    
+                except Exception as split_e:
+                    print(f"⚠️ Could not create train/val split: {split_e}")
+                    print("Proceeding without validation...")
+                    val_dataloader = None
                 
     except Exception as e:
         print(f"❌ Data loading failed: {e}")
