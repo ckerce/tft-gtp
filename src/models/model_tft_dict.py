@@ -295,7 +295,6 @@ class TokenFactoredTransformerDict(nn.Module):
         self.dropout = nn.Dropout(config.dropout)
         
         # Transformer blocks
-        # Transformer blocks
         self.blocks = nn.ModuleList([
             TFTBlock(config, shared_dict_embedding=self.token_embedding) 
             for _ in range(config.n_layers)
