@@ -183,50 +183,9 @@ class MLP(nn.Module):
         x = self.dropout(x)
         return x
 
-class DictFFN(nn.Module):
-    """Dictionary-based interpretable FFN with tied embeddings."""
-    
-    def __init__(self, config: TFTConfig, head_idx: int, shared_dict_embedding: nn.Embedding):
-        super().__init__()
-        self.head_idx = head_idx
-        self.d_head = config.d_model // config.n_heads
-        self.vocab_size = config.dict_vocab_size or config.vocab_size
-        
-        # Standard FFN components
-        self.fc = nn.Linear(config.d_model, config.d_ff, bias=config.bias)
-        self.proj = nn.Linear(config.d_ff, self.d_head, bias=config.bias)
-        self.dropout = nn.Dropout(config.dropout)
-        self.activation = nn.GELU()
-        self.ln = LayerNorm(self.d_head, bias=config.bias)
-        
-        # Use shared dictionary embedding (token embedding)
-        self.dict_embedding = shared_dict_embedding
-    
-    def forward(self, x_ffn: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        B, T, _ = x_ffn.size()
-        
-        # Standard FFN processing to head dimension
-        h = self.fc(x_ffn)
-        h = self.activation(h)
-        h = self.proj(h)
-        h = self.dropout(h)
-        x_hat = self.ln(h)
-        
-        # Get this head's slice of the dictionary
-        start_idx = self.head_idx * self.d_head
-        end_idx = (self.head_idx + 1) * self.d_head
-        dict_emb_head = self.dict_embedding.weight[:self.vocab_size, start_idx:end_idx]
-        
-        # Dictionary encoding/decoding
-        dict_logits = torch.matmul(x_hat, dict_emb_head.T)
-        dict_weights = F.softmax(dict_logits, dim=-1)
-        x_recon = torch.matmul(dict_weights, dict_emb_head)
-        
-        dict_loss = F.mse_loss(x_hat, x_recon)
-        return x_recon, dict_weights, dict_loss
 
 class TFTBlock(nn.Module):
-    """Single Token-Factored Transformer block with Pre-LN."""
+    """Single Token-Factored Transformer block with Pre-LN - FIXED."""
     
     def __init__(self, config: TFTConfig, shared_dict_embedding: nn.Embedding = None):
         super().__init__()
@@ -234,12 +193,14 @@ class TFTBlock(nn.Module):
         self.attention = ALiBiAttention(config)
         self.ln2 = LayerNorm(config.d_model, bias=config.bias)
         
-        # Choose between dictionary FFN and standard MLP
+        # Use dictionary FFN or standard MLP
         if config.use_dict_ffn and shared_dict_embedding is not None:
-            self.dict_ffns = nn.ModuleList([
-                DictFFN(config, head_idx=h, shared_dict_embedding=shared_dict_embedding) 
-                for h in range(config.n_heads)
-            ])
+            # ONE shared MLP + dictionary operations per head
+            self.mlp = MLP(config)  # Same as standard TFT!
+            self.dict_embedding = shared_dict_embedding
+            self.dict_vocab_size = config.dict_vocab_size or config.vocab_size
+            self.n_heads = config.n_heads
+            self.d_head = config.d_model // config.n_heads
             self.use_dict_ffn = True
         else:
             self.mlp = MLP(config)
@@ -248,33 +209,49 @@ class TFTBlock(nn.Module):
     def forward(self, xt: torch.Tensor, xe: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, torch.Tensor]]:
         aux_outputs = {}
         
-        # Attention updates xt using combined state for Q,K but xt for V
+        # Attention updates xt
         norm_combined = self.ln1(xt + xe)
         attn_out = self.attention(norm_combined, xt)
         xt = xt + attn_out
         
-        # MLP updates xe using combined state
+        # MLP updates xe
         norm_combined = self.ln2(xt + xe)
         
         if self.use_dict_ffn:
-            # Dictionary FFN: process each head separately
+            # Standard MLP first
+            mlp_out = self.mlp(norm_combined)
+            
+            # Dictionary operations per head
+            B, T, C = mlp_out.size()
             xe_new = torch.zeros_like(xe)
             total_dict_loss = 0.0
             dict_weights_all = []
             
-            for h, dict_ffn in enumerate(self.dict_ffns):
-                xe_h, dict_weights_h, dict_loss_h = dict_ffn(norm_combined)
+            for h in range(self.n_heads):
+                # Extract head slice
+                start_idx = h * self.d_head
+                end_idx = (h + 1) * self.d_head
+                h_head = mlp_out[:, :, start_idx:end_idx]
                 
-                # Accumulate head outputs
-                start_idx = h * (xe.size(-1) // len(self.dict_ffns))
-                end_idx = (h + 1) * (xe.size(-1) // len(self.dict_ffns))
-                xe_new[:, :, start_idx:end_idx] = xe_h
+                # Dictionary operations: softmax(ln(h) @ E.T) @ E
+                h_head_norm = F.layer_norm(h_head, (self.d_head,))
                 
-                total_dict_loss += dict_loss_h
-                dict_weights_all.append(dict_weights_h)
+                # Get dictionary slice for this head
+                dict_emb_head = self.dict_embedding.weight[:self.dict_vocab_size, start_idx:end_idx]
+                
+                # Dictionary attention
+                dict_logits = torch.matmul(h_head_norm, dict_emb_head.T)
+                dict_weights = F.softmax(dict_logits, dim=-1)
+                xe_head = torch.matmul(dict_weights, dict_emb_head)
+                
+                # Store results
+                xe_new[:, :, start_idx:end_idx] = xe_head
+                dict_loss = F.mse_loss(h_head_norm, xe_head)
+                total_dict_loss += dict_loss
+                dict_weights_all.append(dict_weights)
             
             xe = xe + xe_new
-            aux_outputs['dict_loss'] = total_dict_loss / len(self.dict_ffns)
+            aux_outputs['dict_loss'] = total_dict_loss / self.n_heads
             aux_outputs['dict_weights'] = torch.stack(dict_weights_all, dim=1)
         else:
             # Standard MLP
