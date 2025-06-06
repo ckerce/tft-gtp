@@ -1,161 +1,130 @@
-#!/usr/bin/env python3
-"""
-Check loss on vanilla transformer for comparison with TFT-Dict.
-"""
-
 import torch
-import sys
-sys.path.insert(0, 'src')
+import os
+from typing import Dict, Any
 
-from models import get_model
-from mytokenizers import create_tokenizer
-
-# === MODIFY THIS PATH ===
-VANILLA_CHECKPOINT_PATH = "./outputs/wiki_compare/vanilla/vanilla_model.pt"  # Your vanilla model path
-
-def check_vanilla_loss():
-    """Check vanilla model loss on same test texts."""
+def analyze_pt_file_parameters(pt_file_path: str, detailed: bool = True) -> Dict[str, Any]:
+    """
+    Analyze parameter count from a saved .pt file without loading the full model.
     
-    print(f"🔍 Loading vanilla checkpoint: {VANILLA_CHECKPOINT_PATH}")
-    
-    # Load checkpoint
-    checkpoint = torch.load(VANILLA_CHECKPOINT_PATH, map_location='cpu')
-    config = checkpoint['config']
-    
-    print(f"📊 Vanilla Model: {config.n_layers}L-{config.n_heads}H-{config.d_model}D")
-    
-    # Create tokenizer
-    tokenizer = create_tokenizer('gpt2')
-    
-    # Same test texts as TFT-Dict
-    test_texts = [
-        "The transformer architecture revolutionized natural language processing.",
-        "Machine learning models require careful optimization and tuning.",
-        "Artificial intelligence systems can process vast amounts of data.",
-        "Neural networks learn complex patterns through gradient descent.",
-        "Dictionary learning provides interpretable feature representations."
-    ]
-    
-    print(f"\n🧪 Testing vanilla model on {len(test_texts)} sample texts...")
-    
-    # === VANILLA MODEL ===
-    print(f"\n" + "="*60)
-    print(f"🏛️ VANILLA TRANSFORMER (Trained)")
-    print(f"="*60)
-    
-    vanilla_model = get_model('vanilla', config)
-    vanilla_model.load_state_dict(checkpoint['model_state_dict'])
-    vanilla_model.eval()
-    
-    total_loss = 0
-    valid_samples = 0
-    
-    with torch.no_grad():
-        for i, text in enumerate(test_texts):
-            input_ids = torch.tensor([tokenizer.encode(text)])
-            outputs = vanilla_model(input_ids, labels=input_ids)
-            
-            loss = outputs.get('loss')
-            
-            if loss is not None:
-                loss_val = loss.item()
-                print(f"  Text {i+1}: Loss={loss_val:.4f} | '{text[:60]}...'")
-                
-                total_loss += loss_val
-                valid_samples += 1
-            else:
-                print(f"  Text {i+1}: Loss=None | '{text[:60]}...'")
-    
-    if valid_samples > 0:
-        avg_loss = total_loss / valid_samples
+    Args:
+        pt_file_path: Path to the .pt file
+        detailed: If True, show detailed breakdown
         
-        print(f"\n📊 VANILLA MODEL SUMMARY:")
-        print(f"  Average Loss:    {avg_loss:.4f}")
-        print(f"  Perplexity:      {torch.exp(torch.tensor(avg_loss)).item():.2f}")
-        print(f"  Valid samples:   {valid_samples}/{len(test_texts)}")
-        
-        # Compare with simple texts
-        print(f"\n🧪 Testing on simpler texts for comparison...")
-        
-        simple_texts = [
-            "The cat is happy today.",
-            "She walked to the store quickly.",
-            "The book is on the table.",
-            "I like to read books.",
-            "The sun is bright and warm."
-        ]
-        
-        simple_total = 0
-        simple_count = 0
-        
-        with torch.no_grad():
-            for i, text in enumerate(simple_texts):
-                input_ids = torch.tensor([tokenizer.encode(text)])
-                outputs = vanilla_model(input_ids, labels=input_ids)
-                
-                loss = outputs.get('loss')
-                if loss is not None:
-                    loss_val = loss.item()
-                    print(f"  Simple {i+1}: Loss={loss_val:.4f} | '{text}'")
-                    simple_total += loss_val
-                    simple_count += 1
-        
-        if simple_count > 0:
-            simple_avg = simple_total / simple_count
-            print(f"\n📈 COMPARISON:")
-            print(f"  Technical text loss:  {avg_loss:.4f}")
-            print(f"  Simple text loss:     {simple_avg:.4f}")
-            print(f"  Difficulty ratio:     {avg_loss/simple_avg:.2f}x")
-            
-            print(f"\n🎯 ANALYSIS:")
-            if simple_avg < 3.0:
-                print(f"  ✅ Good performance on simple text (training-like data)")
-            elif simple_avg < 5.0:
-                print(f"  ⚠️ Moderate performance on simple text")
-            else:
-                print(f"  ❌ Poor performance even on simple text")
-                
-            if avg_loss / simple_avg < 2.0:
-                print(f"  ✅ Technical text only moderately harder than simple text")
-            elif avg_loss / simple_avg < 3.0:
-                print(f"  ⚠️ Technical text significantly harder than simple text")
-            else:
-                print(f"  ❌ Technical text much harder than simple text")
-
-def check_initial_vanilla():
-    """Also check untrained vanilla for full comparison."""
-    print(f"\n" + "="*60)
-    print(f"🌱 VANILLA TRANSFORMER (Random Initialization)")
-    print(f"="*60)
+    Returns:
+        Dictionary with parameter analysis
+    """
+    print(f"🔍 ANALYZING: {pt_file_path}")
+    print("=" * 60)
     
-    # Load config but don't load weights
-    checkpoint = torch.load(VANILLA_CHECKPOINT_PATH, map_location='cpu')
-    config = checkpoint['config']
+    if not os.path.exists(pt_file_path):
+        print(f"❌ File not found: {pt_file_path}")
+        return {}
     
-    initial_vanilla = get_model('vanilla', config)
-    initial_vanilla.eval()
-    
-    tokenizer = create_tokenizer('gpt2')
-    test_text = "The transformer architecture revolutionized natural language processing."
-    
-    with torch.no_grad():
-        input_ids = torch.tensor([tokenizer.encode(test_text)])
-        outputs = initial_vanilla(input_ids, labels=input_ids)
-        loss = outputs.get('loss')
-        
-        if loss is not None:
-            print(f"  Initial vanilla loss: {loss.item():.4f}")
-            print(f"  (Expected ~10-11 for random model)")
-
-if __name__ == "__main__":
+    # Load the checkpoint
     try:
-        check_vanilla_loss()
-        check_initial_vanilla()
-    except FileNotFoundError:
-        print(f"❌ Vanilla checkpoint not found at: {VANILLA_CHECKPOINT_PATH}")
-        print(f"Available model files might be:")
-        import os
-        for root, dirs, files in os.walk('./outputs'):
-            for file in files:
-                if 'vanilla' in file.lower() and file.endswith('.pt'):
-                    print(f"  {os.path.join(root, file)}")
+        checkpoint = torch.load(pt_file_path, map_location='cpu')
+        print(f"✅ File loaded successfully")
+    except Exception as e:
+        print(f"❌ Error loading file: {e}")
+        return {}
+    
+    # Check what's in the checkpoint
+    print(f"\n📋 CHECKPOINT CONTENTS:")
+    for key in checkpoint.keys():
+        if isinstance(checkpoint[key], dict):
+            print(f"  {key}: {len(checkpoint[key])} items")
+        else:
+            print(f"  {key}: {type(checkpoint[key])}")
+    
+    # Look for model state dict
+    state_dict = None
+    if 'model_state_dict' in checkpoint:
+        state_dict = checkpoint['model_state_dict']
+        print(f"\n✅ Found model_state_dict")
+    elif 'state_dict' in checkpoint:
+        state_dict = checkpoint['state_dict']
+        print(f"\n✅ Found state_dict")
+    else:
+        # Maybe the checkpoint IS the state dict
+        if all(isinstance(k, str) and '.' in k for k in checkpoint.keys()):
+            state_dict = checkpoint
+            print(f"\n✅ Checkpoint appears to be a state_dict")
+        else:
+            print(f"\n❌ No model state dict found")
+            return {}
+    
+    # Analyze parameters
+    total_params = 0
+    trainable_params = 0
+    component_breakdown = {}
+    
+    print(f"\n🔢 PARAMETER ANALYSIS:")
+    print("-" * 40)
+    
+    for param_name, param_tensor in state_dict.items():
+        param_count = param_tensor.numel()
+        total_params += param_count
+        trainable_params += param_count  # Assume all are trainable in state dict
+        
+        # Group by component (first part before first dot)
+        component = param_name.split('.')[0] if '.' in param_name else param_name
+        
+        if component not in component_breakdown:
+            component_breakdown[component] = {
+                'params': 0,
+                'tensors': [],
+                'memory_mb': 0
+            }
+        
+        component_breakdown[component]['params'] += param_count
+        component_breakdown[component]['memory_mb'] += param_count * 4 / (1024**2)  # float32
+        component_breakdown[component]['tensors'].append({
+            'name': param_name,
+            'shape': list(param_tensor.shape),
+            'params': param_count
+        })
+    
+    # Print results
+    print(f"📊 TOTAL PARAMETERS: {total_params:,} ({total_params/1e6:.2f}M)")
+    print(f"💾 MEMORY: {total_params * 4 / (1024**2):.1f} MB")
+    
+    print(f"\n📋 COMPONENT BREAKDOWN:")
+    print("-" * 60)
+    
+    # Sort components by parameter count
+    sorted_components = sorted(component_breakdown.items(), 
+                             key=lambda x: x[1]['params'], reverse=True)
+    
+    for component, info in sorted_components:
+        percentage = (info['params'] / total_params) * 100
+        print(f"{component:25} {info['params']:>10,} ({percentage:5.1f}%) {info['memory_mb']:6.1f}MB")
+        
+        if detailed and len(info['tensors']) > 1:
+            # Show individual tensors in this component
+            for tensor_info in sorted(info['tensors'], key=lambda x: x['params'], reverse=True):
+                if tensor_info['params'] > 1000:  # Only show significant tensors
+                    print(f"  ├─ {tensor_info['name']:35} {str(tensor_info['shape']):>20} {tensor_info['params']:>8,}")
+    
+    # Check for config information
+    config_info = {}
+    if 'config' in checkpoint:
+        config = checkpoint['config']
+        print(f"\n⚙️ MODEL CONFIG:")
+        if hasattr(config, '__dict__'):
+            config_dict = vars(config)
+        elif hasattr(config, '_asdict'):
+            config_dict = config._asdict()
+        else:
+            config_dict = config if isinstance(config, dict) else {}
+            
+        for key, value in config_dict.items():
+            if key in ['n_layers', 'd_model', 'n_heads', 'vocab_size', 'd_ff', 'use_dict_ffn']:
+                config_info[key] = value
+                print(f"  {key}: {value}")
+    
+    return {
+        'total_params': total_params,
+        'component_breakdown': component_breakdown,
+        'config_info': config_info,
+        'file_size_mb': os.path.getsize(pt_file_path) / (1024**2)
+    }
