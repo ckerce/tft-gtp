@@ -1,7 +1,7 @@
 # src/trainers/accelerate_trainer.py
 """
-Accelerate-enhanced trainer for distributed training and mixed precision.
-Drop-in replacement for SimpleTrainer with scaling capabilities.
+Accelerate-enhanced trainer for distributed training and mixed precision with validation.
+Drop-in replacement for SimpleTrainer with scaling capabilities and validation support.
 """
 
 import time
@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Dict, Any, Optional, List
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from tqdm.auto import tqdm
 from accelerate import Accelerator
 from accelerate.utils import set_seed
@@ -21,13 +21,14 @@ logger = logging.getLogger(__name__)
 
 class AccelerateTrainer(BaseTrainer):
     """
-    Accelerate-enhanced trainer with multi-GPU support and mixed precision.
+    Accelerate-enhanced trainer with multi-GPU support, mixed precision, and validation.
     
     This trainer is a drop-in replacement for SimpleTrainer but adds:
     - Multi-GPU/multi-node training
     - Mixed precision (fp16/bf16)
     - Gradient accumulation
     - Better memory management
+    - Simple validation using training data split
     """
 
     def __init__(self,
@@ -44,9 +45,12 @@ class AccelerateTrainer(BaseTrainer):
                  gradient_accumulation_steps: int = 1,
                  mixed_precision: str = "no",  # "no", "fp16", "bf16"
                  seed: Optional[int] = None,
-                 dataloader_config: Optional[Dict] = None):
+                 dataloader_config: Optional[Dict] = None,
+                 # Validation parameters
+                 validation_split: float = 0.1,
+                 validate_every_n_epochs: int = 1):
         """
-        Initialize the Accelerate trainer.
+        Initialize the Accelerate trainer with validation.
 
         Args:
             model: Model to train.
@@ -62,6 +66,8 @@ class AccelerateTrainer(BaseTrainer):
             mixed_precision: Mixed precision mode ("no", "fp16", "bf16").
             seed: Random seed for reproducibility.
             dataloader_config: Additional dataloader configuration.
+            validation_split: Fraction of training data to use for validation.
+            validate_every_n_epochs: Run validation every N epochs.
         """
         # Initialize accelerator first
         self.accelerator = Accelerator(
@@ -78,13 +84,27 @@ class AccelerateTrainer(BaseTrainer):
         else:
             self.seed = None
         
+        # Handle validation data splitting BEFORE accelerator.prepare()
+        self.validate_every_n_epochs = validate_every_n_epochs
+        self.eval_dataloader = None
+        
+        if validation_split > 0:
+            # Split training data for validation
+            train_dataloader, eval_dataloader = self._split_dataloader(dataloader, validation_split)
+            dataloader = train_dataloader
+            self.eval_dataloader = eval_dataloader
+            if self.accelerator.is_main_process:
+                logger.info(f"Split data: {validation_split:.1%} for validation")
+        
         # Prepare model, optimizer, and dataloader with Accelerator
-        model, optimizer, dataloader = self.accelerator.prepare(
-            model, optimizer, dataloader
-        )
+        prepared_items = [model, optimizer, dataloader]
+        if self.eval_dataloader:
+            prepared_items.append(self.eval_dataloader)
+            model, optimizer, dataloader, self.eval_dataloader = self.accelerator.prepare(*prepared_items)
+        else:
+            model, optimizer, dataloader = self.accelerator.prepare(*prepared_items)
         
         # Initialize base trainer with prepared components
-        # Note: device is now handled by accelerator
         super().__init__(
             model=model,
             dataloader=dataloader,
@@ -122,11 +142,52 @@ class AccelerateTrainer(BaseTrainer):
             logger.info(f"  Epochs: {self.num_epochs}")
             if self.clip_grad_norm:
                 logger.info(f"  Gradient Clipping: {self.clip_grad_norm}")
+            if self.eval_dataloader:
+                logger.info(f"  Validation enabled, running every {validate_every_n_epochs} epoch(s)")
             if self.callbacks:
                 logger.info(f"  Callbacks: {[cb.__class__.__name__ for cb in self.callbacks]}")
 
+    def _split_dataloader(self, dataloader: DataLoader, validation_split: float):
+        """Split dataloader into train and validation sets."""
+        dataset = dataloader.dataset
+        dataset_size = len(dataset)
+        val_size = int(dataset_size * validation_split)
+        train_size = dataset_size - val_size
+        
+        # Create indices for train/val split
+        indices = list(range(dataset_size))
+        train_indices = indices[:train_size]
+        val_indices = indices[train_size:]
+        
+        # Create subset datasets
+        train_dataset = Subset(dataset, train_indices)
+        val_dataset = Subset(dataset, val_indices)
+        
+        # Create new dataloaders with same parameters
+        train_dataloader = DataLoader(
+            train_dataset,
+            batch_size=dataloader.batch_size,
+            shuffle=True,  # Keep shuffling for training
+            collate_fn=dataloader.collate_fn,
+            num_workers=dataloader.num_workers,
+            drop_last=dataloader.drop_last
+        )
+        
+        val_dataloader = DataLoader(
+            val_dataset,
+            batch_size=dataloader.batch_size,
+            shuffle=False,  # No shuffling for validation
+            collate_fn=dataloader.collate_fn,
+            num_workers=dataloader.num_workers,
+            drop_last=False
+        )
+        
+        if self.accelerator.is_main_process:
+            logger.info(f"Data split: {len(train_dataset)} train, {len(val_dataset)} validation")
+        return train_dataloader, val_dataloader
+
     def train(self) -> Dict[str, Any]:
-        """Execute the training loop with Accelerator."""
+        """Execute the training loop with Accelerator and validation."""
         if self.accelerator.is_main_process:
             logger.info("Starting training with Accelerator...")
         
@@ -140,7 +201,9 @@ class AccelerateTrainer(BaseTrainer):
         total_start_time = time.time()
         training_metrics = {
             'epoch_losses': [],
+            'val_losses': [],
             'final_loss': float('nan'),
+            'final_val_loss': float('nan'),
             'training_time': 0.0
         }
 
@@ -224,24 +287,47 @@ class AccelerateTrainer(BaseTrainer):
 
             if self.accelerator.is_main_process:
                 epoch_duration = time.time() - epoch_start_time
-                self.log_epoch(epoch, avg_epoch_loss)
+                
+                # Run validation if available and scheduled
+                val_metrics = {}
+                if self.eval_dataloader and epoch % self.validate_every_n_epochs == 0:
+                    val_results = self.evaluate(self.eval_dataloader)
+                    val_loss = val_results.get('loss', float('nan'))
+                    training_metrics['val_losses'].append(val_loss)
+                    val_metrics.update(val_results)
+                    logger.info(f"Validation - Loss: {val_loss:.6f}, Perplexity: {val_results.get('perplexity', 'N/A'):.6f}")
 
-                epoch_end_logs = {'loss': avg_epoch_loss, 'epoch_duration': epoch_duration}
+                # Log epoch with validation metrics
+                log_metrics = {'val_loss': val_metrics.get('loss'), 'val_perplexity': val_metrics.get('perplexity')}
+                self.log_epoch(epoch, avg_epoch_loss, metrics=log_metrics)
+
+                epoch_end_logs = {
+                    'loss': avg_epoch_loss, 
+                    'epoch_duration': epoch_duration,
+                    **val_metrics
+                }
                 self.trainer_state.update(epoch_end_logs)
                 self._trigger_callbacks('on_epoch_end', epoch, logs=self.trainer_state)
 
                 # Save checkpoint (only main process)
                 if self.output_dir:
                     checkpoint_path = os.path.join(self.output_dir, f"checkpoint_epoch_{epoch}.pt")
-                    self.save_checkpoint(checkpoint_path, epoch=epoch, loss=avg_epoch_loss)
+                    checkpoint_data = {'loss': avg_epoch_loss}
+                    if val_metrics:
+                        checkpoint_data['val_loss'] = val_metrics.get('loss')
+                    self.save_checkpoint(checkpoint_path, epoch=epoch, **checkpoint_data)
 
         if training_metrics['epoch_losses']:
             training_metrics['final_loss'] = training_metrics['epoch_losses'][-1]
+        if training_metrics['val_losses']:
+            training_metrics['final_val_loss'] = training_metrics['val_losses'][-1]
         training_metrics['training_time'] = time.time() - total_start_time
 
         if self.accelerator.is_main_process:
             logger.info(f"Training completed in {training_metrics['training_time']:.2f}s")
-            logger.info(f"Final average training loss: {training_metrics['final_loss']:.6f}")
+            logger.info(f"Final training loss: {training_metrics['final_loss']:.6f}")
+            if training_metrics['final_val_loss'] != float('nan'):
+                logger.info(f"Final validation loss: {training_metrics['final_val_loss']:.6f}")
 
             self.trainer_state['status'] = 'Completed'
             self.trainer_state.update(training_metrics)
@@ -251,18 +337,16 @@ class AccelerateTrainer(BaseTrainer):
 
     def evaluate(self, eval_dataloader: Optional[DataLoader] = None) -> Dict[str, Any]:
         """Evaluate the model with Accelerator support."""
-        if self.accelerator.is_main_process:
-            logger.info("Starting evaluation with Accelerator...")
-        
+        if eval_dataloader is None:
+            eval_dataloader = self.eval_dataloader
+            
         if eval_dataloader is None:
             if self.accelerator.is_main_process:
-                logger.warning("eval_dataloader not provided. Using training dataloader.")
-            eval_dataloader = self.dataloader
-        else:
-            # Prepare eval dataloader if it's not already prepared
-            eval_dataloader = self.accelerator.prepare(eval_dataloader)
+                logger.warning("No validation data available. Skipping evaluation.")
+            return {}
 
         if self.accelerator.is_main_process:
+            logger.debug("Starting validation with Accelerator...")
             self.trainer_state['eval_dataloader_len'] = len(eval_dataloader)
             self._trigger_callbacks('on_evaluate_begin', logs=self.trainer_state)
 
@@ -274,7 +358,7 @@ class AccelerateTrainer(BaseTrainer):
         with torch.no_grad():
             # Create progress bar only on main process
             if self.accelerator.is_main_process:
-                eval_iter = tqdm(eval_dataloader, desc="Evaluating")
+                eval_iter = tqdm(eval_dataloader, desc="Validating", leave=False)
             else:
                 eval_iter = eval_dataloader
 
@@ -288,7 +372,7 @@ class AccelerateTrainer(BaseTrainer):
 
                 if loss is None or torch.isnan(loss):
                     if self.accelerator.is_main_process:
-                        logger.warning(f"Eval Batch {batch_idx}: Loss is None or NaN. Skipping.")
+                        logger.warning(f"Validation Batch {batch_idx}: Loss is None or NaN. Skipping.")
                         self._trigger_callbacks('on_batch_end', batch_idx, logs={'loss': None})
                     continue
 
@@ -318,7 +402,7 @@ class AccelerateTrainer(BaseTrainer):
         self.model.train()
 
         if self.accelerator.is_main_process:
-            logger.info(f"Evaluation results: Loss: {eval_metrics['loss']:.6f}, Perplexity: {eval_metrics['perplexity']:.6f}")
+            logger.debug(f"Validation results: Loss: {eval_metrics['loss']:.6f}, Perplexity: {eval_metrics['perplexity']:.6f}")
             self.trainer_state.update(eval_metrics)
             self._trigger_callbacks('on_evaluate_end', logs=self.trainer_state)
 
